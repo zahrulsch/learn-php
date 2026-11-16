@@ -1,10 +1,73 @@
 <script setup lang="ts">
 // Ornamen hero: kode dan output PHPStan asli dari Bab 1, jadi isinya tetap benar kalau ada yang membacanya.
+// Baris 11 diketik, lalu `composer check` dijalankan dan error-nya muncul. Sekali saja, saat halaman dimuat.
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+
+// Baris 11 dipecah per token supaya warnanya tetap benar selama diketik
+const line11 = [
+  { c: 'kw', t: 'echo' },
+  { c: '', t: ' ' },
+  { c: 'fn', t: 'greet' },
+  { c: 'p', t: '(' },
+  { c: 'bad', t: '42' },
+  { c: 'p', t: ')' },
+  { c: '', t: ' ' },
+  { c: 'p', t: '.' },
+  { c: '', t: ' PHP_EOL' },
+  { c: 'p', t: ';' },
+]
+const line11Length = line11.reduce((n, s) => n + s.t.length, 0)
+const command = 'composer check'
+
+// Render server dan render pertama di browser sama-sama mulai dari keadaan kosong
+const typed = ref(0)
+const typedCommand = ref(0)
+const phase = ref<'code' | 'command' | 'running' | 'done'>('code')
+
+const visible11 = computed(() => {
+  let left = typed.value
+  return line11
+    .map((s) => {
+      const t = s.t.slice(0, Math.max(0, left))
+      left -= s.t.length
+      return { ...s, t }
+    })
+    .filter((s) => s.t)
+})
+
+const timers: number[] = []
+const wait = (ms: number) => new Promise<void>((r) => timers.push(window.setTimeout(r, ms)))
+
+onMounted(async () => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    typed.value = line11Length
+    typedCommand.value = command.length
+    phase.value = 'done'
+    return
+  }
+  await wait(500)
+  while (typed.value < line11Length) {
+    typed.value++
+    await wait(45 + Math.random() * 45)
+  }
+  await wait(450)
+  phase.value = 'command'
+  while (typedCommand.value < command.length) {
+    typedCommand.value++
+    await wait(40 + Math.random() * 35)
+  }
+  await wait(250)
+  phase.value = 'running'
+  await wait(650)
+  phase.value = 'done'
+})
+
+onUnmounted(() => timers.forEach(clearTimeout))
 </script>
 
 <template>
   <div class="hero-code" role="img" aria-label="Contoh dari Bab 1: PHPStan menolak greet(42) karena parameter $name bertipe string">
-    <div class="window" aria-hidden="true">
+    <div class="window" :class="phase" aria-hidden="true">
       <div class="tab">
         <span class="file">src/hello.php</span>
         <span class="lang">PHP 8.5</span>
@@ -19,9 +82,11 @@
 <span class="ln">8</span><span class="p">}</span>
 <span class="ln">9</span>
 <span class="ln">10</span><span class="kw">echo</span> <span class="fn">greet</span><span class="p">(</span><span class="str">'dunia'</span><span class="p">)</span> <span class="p">.</span> PHP_EOL<span class="p">;</span>
-<span class="ln">11</span><span class="kw">echo</span> <span class="fn">greet</span><span class="p">(</span><span class="bad">42</span><span class="p">)</span> <span class="p">.</span> PHP_EOL<span class="p">;</span></code></pre>
+<span class="ln">11</span><span v-for="(s, i) in visible11" :key="i" :class="s.c">{{ s.t }}</span><span v-if="phase === 'code'" class="caret" /></code></pre>
       <div class="term">
-        <p class="cmd"><span class="prompt">$</span> composer check</p>
+        <p class="cmd">
+          <span class="prompt">$</span>{{ command.slice(0, typedCommand) }}<span v-if="phase === 'command'" class="caret" /><span v-if="phase === 'running'" class="running" />
+        </p>
         <p class="err"><span class="line-no">11</span><span>Parameter #1 $name of function greet expects string, int given.</span></p>
         <p class="sum">[ERROR] Found 1 error</p>
       </div>
@@ -116,9 +181,24 @@
   color: var(--vp-c-text-3);
 }
 
-/* Satu-satunya gerak: garis bergelombang di bawah 42 digambar setelah halaman dimuat */
+.caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.15em;
+  margin-left: 1px;
+  vertical-align: -0.2em;
+  background: var(--vp-c-brand-1);
+  animation: blink 1s steps(1) infinite;
+}
+
+/* Garis bergelombang di bawah 42 baru digambar setelah PHPStan "selesai" */
 .bad {
   position: relative;
+  color: var(--vp-c-text-1);
+  transition: color 0.3s;
+}
+
+.done .bad {
   color: var(--vp-c-danger-1);
   font-weight: 600;
 }
@@ -134,7 +214,10 @@
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='4' viewBox='0 0 8 4'%3E%3Cpath d='M0 3 2 1l2 2 2-2 2 2' fill='none' stroke='%23000' stroke-width='1.2'/%3E%3C/svg%3E") repeat-x left center / 0.6em 100%;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='4' viewBox='0 0 8 4'%3E%3Cpath d='M0 3 2 1l2 2 2-2 2 2' fill='none' stroke='%23000' stroke-width='1.2'/%3E%3C/svg%3E") repeat-x left center / 0.6em 100%;
   clip-path: inset(0 100% 0 0);
-  animation: squiggle 0.5s ease-out 0.7s forwards;
+}
+
+.done .bad::after {
+  animation: squiggle 0.45s ease-out 0.15s forwards;
 }
 
 .term {
@@ -153,10 +236,24 @@
   color: var(--vp-c-brand-1);
 }
 
+/* Titik-titik selama PHPStan "berjalan" */
+.running::after {
+  content: '';
+  margin-left: 0.6em;
+  color: var(--vp-c-text-3);
+  animation: dots 0.6s steps(1) infinite;
+}
+
+/* Tinggi panel terminal tetap sejak awal supaya kartu tidak melompat saat error muncul */
 .err,
 .sum {
-  opacity: 0;
-  animation: appear 0.3s ease-out 1.2s forwards;
+  visibility: hidden;
+}
+
+.done .err,
+.done .sum {
+  visibility: visible;
+  animation: appear 0.25s ease-out both;
 }
 
 .err {
@@ -179,6 +276,24 @@
   font-weight: 600;
 }
 
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes dots {
+  0% {
+    content: '.';
+  }
+  33% {
+    content: '..';
+  }
+  66% {
+    content: '...';
+  }
+}
+
 @keyframes squiggle {
   to {
     clip-path: inset(0 0 0 0);
@@ -186,19 +301,20 @@
 }
 
 @keyframes appear {
-  to {
-    opacity: 1;
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bad::after {
-    clip-path: none;
+  .caret,
+  .done .err,
+  .done .sum {
     animation: none;
   }
-  .err,
-  .sum {
-    opacity: 1;
+  .done .bad::after {
+    clip-path: none;
     animation: none;
   }
 }

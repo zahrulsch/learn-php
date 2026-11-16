@@ -53,3 +53,43 @@
   --vp-c-brand-3: oklch(51.1% 0.096 186.391); /* teal-700: latar tombol */
   --vp-c-brand-soft: oklch(70.4% 0.14 182.503 / 0.16);
 }
+
+/* Ganti tema: lingkaran yang menyebar dari tombol (View Transitions, hanya selama kelas theme-transition terpasang) */
+html.theme-transition::view-transition-old(root),
+html.theme-transition::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.theme-transition::view-transition-old(root),
+html.theme-transition.dark::view-transition-new(root) {
+  z-index: 1;
+}
+
+html.theme-transition::view-transition-new(root),
+html.theme-transition.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+
+/* Pindah halaman: konten baru memudar masuk dan teks artikel sedikit naik. Hanya teks artikel yang
+   digeser, karena transform pada pembungkus membuat outline di kanan kehilangan posisi sticky-nya. */
+@media (prefers-reduced-motion: no-preference) {
+  .VPContent.page-enter {
+    animation: page-fade 220ms ease-out backwards;
+  }
+  .VPContent.page-enter .vp-doc {
+    animation: page-rise 320ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  }
+}
+
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes page-rise {
+  from {
+    transform: translateY(12px);
+  }
+}

@@ -188,6 +188,54 @@ const parts = [
   color: var(--vp-c-text-2);
 }
 
+/* Jalur menyala mengikuti scroll: nomor bab menyala dan garisnya tergambar saat stasiun masuk layar.
+   Browser yang belum mendukung scroll-driven animation menampilkan peta diam seperti biasa. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .station {
+      view-timeline: --station block;
+    }
+    /* Rentang "entry": animasi selesai begitu stasiun seluruhnya masuk layar. Stasiun terakhir di dasar
+       halaman tidak pernah naik ke tengah layar, jadi rentang yang memakai posisi tengah membuatnya
+       tertinggal setengah menyala walaupun scroll sudah mentok. */
+    .stop {
+      animation: station-on linear both;
+      animation-timeline: --station;
+      animation-range: entry 0% entry 60%;
+    }
+    .body {
+      animation: body-on linear both;
+      animation-timeline: --station;
+      animation-range: entry 0% entry 60%;
+    }
+    .station:not(:last-child)::before {
+      transform-origin: top;
+      animation: line-draw linear both;
+      animation-timeline: --station;
+      animation-range: entry 30% entry 100%;
+    }
+  }
+}
+
+@keyframes station-on {
+  from {
+    opacity: 0.2;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes body-on {
+  from {
+    opacity: 0.25;
+  }
+}
+
+@keyframes line-draw {
+  from {
+    transform: scaleY(0);
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
