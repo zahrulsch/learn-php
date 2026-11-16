@@ -2,7 +2,7 @@
 
 Aplikasi tugas dari [Bab 8](/08-laravel-dasar) masih bisa dibuka siapa saja, dan setiap klik memuat ulang seluruh halaman. Di bab ini aplikasi itu mendapat akun pengguna, daftar yang interaktif dengan Livewire, email yang dikirim di latar belakang lewat queue, API bertoken, dan test otomatis. Bab ditutup dengan melihat lebih dalam cara Larastan menjaga tipe di tengah semua itu.
 
-Lanjutkan di proyek `latihan/laravel-dasar`. Semua perintah `php artisan` dan `composer` tetap dijalankan dari shell container (`docker compose exec app bash`).
+Lanjutkan di proyek `practice/laravel-basics`. Semua perintah `php artisan` dan `composer` tetap dijalankan dari shell container (`docker compose exec app bash`).
 
 ## Autentikasi
 

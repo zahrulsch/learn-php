@@ -2,48 +2,48 @@
 
 Model objek PHP berbasis class, mirip TS dan Java. Kalau kamu datang dari Rust, petanya begini: class adalah `struct` beserta `impl`-nya, interface adalah `trait`, dan tidak ada ownership. Bab ini fokus ke fitur modern yang membuat class PHP ketat dan immutable, sampai PHP 8.5.
 
-Lanjutkan di proyek `latihan/php-dasar`. Buat folder `src/Bab04`, dan awali setiap file dengan `namespace Belajar\Bab04;`.
+Lanjutkan di proyek `practice/php-basics`. Buat folder `src/Ch04`, dan awali setiap file dengan `namespace Learn\Ch04;`.
 
 ## Class, property, dan constructor
 
-Buat `src/Bab04/produk.php`:
+Buat `src/Ch04/product.php`:
 
-<!-- file: src/Bab04/produk.php -->
+<!-- file: src/Ch04/product.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-final class Produk
+final class Product
 {
     public function __construct(
-        public readonly string $nama,
-        public readonly int $harga,
-        private int $stok = 0,
+        public readonly string $name,
+        public readonly int $price,
+        private int $stock = 0,
     ) {
     }
 
-    public function stok(): int
+    public function stock(): int
     {
-        return $this->stok;
+        return $this->stock;
     }
 
-    public function kurangiStok(int $jumlah): void
+    public function reduceStock(int $quantity): void
     {
-        if ($jumlah > $this->stok) {
-            throw new \DomainException("Stok {$this->nama} tidak cukup");
+        if ($quantity > $this->stock) {
+            throw new \DomainException("Stok {$this->name} tidak cukup");
         }
 
-        $this->stok -= $jumlah;
+        $this->stock -= $quantity;
     }
 }
 
-$kopi = new Produk('Kopi', 18000, stok: 10);
-$kopi->kurangiStok(3);
+$coffee = new Product('Kopi', 18000, stock: 10);
+$coffee->reduceStock(3);
 
-echo "{$kopi->nama}: Rp {$kopi->harga}, stok {$kopi->stok()}" . PHP_EOL;
+echo "{$coffee->name}: Rp {$coffee->price}, stok {$coffee->stock()}" . PHP_EOL;
 ```
 
 ```text
@@ -56,75 +56,75 @@ Kopi: Rp 18000, stok 7
 - **`final`** melarang class diturunkan. Jadikan ini kebiasaan bawaan; lepaskan hanya kalau memang dirancang untuk diturunkan.
 - **Visibility bawaan adalah `public`.** Selalu tulis secara eksplisit. Pilihannya `public`, `protected` (class itu dan turunannya), dan `private`. Tidak ada padanan `pub(crate)`.
 
-Sekarang langgar aturannya. Tempel di akhir `produk.php`:
+Sekarang langgar aturannya. Tempel di akhir `product.php`:
 
-<!-- demo: produk-salah append: src/Bab04/produk.php -->
+<!-- demo: product-wrong append: src/Ch04/product.php -->
 ```php
-$kopi->harga = 20000;
-echo $kopi->stok . PHP_EOL;
+$coffee->price = 20000;
+echo $coffee->stock . PHP_EOL;
 ```
 
 ```text
-Assign to protected(set) property Belajar\Bab04\Produk::$harga.
-Access to private property Belajar\Bab04\Produk::$stok.
+Assign to protected(set) property Learn\Ch04\Product::$price.
+Access to private property Learn\Ch04\Product::$stock.
 ```
 
 ```text
-Fatal error: Uncaught Error: Cannot modify readonly property Belajar\Bab04\Produk::$harga
+Fatal error: Uncaught Error: Cannot modify readonly property Learn\Ch04\Product::$price
 ```
 
-PHPStan menyebut `$harga` sebagai `protected(set)` karena begitulah PHP memperlakukan property `readonly`: boleh dibaca dari luar, tetapi hanya boleh diisi dari dalam class dan turunannya. Istilah itu dijelaskan di bagian property hooks di bawah.
+PHPStan menyebut `$price` sebagai `protected(set)` karena begitulah PHP memperlakukan property `readonly`: boleh dibaca dari luar, tetapi hanya boleh diisi dari dalam class dan turunannya. Istilah itu dijelaskan di bagian property hooks di bawah.
 
 ## Interface dan nominal typing
 
-Interface di PHP adalah padanan `trait` di Rust: daftar method yang harus dipenuhi. Buat `src/Bab04/diskon.php`:
+Interface di PHP adalah padanan `trait` di Rust: daftar method yang harus dipenuhi. Buat `src/Ch04/discount.php`:
 
-<!-- file: src/Bab04/diskon.php -->
+<!-- file: src/Ch04/discount.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-interface Diskon
+interface Discount
 {
-    public function hitung(int $subtotal): int;
+    public function calculate(int $subtotal): int;
 }
 
-final readonly class DiskonPersen implements Diskon
+final readonly class PercentDiscount implements Discount
 {
-    public function __construct(private int $persen)
+    public function __construct(private int $percent)
     {
     }
 
     #[\Override]
-    public function hitung(int $subtotal): int
+    public function calculate(int $subtotal): int
     {
-        return intdiv($subtotal * $this->persen, 100);
+        return intdiv($subtotal * $this->percent, 100);
     }
 }
 
-final readonly class DiskonTetap implements Diskon
+final readonly class FixedDiscount implements Discount
 {
-    public function __construct(private int $potongan)
+    public function __construct(private int $amount)
     {
     }
 
     #[\Override]
-    public function hitung(int $subtotal): int
+    public function calculate(int $subtotal): int
     {
-        return min($this->potongan, $subtotal);
+        return min($this->amount, $subtotal);
     }
 }
 
-function totalBayar(int $subtotal, Diskon $diskon): int
+function totalPayment(int $subtotal, Discount $discount): int
 {
-    return $subtotal - $diskon->hitung($subtotal);
+    return $subtotal - $discount->calculate($subtotal);
 }
 
-echo totalBayar(100000, new DiskonPersen(10)) . PHP_EOL;
-echo totalBayar(100000, new DiskonTetap(25000)) . PHP_EOL;
+echo totalPayment(100000, new PercentDiscount(10)) . PHP_EOL;
+echo totalPayment(100000, new FixedDiscount(25000)) . PHP_EOL;
 ```
 
 ```text
@@ -137,102 +137,102 @@ echo totalBayar(100000, new DiskonTetap(25000)) . PHP_EOL;
 
 ### Bentuk yang sama tidak cukup
 
-Di TS, objek apa pun yang punya method `hitung` dengan bentuk yang cocok bisa dipakai sebagai `Diskon`. Di PHP tidak. Tempel di akhir `diskon.php`:
+Di TS, objek apa pun yang punya method `calculate` dengan bentuk yang cocok bisa dipakai sebagai `Discount`. Di PHP tidak. Tempel di akhir `discount.php`:
 
-<!-- demo: struktural append: src/Bab04/diskon.php -->
+<!-- demo: structural append: src/Ch04/discount.php -->
 ```php
-final readonly class DiskonPalsu
+final readonly class FakeDiscount
 {
-    public function hitung(int $subtotal): int
+    public function calculate(int $subtotal): int
     {
         return 0;
     }
 }
 
-echo totalBayar(100000, new DiskonPalsu()) . PHP_EOL;
+echo totalPayment(100000, new FakeDiscount()) . PHP_EOL;
 ```
 
 ```text
-Parameter #2 $diskon of function Belajar\Bab04\totalBayar expects Belajar\Bab04\Diskon, Belajar\Bab04\DiskonPalsu given.
+Parameter #2 $discount of function Learn\Ch04\totalPayment expects Learn\Ch04\Discount, Learn\Ch04\FakeDiscount given.
 ```
 
 ```text
-Fatal error: Uncaught TypeError: Belajar\Bab04\totalBayar(): Argument #2 ($diskon) must be of type Belajar\Bab04\Diskon, Belajar\Bab04\DiskonPalsu given
+Fatal error: Uncaught TypeError: Learn\Ch04\totalPayment(): Argument #2 ($discount) must be of type Learn\Ch04\Discount, Learn\Ch04\FakeDiscount given
 ```
 
 PHP memakai *nominal typing*, seperti Rust: sebuah class memenuhi interface hanya kalau menyatakannya lewat `implements`, sama seperti `impl Trait for Type` yang harus ditulis.
 
 ## Inheritance dan tipe gabungan
 
-Buat `src/Bab04/bentuk.php`:
+Buat `src/Ch04/shape.php`:
 
-<!-- file: src/Bab04/bentuk.php -->
+<!-- file: src/Ch04/shape.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-abstract readonly class Bentuk
+abstract readonly class Shape
 {
-    abstract public function luas(): float;
+    abstract public function area(): float;
 
-    public function ringkasan(): string
+    public function summary(): string
     {
-        return sprintf('%s dengan luas %.2f', static::class, $this->luas());
+        return sprintf('%s dengan luas %.2f', static::class, $this->area());
     }
 }
 
-final readonly class Lingkaran extends Bentuk
+final readonly class Circle extends Shape
 {
-    public function __construct(public float $jariJari)
+    public function __construct(public float $radius)
     {
     }
 
     #[\Override]
-    public function luas(): float
+    public function area(): float
     {
-        return M_PI * $this->jariJari ** 2;
+        return M_PI * $this->radius ** 2;
     }
 }
 
-final readonly class PersegiPanjang extends Bentuk
+final readonly class Rectangle extends Shape
 {
     public function __construct(
-        public float $lebar,
-        public float $tinggi,
+        public float $width,
+        public float $height,
     ) {
     }
 
     #[\Override]
-    public function luas(): float
+    public function area(): float
     {
-        return $this->lebar * $this->tinggi;
+        return $this->width * $this->height;
     }
 }
 
-function deskripsi(Lingkaran|PersegiPanjang $bentuk): string
+function describe(Circle|Rectangle $shape): string
 {
     return match (true) {
-        $bentuk instanceof Lingkaran => "lingkaran berjari-jari {$bentuk->jariJari}",
-        $bentuk instanceof PersegiPanjang => "persegi panjang {$bentuk->lebar} x {$bentuk->tinggi}",
+        $shape instanceof Circle => "lingkaran berjari-jari {$shape->radius}",
+        $shape instanceof Rectangle => "persegi panjang {$shape->width} x {$shape->height}",
     };
 }
 
-$daftar = [new Lingkaran(1.5), new PersegiPanjang(2, 3.5)];
+$shapes = [new Circle(1.5), new Rectangle(2, 3.5)];
 
-foreach ($daftar as $bentuk) {
-    echo deskripsi($bentuk) . PHP_EOL;
-    echo $bentuk->ringkasan() . PHP_EOL;
+foreach ($shapes as $shape) {
+    echo describe($shape) . PHP_EOL;
+    echo $shape->summary() . PHP_EOL;
 }
 ```
 
 ```text
 lingkaran berjari-jari 1.5
-Belajar\Bab04\Lingkaran dengan luas 7.07
+Learn\Ch04\Circle dengan luas 7.07
 persegi panjang 2 x 3.5
-Belajar\Bab04\PersegiPanjang dengan luas 7.00
+Learn\Ch04\Rectangle dengan luas 7.00
 ```
 
 - **`abstract class`** tidak bisa dibuat objeknya dan boleh punya method tanpa badan. Bedanya dengan interface: ia boleh membawa implementasi dan property.
@@ -241,16 +241,16 @@ Belajar\Bab04\PersegiPanjang dengan luas 7.00
 
 ### Pengganti enum pembawa data
 
-[Bab 2](/02-type-system) menyebut enum PHP tidak bisa membawa data. Fungsi `deskripsi()` di atas menunjukkan penggantinya: beberapa class `final`, digabung dengan union type, lalu dipilah dengan `match (true)` dan `instanceof`. Di dalam tiap cabang, PHPStan mempersempit tipenya sehingga `$bentuk->jariJari` hanya bisa diakses di cabang `Lingkaran`.
+[Bab 2](/02-type-system) menyebut enum PHP tidak bisa membawa data. Fungsi `describe()` di atas menunjukkan penggantinya: beberapa class `final`, digabung dengan union type, lalu dipilah dengan `match (true)` dan `instanceof`. Di dalam tiap cabang, PHPStan mempersempit tipenya sehingga `$shape->radius` hanya bisa diakses di cabang `Circle`.
 
-Kelengkapannya juga diperiksa. Tempel di akhir `bentuk.php`:
+Kelengkapannya juga diperiksa. Tempel di akhir `shape.php`:
 
-<!-- demo: bentuk-kurang append: src/Bab04/bentuk.php norun -->
+<!-- demo: shape-incomplete append: src/Ch04/shape.php norun -->
 ```php
-function namaBentuk(Lingkaran|PersegiPanjang $bentuk): string
+function shapeName(Circle|Rectangle $shape): string
 {
     return match (true) {
-        $bentuk instanceof Lingkaran => 'lingkaran',
+        $shape instanceof Circle => 'lingkaran',
     };
 }
 ```
@@ -263,56 +263,56 @@ Pesannya tidak sejelas Rust, tetapi jaminannya sama: menambah anggota baru ke un
 
 ## Trait bukan trait Rust
 
-Nama yang sama, konsep berbeda. Trait di PHP adalah sekumpulan method yang disalin ke dalam class yang memakainya. Buat `src/Bab04/trait.php`:
+Nama yang sama, konsep berbeda. Trait di PHP adalah sekumpulan method yang disalin ke dalam class yang memakainya. Buat `src/Ch04/trait.php`:
 
-<!-- file: src/Bab04/trait.php -->
+<!-- file: src/Ch04/trait.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-trait PunyaSlug
+trait HasSlug
 {
-    abstract public function judul(): string;
+    abstract public function title(): string;
 
     public function slug(): string
     {
-        return strtolower(str_replace(' ', '-', trim($this->judul())));
+        return strtolower(str_replace(' ', '-', trim($this->title())));
     }
 }
 
-final readonly class Artikel
+final readonly class Article
 {
-    use PunyaSlug;
+    use HasSlug;
 
-    public function __construct(private string $judul)
+    public function __construct(private string $title)
     {
     }
 
-    public function judul(): string
+    public function title(): string
     {
-        return $this->judul;
+        return $this->title;
     }
 }
 
-final readonly class Kategori
+final readonly class Category
 {
-    use PunyaSlug;
+    use HasSlug;
 
-    public function __construct(private string $nama)
+    public function __construct(private string $name)
     {
     }
 
-    public function judul(): string
+    public function title(): string
     {
-        return $this->nama;
+        return $this->name;
     }
 }
 
-echo new Artikel('Belajar PHP Modern')->slug() . PHP_EOL;
-echo new Kategori('Tips dan Trik')->slug() . PHP_EOL;
+echo new Article('Belajar PHP Modern')->slug() . PHP_EOL;
+echo new Category('Tips dan Trik')->slug() . PHP_EOL;
 ```
 
 ```text
@@ -326,45 +326,45 @@ tips-dan-trik
 | Implementasi bawaan yang dibagi | Method bawaan di `trait` | `trait`, atau abstract class |
 | Dipakai sebagai tipe parameter | Bisa | Trait tidak bisa, interface bisa |
 
-Trait bukan tipe: kamu tidak bisa menulis `function f(PunyaSlug $x)`. Pakai seperlunya. Kamu akan sering melihatnya di Laravel, misalnya `use HasFactory;` pada model.
+Trait bukan tipe: kamu tidak bisa menulis `function f(HasSlug $x)`. Pakai seperlunya. Kamu akan sering melihatnya di Laravel, misalnya `use HasFactory;` pada model.
 
 ## Value object
 
-Class kecil yang immutable dan menjaga aturannya sendiri adalah padanan *newtype* di Rust. Buat `src/Bab04/uang.php`:
+Class kecil yang immutable dan menjaga aturannya sendiri adalah padanan *newtype* di Rust. Buat `src/Ch04/money.php`:
 
-<!-- file: src/Bab04/uang.php -->
+<!-- file: src/Ch04/money.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-final readonly class Uang implements \Stringable
+final readonly class Money implements \Stringable
 {
-    public const int MAKSIMUM = 1_000_000_000;
+    public const int MAXIMUM = 1_000_000_000;
 
     private function __construct(public int $rupiah)
     {
     }
 
-    public static function rupiah(int $jumlah): self
+    public static function rupiah(int $amount): self
     {
-        if ($jumlah < 0 || $jumlah > self::MAKSIMUM) {
-            throw new \InvalidArgumentException("Jumlah {$jumlah} di luar batas");
+        if ($amount < 0 || $amount > self::MAXIMUM) {
+            throw new \InvalidArgumentException("Jumlah {$amount} di luar batas");
         }
 
-        return new self($jumlah);
+        return new self($amount);
     }
 
-    public function tambah(self $lain): self
+    public function add(self $other): self
     {
-        return self::rupiah($this->rupiah + $lain->rupiah);
+        return self::rupiah($this->rupiah + $other->rupiah);
     }
 
-    public function sama(self $lain): bool
+    public function equals(self $other): bool
     {
-        return $this->rupiah === $lain->rupiah;
+        return $this->rupiah === $other->rupiah;
     }
 
     #[\Override]
@@ -374,15 +374,15 @@ final readonly class Uang implements \Stringable
     }
 }
 
-$harga = Uang::rupiah(18000);
-$total = $harga->tambah(Uang::rupiah(7000));
+$price = Money::rupiah(18000);
+$total = $price->add(Money::rupiah(7000));
 
 echo $total . PHP_EOL;
 echo "Total: {$total}" . PHP_EOL;
-var_dump($total->sama(Uang::rupiah(25000)));
-var_dump($total == Uang::rupiah(25000));
-var_dump($total === Uang::rupiah(25000));
-echo Uang::MAKSIMUM . PHP_EOL;
+var_dump($total->equals(Money::rupiah(25000)));
+var_dump($total == Money::rupiah(25000));
+var_dump($total === Money::rupiah(25000));
+echo Money::MAXIMUM . PHP_EOL;
 ```
 
 ```text
@@ -394,11 +394,11 @@ bool(false)
 1000000000
 ```
 
-- **Constructor `private` dan method `static`** membentuk *named constructor*: satu-satunya jalan membuat `Uang` adalah `Uang::rupiah()`, yang memvalidasi. Siapa pun yang memegang objek `Uang` tahu isinya sah.
+- **Constructor `private` dan method `static`** membentuk *named constructor*: satu-satunya jalan membuat `Money` adalah `Money::rupiah()`, yang memvalidasi. Siapa pun yang memegang objek `Money` tahu isinya sah.
 - **`::`** mengakses anggota milik class: method `static` dan konstanta. `->` mengakses anggota milik objek.
 - **`const int`** adalah konstanta class bertipe (PHP 8.3).
 - **`\Stringable` dan `__toString()`** membuat objek bisa dipakai sebagai string, padanan `impl Display`.
-- **Tidak ada method yang mengubah isi.** `tambah()` mengembalikan objek baru.
+- **Tidak ada method yang mengubah isi.** `add()` mengembalikan objek baru.
 
 ### Membandingkan objek
 
@@ -406,41 +406,41 @@ Tiga baris `var_dump` di atas menunjukkan tiga arti "sama":
 
 - **`===`** benar hanya untuk objek yang identik, yaitu handle ke objek yang sama.
 - **`==`** benar kalau class-nya sama dan semua property-nya sama. Ini satu-satunya tempat `==` masih masuk akal, tetapi perbandingan property-nya ikut longgar.
-- **Method sendiri** seperti `sama()` adalah cara yang paling jelas. PHP tidak punya padanan `PartialEq` yang bisa diimplementasikan.
+- **Method sendiri** seperti `equals()` adalah cara yang paling jelas. PHP tidak punya padanan `PartialEq` yang bisa diimplementasikan.
 
 ## Property hooks dan asymmetric visibility
 
-PHP 8.4 menambahkan dua fitur yang menghapus kebutuhan getter dan setter. Buat `src/Bab04/pengguna.php`:
+PHP 8.4 menambahkan dua fitur yang menghapus kebutuhan getter dan setter. Buat `src/Ch04/user.php`:
 
-<!-- file: src/Bab04/pengguna.php -->
+<!-- file: src/Ch04/user.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-final class Pengguna
+final class User
 {
     public private(set) string $email;
 
-    public string $nama {
-        set(string $nilai) {
-            $this->nama = trim($nilai);
+    public string $name {
+        set(string $value) {
+            $this->name = trim($value);
         }
     }
 
-    public string $inisial {
-        get => strtoupper(substr($this->nama, 0, 1));
+    public string $initial {
+        get => strtoupper(substr($this->name, 0, 1));
     }
 
-    public function __construct(string $nama, string $email)
+    public function __construct(string $name, string $email)
     {
-        $this->nama = $nama;
-        $this->gantiEmail($email);
+        $this->name = $name;
+        $this->changeEmail($email);
     }
 
-    public function gantiEmail(string $email): void
+    public function changeEmail(string $email): void
     {
         if (!str_contains($email, '@')) {
             throw new \InvalidArgumentException("Email {$email} tidak valid");
@@ -450,14 +450,14 @@ final class Pengguna
     }
 }
 
-$pengguna = new Pengguna('  Siti Rahma ', 'Siti@Example.com');
+$user = new User('  Siti Rahma ', 'Siti@Example.com');
 
-echo "[{$pengguna->nama}] {$pengguna->email} ({$pengguna->inisial})" . PHP_EOL;
+echo "[{$user->name}] {$user->email} ({$user->initial})" . PHP_EOL;
 
-$pengguna->nama = ' Siti R. ';
-$pengguna->gantiEmail('siti.r@example.com');
+$user->name = ' Siti R. ';
+$user->changeEmail('siti.r@example.com');
 
-echo "[{$pengguna->nama}] {$pengguna->email} ({$pengguna->inisial})" . PHP_EOL;
+echo "[{$user->name}] {$user->email} ({$user->initial})" . PHP_EOL;
 ```
 
 ```text
@@ -467,21 +467,21 @@ echo "[{$pengguna->nama}] {$pengguna->email} ({$pengguna->inisial})" . PHP_EOL;
 
 - **`public private(set)`** adalah asymmetric visibility: property bisa dibaca dari mana saja, tetapi hanya bisa diisi dari dalam class.
 - **Hook `set`** berjalan setiap kali property diisi. Di sini ia merapikan spasi.
-- **Hook `get`** tanpa penyimpanan membuat property virtual: `$inisial` dihitung setiap kali dibaca, seperti getter di TS.
+- **Hook `get`** tanpa penyimpanan membuat property virtual: `$initial` dihitung setiap kali dibaca, seperti getter di TS.
 
-Mengisi `$email` dari luar ditolak. Tempel di akhir `pengguna.php`:
+Mengisi `$email` dari luar ditolak. Tempel di akhir `user.php`:
 
-<!-- demo: email-luar append: src/Bab04/pengguna.php -->
+<!-- demo: email-outside append: src/Ch04/user.php -->
 ```php
-$pengguna->email = 'bebas@example.com';
+$user->email = 'bebas@example.com';
 ```
 
 ```text
-Assign to private(set) property Belajar\Bab04\Pengguna::$email.
+Assign to private(set) property Learn\Ch04\User::$email.
 ```
 
 ```text
-Fatal error: Uncaught Error: Cannot modify private(set) property Belajar\Bab04\Pengguna::$email from global scope
+Fatal error: Uncaught Error: Cannot modify private(set) property Learn\Ch04\User::$email from global scope
 ```
 
 Kapan memakai yang mana:
@@ -495,35 +495,35 @@ Kapan memakai yang mana:
 
 ## Mengubah objek immutable dengan `clone`
 
-Objek `readonly` tidak bisa diubah, jadi "mengubah" berarti membuat salinan dengan satu bagian berbeda. PHP 8.5 menyediakan `clone` dengan daftar perubahan. Buat `src/Bab04/alamat.php`:
+Objek `readonly` tidak bisa diubah, jadi "mengubah" berarti membuat salinan dengan satu bagian berbeda. PHP 8.5 menyediakan `clone` dengan daftar perubahan. Buat `src/Ch04/address.php`:
 
-<!-- file: src/Bab04/alamat.php -->
+<!-- file: src/Ch04/address.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-final readonly class Alamat
+final readonly class Address
 {
     public function __construct(
-        public string $jalan,
-        public string $kota,
+        public string $street,
+        public string $city,
     ) {
     }
 
-    public function pindahKe(string $kota): self
+    public function moveTo(string $city): self
     {
-        return clone($this, ['kota' => $kota]);
+        return clone($this, ['city' => $city]);
     }
 }
 
-$lama = new Alamat('Jl. Merdeka 1', 'Bandung');
-$baru = $lama->pindahKe('Jakarta');
+$old = new Address('Jl. Merdeka 1', 'Bandung');
+$new = $old->moveTo('Jakarta');
 
-echo "{$lama->jalan}, {$lama->kota}" . PHP_EOL;
-echo "{$baru->jalan}, {$baru->kota}" . PHP_EOL;
+echo "{$old->street}, {$old->city}" . PHP_EOL;
+echo "{$new->street}, {$new->city}" . PHP_EOL;
 ```
 
 ```text
@@ -531,29 +531,29 @@ Jl. Merdeka 1, Bandung
 Jl. Merdeka 1, Jakarta
 ```
 
-Ini padanan `Alamat { kota, ..lama }` di Rust dan `{ ...lama, kota }` di TS.
+Ini padanan `Address { city, ..old }` di Rust dan `{ ...old, city }` di TS.
 
 ## Generics pada class
 
-`@template` dari [Bab 2](/02-type-system) juga berlaku untuk class. Buat `src/Bab04/koleksi.php`:
+`@template` dari [Bab 2](/02-type-system) juga berlaku untuk class. Buat `src/Ch04/collection.php`:
 
-<!-- file: src/Bab04/koleksi.php -->
+<!-- file: src/Ch04/collection.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
 /**
  * @template T
  */
-final readonly class Koleksi
+final readonly class Collection
 {
     /**
-     * @param list<T> $item
+     * @param list<T> $items
      */
-    public function __construct(private array $item)
+    public function __construct(private array $items)
     {
     }
 
@@ -562,160 +562,160 @@ final readonly class Koleksi
      * @param \Closure(T): U $fn
      * @return self<U>
      */
-    public function petakan(\Closure $fn): self
+    public function map(\Closure $fn): self
     {
-        return new self(array_map($fn, $this->item));
+        return new self(array_map($fn, $this->items));
     }
 
     /**
      * @param \Closure(T): bool $fn
      * @return self<T>
      */
-    public function saring(\Closure $fn): self
+    public function filter(\Closure $fn): self
     {
-        return new self(array_values(array_filter($this->item, $fn)));
+        return new self(array_values(array_filter($this->items, $fn)));
     }
 
     /**
      * @return list<T>
      */
-    public function semua(): array
+    public function all(): array
     {
-        return $this->item;
+        return $this->items;
     }
 }
 
-$label = new Koleksi([18000, 25000, 9000])
-    ->saring(fn (int $harga): bool => $harga >= 10000)
-    ->petakan(fn (int $harga): string => 'Rp ' . number_format($harga, 0, ',', '.'));
+$label = new Collection([18000, 25000, 9000])
+    ->filter(fn (int $price): bool => $price >= 10000)
+    ->map(fn (int $price): string => 'Rp ' . number_format($price, 0, ',', '.'));
 
-echo implode(', ', $label->semua()) . PHP_EOL;
+echo implode(', ', $label->all()) . PHP_EOL;
 ```
 
 ```text
 Rp 18.000, Rp 25.000
 ```
 
-`T` disimpulkan dari argumen constructor, dan `petakan()` mengubah `Koleksi<int>` menjadi `Koleksi<string>`. Tempel di akhir `koleksi.php`:
+`T` disimpulkan dari argumen constructor, dan `map()` mengubah `Collection<int>` menjadi `Collection<string>`. Tempel di akhir `collection.php`:
 
-<!-- demo: koleksi-salah append: src/Bab04/koleksi.php norun -->
+<!-- demo: collection-wrong append: src/Ch04/collection.php norun -->
 ```php
 \PHPStan\dumpType($label);
-$label->petakan(fn (int $harga): int => $harga * 2);
+$label->map(fn (int $price): int => $price * 2);
 ```
 
 ```text
-Dumped type: Belajar\Bab04\Koleksi<non-falsy-string>
-Parameter #1 $fn of method Belajar\Bab04\Koleksi<string>::petakan() expects Closure(non-falsy-string): int, Closure(int): int given.
+Dumped type: Learn\Ch04\Collection<non-falsy-string>
+Parameter #1 $fn of method Learn\Ch04\Collection<string>::map() expects Closure(non-falsy-string): int, Closure(int): int given.
 ```
 
 `non-falsy-string` adalah `string` yang dipersempit: PHPStan tahu hasil gabungan `'Rp '` dengan teks lain tidak mungkin kosong.
 
-Class ini miniatur `Collection` milik Laravel, yang kamu pakai mulai [Bab 8](/08-laravel-dasar). Interface juga bisa generic: tulis `@template T` di interface-nya, lalu `@implements Repositori<Produk>` di class yang mengimplementasikannya.
+Class ini miniatur `Collection` milik Laravel, yang kamu pakai mulai [Bab 8](/08-laravel-dasar). Interface juga bisa generic: tulis `@template T` di interface-nya, lalu `@implements Repository<Product>` di class yang mengimplementasikannya.
 
 ### Type alias
 
-Array shape yang dipakai berulang bisa diberi nama dengan `@phpstan-type`. Buat `src/Bab04/alias.php`:
+Array shape yang dipakai berulang bisa diberi nama dengan `@phpstan-type`. Buat `src/Ch04/alias.php`:
 
-<!-- file: src/Bab04/alias.php -->
+<!-- file: src/Ch04/alias.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
 /**
- * @phpstan-type BarisProduk array{nama: string, harga: int, stok?: int}
+ * @phpstan-type ProductRow array{name: string, price: int, stock?: int}
  */
-final readonly class ProdukRingkas
+final readonly class ProductSummary
 {
     private function __construct(
-        public string $nama,
-        public int $harga,
-        public int $stok,
+        public string $name,
+        public int $price,
+        public int $stock,
     ) {
     }
 
     /**
-     * @param BarisProduk $baris
+     * @param ProductRow $row
      */
-    public static function dariArray(array $baris): self
+    public static function fromArray(array $row): self
     {
-        return new self($baris['nama'], $baris['harga'], $baris['stok'] ?? 0);
+        return new self($row['name'], $row['price'], $row['stock'] ?? 0);
     }
 }
 
-$teh = ProdukRingkas::dariArray(['nama' => 'Teh', 'harga' => 12000]);
+$tea = ProductSummary::fromArray(['name' => 'Teh', 'price' => 12000]);
 
-echo "{$teh->nama}: {$teh->harga}, stok {$teh->stok}" . PHP_EOL;
+echo "{$tea->name}: {$tea->price}, stok {$tea->stock}" . PHP_EOL;
 ```
 
 ```text
 Teh: 12000, stok 0
 ```
 
-Alias ini milik class tempat ia ditulis. Class lain mengimpornya dengan `@phpstan-import-type BarisProduk from ProdukRingkas`.
+Alias ini milik class tempat ia ditulis. Class lain mengimpornya dengan `@phpstan-import-type ProductRow from ProductSummary`.
 
 ## Dependency injection
 
-Class yang membutuhkan class lain menerimanya lewat constructor, dengan tipe interface. Buat `src/Bab04/layanan.php`:
+Class yang membutuhkan class lain menerimanya lewat constructor, dengan tipe interface. Buat `src/Ch04/service.php`:
 
-<!-- file: src/Bab04/layanan.php -->
+<!-- file: src/Ch04/service.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-interface Pencatat
+interface Logger
 {
-    public function catat(string $pesan): void;
+    public function log(string $message): void;
 }
 
-final class PencatatLayar implements Pencatat
+final class ScreenLogger implements Logger
 {
     #[\Override]
-    public function catat(string $pesan): void
+    public function log(string $message): void
     {
-        echo "[log] {$pesan}" . PHP_EOL;
+        echo "[log] {$message}" . PHP_EOL;
     }
 }
 
-final class PencatatMemori implements Pencatat
+final class MemoryLogger implements Logger
 {
     /** @var list<string> */
-    public private(set) array $pesan = [];
+    public private(set) array $messages = [];
 
     #[\Override]
-    public function catat(string $pesan): void
+    public function log(string $message): void
     {
-        $this->pesan[] = $pesan;
+        $this->messages[] = $message;
     }
 }
 
-final readonly class LayananPesanan
+final readonly class OrderService
 {
-    public function __construct(private Pencatat $pencatat)
+    public function __construct(private Logger $logger)
     {
     }
 
-    public function buat(string $produk, int $jumlah): string
+    public function create(string $product, int $quantity): string
     {
-        $nomor = sprintf('ORD-%s-%03d', strtoupper($produk), $jumlah);
-        $this->pencatat->catat("Pesanan {$nomor}: {$jumlah} x {$produk}");
+        $number = sprintf('ORD-%s-%03d', strtoupper($product), $quantity);
+        $this->logger->log("Pesanan {$number}: {$quantity} x {$product}");
 
-        return $nomor;
+        return $number;
     }
 }
 
-$layanan = new LayananPesanan(new PencatatLayar());
-$layanan->buat('Kopi', 2);
+$service = new OrderService(new ScreenLogger());
+$service->create('Kopi', 2);
 
-$memori = new PencatatMemori();
-new LayananPesanan($memori)->buat('Teh', 1);
-echo count($memori->pesan) . ' pesan tercatat' . PHP_EOL;
+$memory = new MemoryLogger();
+new OrderService($memory)->create('Teh', 1);
+echo count($memory->messages) . ' pesan tercatat' . PHP_EOL;
 ```
 
 ```text
@@ -723,7 +723,7 @@ echo count($memori->pesan) . ' pesan tercatat' . PHP_EOL;
 1 pesan tercatat
 ```
 
-`LayananPesanan` tidak tahu ke mana catatannya pergi. Di aplikasi ia diberi `PencatatLayar`, di test diberi `PencatatMemori` yang isinya bisa diperiksa. Polanya sama dengan menerima `impl Trait` atau `Box<dyn Trait>` di Rust.
+`OrderService` tidak tahu ke mana catatannya pergi. Di aplikasi ia diberi `ScreenLogger`, di test diberi `MemoryLogger` yang isinya bisa diperiksa. Polanya sama dengan menerima `impl Trait` atau `Box<dyn Trait>` di Rust.
 
 Ini penting untuk bab-bab Laravel: framework itu membaca tipe parameter constructor, lalu membuatkan dan menyuntikkan objeknya secara otomatis. Mekanisme itu disebut *service container*, dan seluruhnya bertumpu pada pola di atas.
 
@@ -760,49 +760,49 @@ Kamu tetap perlu tahu keberadaannya, karena Eloquent di Laravel dibangun di atas
 
 ### 1. Value object `Email`
 
-Buat class `Email` yang immutable. Satu-satunya cara membuatnya adalah `Email::dari(string)`, yang merapikan spasi dan huruf besar lalu menolak teks yang bukan email. Tambahkan method `domain()` dan buat objeknya bisa dipakai sebagai string.
+Buat class `Email` yang immutable. Satu-satunya cara membuatnya adalah `Email::from(string)`, yang merapikan spasi dan huruf besar lalu menolak teks yang bukan email. Tambahkan method `domain()` dan buat objeknya bisa dipakai sebagai string.
 
 ::: details Jawaban
-<!-- file: src/Bab04/latihan1.php -->
+<!-- file: src/Ch04/exercise1.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
 final readonly class Email implements \Stringable
 {
-    private function __construct(public string $alamat)
+    private function __construct(public string $address)
     {
     }
 
-    public static function dari(string $teks): self
+    public static function from(string $text): self
     {
-        $rapi = strtolower(trim($teks));
+        $clean = strtolower(trim($text));
 
-        if (filter_var($rapi, FILTER_VALIDATE_EMAIL) === false) {
-            throw new \InvalidArgumentException("Email {$teks} tidak valid");
+        if (filter_var($clean, FILTER_VALIDATE_EMAIL) === false) {
+            throw new \InvalidArgumentException("Email {$text} tidak valid");
         }
 
-        return new self($rapi);
+        return new self($clean);
     }
 
     public function domain(): string
     {
-        $posisi = strrpos($this->alamat, '@');
+        $position = strrpos($this->address, '@');
 
-        return $posisi === false ? '' : substr($this->alamat, $posisi + 1);
+        return $position === false ? '' : substr($this->address, $position + 1);
     }
 
     #[\Override]
     public function __toString(): string
     {
-        return $this->alamat;
+        return $this->address;
     }
 }
 
-$email = Email::dari('  Budi@Example.COM ');
+$email = Email::from('  Budi@Example.COM ');
 
 echo "{$email} di {$email->domain()}" . PHP_EOL;
 ```
@@ -816,20 +816,20 @@ Fungsi mana pun yang menerima parameter bertipe `Email` tidak perlu memvalidasi 
 
 ### 2. Tipe gabungan untuk pembayaran
 
-Modelkan tiga cara bayar: tunai (jumlah yang diterima), transfer (nama bank dan nomor rekening), dan QRIS (id transaksi). Tulis `ringkasBayar()` yang menerima salah satunya dan mengembalikan deskripsi, dengan `match` yang lengkap.
+Modelkan tiga cara bayar: tunai (jumlah yang diterima), transfer (nama bank dan nomor rekening), dan QRIS (id transaksi). Tulis `summarizePayment()` yang menerima salah satunya dan mengembalikan deskripsi, dengan `match` yang lengkap.
 
 ::: details Jawaban
-<!-- file: src/Bab04/latihan2.php -->
+<!-- file: src/Ch04/exercise2.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-final readonly class Tunai
+final readonly class Cash
 {
-    public function __construct(public int $diterima)
+    public function __construct(public int $received)
     {
     }
 }
@@ -838,30 +838,30 @@ final readonly class Transfer
 {
     public function __construct(
         public string $bank,
-        public string $nomorRekening,
+        public string $accountNumber,
     ) {
     }
 }
 
 final readonly class Qris
 {
-    public function __construct(public string $idTransaksi)
+    public function __construct(public string $transactionId)
     {
     }
 }
 
-function ringkasBayar(Tunai|Transfer|Qris $bayar): string
+function summarizePayment(Cash|Transfer|Qris $payment): string
 {
     return match (true) {
-        $bayar instanceof Tunai => "tunai, diterima {$bayar->diterima}",
-        $bayar instanceof Transfer => "transfer {$bayar->bank} ke {$bayar->nomorRekening}",
-        $bayar instanceof Qris => "QRIS {$bayar->idTransaksi}",
+        $payment instanceof Cash => "tunai, diterima {$payment->received}",
+        $payment instanceof Transfer => "transfer {$payment->bank} ke {$payment->accountNumber}",
+        $payment instanceof Qris => "QRIS {$payment->transactionId}",
     };
 }
 
-echo ringkasBayar(new Tunai(50000)) . PHP_EOL;
-echo ringkasBayar(new Transfer('Bank Kota', '1234567890')) . PHP_EOL;
-echo ringkasBayar(new Qris('TRX-99')) . PHP_EOL;
+echo summarizePayment(new Cash(50000)) . PHP_EOL;
+echo summarizePayment(new Transfer('Bank Kota', '1234567890')) . PHP_EOL;
+echo summarizePayment(new Qris('TRX-99')) . PHP_EOL;
 ```
 
 ```text
@@ -870,28 +870,28 @@ transfer Bank Kota ke 1234567890
 QRIS TRX-99
 ```
 
-Ini padanan `enum Bayar { Tunai(i64), Transfer { bank, nomor }, Qris(String) }` di Rust.
+Ini padanan `enum Payment { Cash(i64), Transfer { bank, number }, Qris(String) }` di Rust.
 :::
 
 ### 3. Property virtual
 
-Buat class `Suhu` yang menyimpan `celsius`. Tambahkan property `fahrenheit` yang tidak disimpan: membacanya menghitung dari `celsius`, mengisinya mengubah `celsius`.
+Buat class `Temperature` yang menyimpan `celsius`. Tambahkan property `fahrenheit` yang tidak disimpan: membacanya menghitung dari `celsius`, mengisinya mengubah `celsius`.
 
 ::: details Jawaban
-<!-- file: src/Bab04/latihan3.php -->
+<!-- file: src/Ch04/exercise3.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
-final class Suhu
+final class Temperature
 {
     public float $fahrenheit {
         get => $this->celsius * 9 / 5 + 32;
-        set(float $nilai) {
-            $this->celsius = ($nilai - 32) * 5 / 9;
+        set(float $value) {
+            $this->celsius = ($value - 32) * 5 / 9;
         }
     }
 
@@ -900,11 +900,11 @@ final class Suhu
     }
 }
 
-$suhu = new Suhu(100);
-echo $suhu->fahrenheit . PHP_EOL;
+$temperature = new Temperature(100);
+echo $temperature->fahrenheit . PHP_EOL;
 
-$suhu->fahrenheit = 32;
-echo $suhu->celsius . PHP_EOL;
+$temperature->fahrenheit = 32;
+echo $temperature->celsius . PHP_EOL;
 ```
 
 ```text
@@ -915,50 +915,50 @@ echo $suhu->celsius . PHP_EOL;
 
 ### 4. Class generic
 
-Buat class `Pasangan` dengan dua parameter tipe, dan method `tukar()` yang mengembalikan pasangan dengan urutan terbalik.
+Buat class `Pair` dengan dua parameter tipe, dan method `swap()` yang mengembalikan pasangan dengan urutan terbalik.
 
 ::: details Jawaban
-<!-- file: src/Bab04/latihan4.php -->
+<!-- file: src/Ch04/exercise4.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab04;
+namespace Learn\Ch04;
 
 /**
  * @template K
  * @template V
  */
-final readonly class Pasangan
+final readonly class Pair
 {
     /**
-     * @param K $kiri
-     * @param V $kanan
+     * @param K $left
+     * @param V $right
      */
     public function __construct(
-        public mixed $kiri,
-        public mixed $kanan,
+        public mixed $left,
+        public mixed $right,
     ) {
     }
 
     /**
      * @return self<V, K>
      */
-    public function tukar(): self
+    public function swap(): self
     {
-        return new self($this->kanan, $this->kiri);
+        return new self($this->right, $this->left);
     }
 }
 
-$pasangan = new Pasangan('umur', 30)->tukar();
+$pair = new Pair('umur', 30)->swap();
 
-echo ($pasangan->kiri + 1) . ' ' . strtoupper($pasangan->kanan) . PHP_EOL;
+echo ($pair->left + 1) . ' ' . strtoupper($pair->right) . PHP_EOL;
 ```
 
 ```text
 31 UMUR
 ```
 
-Baris terakhir hanya lulus PHPStan karena tipenya ikut tertukar: `$pasangan->kiri` sekarang `int` dan `$pasangan->kanan` sekarang `string`.
+Baris terakhir hanya lulus PHPStan karena tipenya ikut tertukar: `$pair->left` sekarang `int` dan `$pair->right` sekarang `string`.
 :::

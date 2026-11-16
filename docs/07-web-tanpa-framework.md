@@ -25,11 +25,11 @@ Konsekuensinya menjelaskan banyak hal tentang bentuk aplikasi PHP:
 
 ## Siapkan proyek
 
-Bab ini memakai proyek baru, terpisah dari `php-dasar`. Dari PowerShell:
+Bab ini memakai proyek baru, terpisah dari `php-basics`. Dari PowerShell:
 
 ```powershell
-mkdir latihan/web-dasar
-cd latihan/web-dasar
+mkdir practice/web-basics
+cd practice/web-basics
 mkdir bin, public, src, templates
 ```
 
@@ -132,7 +132,7 @@ Buat `composer.json`:
 
 ```json
 {
-    "name": "belajar/web-dasar",
+    "name": "learn/web-basics",
     "type": "project",
     "require": {
         "php": "^8.5",
@@ -170,25 +170,25 @@ composer require --dev phpstan/phpstan
 
 ## Membuktikan shared-nothing
 
-Buat `public/hitung.php`:
+Buat `public/counter.php`:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-$hitung = 0;
-$hitung++;
+$count = 0;
+$count++;
 
-echo "Request ke-{$hitung}" . PHP_EOL;
+echo "Request ke-{$count}" . PHP_EOL;
 ```
 
 Panggil tiga kali:
 
 ```bash
-curl http://localhost:8000/hitung.php
-curl http://localhost:8000/hitung.php
-curl http://localhost:8000/hitung.php
+curl http://localhost:8000/counter.php
+curl http://localhost:8000/counter.php
+curl http://localhost:8000/counter.php
 ```
 
 ```text
@@ -202,15 +202,15 @@ Di Node, kode yang setara akan terus bertambah, karena variabelnya hidup di pros
 ```ts
 import { createServer } from 'node:http'
 
-let hitung = 0
+let count = 0
 
 createServer((req, res) => {
-  hitung++
-  res.end(`Request ke-${hitung}\n`)
+  count++
+  res.end(`Request ke-${count}\n`)
 }).listen(8000)
 ```
 
-Di PHP tidak ada tempat untuk menaruh `let hitung` itu. Setiap request memulai dari file yang sama dengan memori kosong. Kamu juga tidak me-restart apa pun setelah membuat `hitung.php`: file itu langsung bisa dipanggil, karena memang dibaca ulang di setiap request.
+Di PHP tidak ada tempat untuk menaruh `let count` itu. Setiap request memulai dari file yang sama dengan memori kosong. Kamu juga tidak me-restart apa pun setelah membuat `counter.php`: file itu langsung bisa dipanggil, karena memang dibaca ulang di setiap request.
 
 ## Input: superglobal bertipe `mixed`
 
@@ -225,14 +225,14 @@ PHP menyerahkan data request lewat beberapa array global yang selalu tersedia, d
 | `$_FILES` | File yang diunggah |
 | `$_SESSION` | Data session, setelah `session_start()` |
 
-Semua isinya berasal dari luar, jadi PHPStan menganggapnya `mixed`. Buat `public/sapa.php`:
+Semua isinya berasal dari luar, jadi PHPStan menganggapnya `mixed`. Buat `public/greet.php`:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-echo 'Halo, ' . strtoupper($_GET['nama']) . PHP_EOL;
+echo 'Halo, ' . strtoupper($_GET['name']) . PHP_EOL;
 ```
 
 ```bash
@@ -241,7 +241,7 @@ composer check
 
 ```text
  ------ -------------------------------------------------------------------
-  Line   public/sapa.php
+  Line   public/greet.php
  ------ -------------------------------------------------------------------
   5      Parameter #1 $string of function strtoupper expects string, mixed
          given.
@@ -254,7 +254,7 @@ composer check
 Keluhan PHPStan itu bukan formalitas. Dengan input yang wajar, script ini jalan:
 
 ```bash
-curl "http://localhost:8000/sapa.php?nama=budi"
+curl "http://localhost:8000/greet.php?name=budi"
 ```
 
 ```text
@@ -264,31 +264,31 @@ Halo, BUDI
 Tanpa parameter, ia gagal:
 
 ```bash
-curl "http://localhost:8000/sapa.php"
+curl "http://localhost:8000/greet.php"
 ```
 
 ```text
 <br />
-<b>Warning</b>:  Undefined array key "nama" in <b>/app/public/sapa.php</b> on line <b>5</b><br />
+<b>Warning</b>:  Undefined array key "name" in <b>/app/public/greet.php</b> on line <b>5</b><br />
 <br />
-<b>Fatal error</b>:  Uncaught TypeError: strtoupper(): Argument #1 ($string) must be of type string, null given in /app/public/sapa.php:5
+<b>Fatal error</b>:  Uncaught TypeError: strtoupper(): Argument #1 ($string) must be of type string, null given in /app/public/greet.php:5
 ```
 
 Dan pengirim bisa membuat nilainya menjadi array, cukup dengan menambahkan `[]` pada nama parameter:
 
 ```bash
-curl -g "http://localhost:8000/sapa.php?nama[]=budi"
+curl -g "http://localhost:8000/greet.php?name[]=budi"
 ```
 
 ```text
 <br />
-<b>Fatal error</b>:  Uncaught TypeError: strtoupper(): Argument #1 ($string) must be of type string, array given in /app/public/sapa.php:5
+<b>Fatal error</b>:  Uncaught TypeError: strtoupper(): Argument #1 ($string) must be of type string, array given in /app/public/greet.php:5
 ```
 
 Itulah sebabnya tipenya `mixed`: sebuah parameter bisa tidak ada, bisa string, dan bisa array bersarang. Ada masalah ketiga, yaitu input dicetak mentah-mentah ke halaman:
 
 ```bash
-curl -g "http://localhost:8000/sapa.php?nama=<script>alert(1)</script>"
+curl -g "http://localhost:8000/greet.php?name=<script>alert(1)</script>"
 ```
 
 ```text
@@ -297,32 +297,32 @@ Halo, <SCRIPT>ALERT(1)</SCRIPT>
 
 Browser akan menjalankan tag itu sebagai JavaScript. Ini celah XSS, yang dibahas di bagian templat.
 
-Perbaikannya mengikuti pola yang sama dengan `mixed` di [Bab 2](/02-type-system): periksa bentuknya di pintu masuk, dan setelah itu bekerja dengan tipe yang pasti. Timpa `sapa.php`:
+Perbaikannya mengikuti pola yang sama dengan `mixed` di [Bab 2](/02-type-system): periksa bentuknya di pintu masuk, dan setelah itu bekerja dengan tipe yang pasti. Timpa `greet.php`:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-$nama = $_GET['nama'] ?? null;
+$name = $_GET['name'] ?? null;
 
-if (!is_string($nama) || $nama === '') {
+if (!is_string($name) || $name === '') {
     http_response_code(400);
-    echo 'Parameter nama wajib diisi.' . PHP_EOL;
+    echo 'Parameter name wajib diisi.' . PHP_EOL;
 
     return;
 }
 
-echo 'Halo, ' . htmlspecialchars(strtoupper($nama)) . PHP_EOL;
+echo 'Halo, ' . htmlspecialchars(strtoupper($name)) . PHP_EOL;
 ```
 
 Sekarang `composer check` lulus, dan ketiga kasus tadi tertangani:
 
 ```text
-$ curl -g "http://localhost:8000/sapa.php?nama[]=budi"
-Parameter nama wajib diisi.
+$ curl -g "http://localhost:8000/greet.php?name[]=budi"
+Parameter name wajib diisi.
 
-$ curl -g "http://localhost:8000/sapa.php?nama=<script>alert(1)</script>"
+$ curl -g "http://localhost:8000/greet.php?name=<script>alert(1)</script>"
 Halo, &lt;SCRIPT&gt;ALERT(1)&lt;/SCRIPT&gt;
 ```
 
@@ -330,7 +330,7 @@ Halo, &lt;SCRIPT&gt;ALERT(1)&lt;/SCRIPT&gt;
 Dua output error di atas dikirim ke browser lengkap dengan path file di server, dan dengan status 200. Image `php:8.5-cli` berjalan tanpa `php.ini`, sehingga `display_errors` menyala. Itu membantu saat development, tetapi di production harus dimatikan dan error dicatat ke log. Pengaturannya dibahas di [Bab 12](/12-deploy).
 :::
 
-Hapus `public/hitung.php` dan `public/sapa.php`. Mulai dari sini kita membangun aplikasinya.
+Hapus `public/counter.php` dan `public/greet.php`. Mulai dari sini kita membangun aplikasinya.
 
 ## Rancangan aplikasi
 
@@ -342,9 +342,9 @@ Buku tamu ini punya fitur secukupnya untuk menyentuh semua topik bab:
 Susunan file akhirnya:
 
 ```text
-web-dasar/
+web-basics/
 ├── bin/
-│   └── siapkan.php            membuat database dan akun admin
+│   └── setup.php              membuat database dan akun admin
 ├── public/
 │   └── index.php              satu-satunya pintu masuk dari web
 ├── src/
@@ -352,18 +352,18 @@ web-dasar/
 │   │   ├── Request.php        input yang sudah bertipe
 │   │   ├── Response.php       status, header, dan isi
 │   │   └── Session.php        session, flash, token CSRF
-│   ├── BukuTamuController.php
 │   ├── Database.php           pembungkus tipis di atas PDO
-│   ├── PenggunaRepository.php
-│   ├── Pesan.php
-│   ├── PesanRepository.php
-│   └── fungsi.php             e(), tampilkan(), halaman()
+│   ├── GuestbookController.php
+│   ├── Message.php
+│   ├── MessageRepository.php
+│   ├── UserRepository.php
+│   └── functions.php          e(), render(), page()
 ├── templates/
-│   ├── beranda.php
-│   ├── masuk.php
-│   └── tata-letak.php
+│   ├── home.php
+│   ├── layout.php
+│   └── login.php
 └── var/
-    └── bukutamu.sqlite        dibuat oleh bin/siapkan.php
+    └── guestbook.sqlite       dibuat oleh bin/setup.php
 ```
 
 Hanya `public/` yang terlihat dari web. Kode di `src/`, dependency di `vendor/`, dan file database di `var/` tidak bisa diminta lewat URL apa pun. Susunan ini sama dengan yang dipakai Laravel, dan menjadi syarat penting saat deploy di [Bab 12](/12-deploy).
@@ -395,7 +395,7 @@ final readonly class Request
         public array $form,
     ) {}
 
-    public static function dariGlobal(): self
+    public static function fromGlobals(): self
     {
         $method = $_SERVER['REQUEST_METHOD'] ?? null;
         $uri = $_SERVER['REQUEST_URI'] ?? null;
@@ -404,36 +404,36 @@ final readonly class Request
         return new self(
             is_string($method) ? $method : 'GET',
             is_string($path) ? $path : '/',
-            self::hanyaString($_GET),
-            self::hanyaString($_POST),
+            self::onlyStrings($_GET),
+            self::onlyStrings($_POST),
         );
     }
 
-    public function input(string $kunci): string
+    public function input(string $key): string
     {
-        return trim($this->form[$kunci] ?? '');
+        return trim($this->form[$key] ?? '');
     }
 
     /**
      * @param array<mixed> $data
      * @return array<string, string>
      */
-    private static function hanyaString(array $data): array
+    private static function onlyStrings(array $data): array
     {
-        $hasil = [];
+        $result = [];
 
-        foreach ($data as $kunci => $nilai) {
-            if (is_string($kunci) && is_string($nilai)) {
-                $hasil[$kunci] = $nilai;
+        foreach ($data as $key => $value) {
+            if (is_string($key) && is_string($value)) {
+                $result[$key] = $value;
             }
         }
 
-        return $hasil;
+        return $result;
     }
 }
 ```
 
-`hanyaString()` membuang nilai yang bukan string, sehingga trik `nama[]=x` tadi berakhir sebagai field kosong, bukan `TypeError`. Aplikasi ini memang tidak membutuhkan input berupa array.
+`onlyStrings()` membuang nilai yang bukan string, sehingga trik `name[]=x` tadi berakhir sebagai field kosong, bukan `TypeError`. Aplikasi ini memang tidak membutuhkan input berupa array.
 
 ### Response
 
@@ -455,25 +455,25 @@ final readonly class Response
      * @param array<string, string> $header
      */
     public function __construct(
-        public string $isi,
+        public string $body,
         public int $status = 200,
         public array $header = [],
     ) {}
 
-    public static function alihkan(string $tujuan): self
+    public static function redirect(string $target): self
     {
-        return new self('', 303, ['Location' => $tujuan]);
+        return new self('', 303, ['Location' => $target]);
     }
 
-    public function kirim(): void
+    public function send(): void
     {
         http_response_code($this->status);
 
-        foreach ($this->header as $nama => $nilai) {
-            header("{$nama}: {$nilai}");
+        foreach ($this->header as $name => $value) {
+            header("{$name}: {$value}");
         }
 
-        echo $this->isi;
+        echo $this->body;
     }
 }
 ```
@@ -488,7 +488,7 @@ HTTP tidak mengingat siapa pengirim request, dan PHP tidak menyimpan apa pun di 
 2. Data yang kamu taruh di `$_SESSION` disimpan di server, dalam file yang dinamai dengan ID itu.
 3. Di request berikutnya browser mengirim cookie tadi, dan `session_start()` memuat kembali datanya.
 
-Buat lagi `public/hitung.php`, kali ini dengan session:
+Buat lagi `public/counter.php`, kali ini dengan session:
 
 ```php
 <?php
@@ -497,19 +497,19 @@ declare(strict_types=1);
 
 session_start();
 
-$hitung = $_SESSION['hitung'] ?? 0;
-$hitung = is_int($hitung) ? $hitung + 1 : 1;
-$_SESSION['hitung'] = $hitung;
+$count = $_SESSION['count'] ?? 0;
+$count = is_int($count) ? $count + 1 : 1;
+$_SESSION['count'] = $count;
 
-echo "Request ke-{$hitung}" . PHP_EOL;
+echo "Request ke-{$count}" . PHP_EOL;
 ```
 
 Opsi `-c` dan `-b` membuat `curl` menyimpan dan mengirim cookie seperti browser:
 
 ```bash
-curl -c /tmp/kue -b /tmp/kue http://localhost:8000/hitung.php
-curl -c /tmp/kue -b /tmp/kue http://localhost:8000/hitung.php
-curl -c /tmp/kue -b /tmp/kue http://localhost:8000/hitung.php
+curl -c /tmp/cookies -b /tmp/cookies http://localhost:8000/counter.php
+curl -c /tmp/cookies -b /tmp/cookies http://localhost:8000/counter.php
+curl -c /tmp/cookies -b /tmp/cookies http://localhost:8000/counter.php
 ```
 
 ```text
@@ -521,7 +521,7 @@ Request ke-3
 Tanpa cookie, server menganggapmu pengunjung baru:
 
 ```bash
-curl -i http://localhost:8000/hitung.php
+curl -i http://localhost:8000/counter.php
 ```
 
 ```text
@@ -539,7 +539,7 @@ cat /tmp/sess_9884b515937569848ce1009f742c37e9
 ```
 
 ```text
-hitung|i:3;
+count|i:3;
 ```
 
 Nama file di tempatmu berbeda, karena ID session selalu acak. Dua hal perlu dicatat dari percobaan ini:
@@ -547,7 +547,7 @@ Nama file di tempatmu berbeda, karena ID session selalu acak. Dua hal perlu dica
 - **`$_SESSION` juga `mixed`.** Karena itu nilainya diperiksa dengan `is_int` sebelum dijumlahkan.
 - **Cookie bawaan tidak punya pengaman apa pun.** Header `Set-Cookie` di atas hanya berisi `path=/`.
 
-Hapus `public/hitung.php`. Class berikut membungkus semua akses session aplikasi dan memasang pengamannya. Buat `src/Http/Session.php`:
+Hapus `public/counter.php`. Class berikut membungkus semua akses session aplikasi dan memasang pengamannya. Buat `src/Http/Session.php`:
 
 <!-- file: src/Http/Session.php -->
 ```php
@@ -559,7 +559,7 @@ namespace App\Http;
 
 final class Session
 {
-    public static function mulai(): void
+    public static function start(): void
     {
         session_start([
             'cookie_httponly' => true,
@@ -568,7 +568,7 @@ final class Session
         ]);
     }
 
-    public static function tokenCsrf(): string
+    public static function csrfToken(): string
     {
         $token = $_SESSION['csrf'] ?? null;
 
@@ -580,39 +580,39 @@ final class Session
         return $token;
     }
 
-    public static function csrfCocok(string $kiriman): bool
+    public static function csrfMatches(string $submitted): bool
     {
-        return hash_equals(self::tokenCsrf(), $kiriman);
+        return hash_equals(self::csrfToken(), $submitted);
     }
 
-    public static function setFlash(string $pesan): void
+    public static function setFlash(string $message): void
     {
-        $_SESSION['flash'] = $pesan;
+        $_SESSION['flash'] = $message;
     }
 
-    public static function ambilFlash(): ?string
+    public static function pullFlash(): ?string
     {
-        $pesan = $_SESSION['flash'] ?? null;
+        $message = $_SESSION['flash'] ?? null;
         unset($_SESSION['flash']);
 
-        return is_string($pesan) ? $pesan : null;
+        return is_string($message) ? $message : null;
     }
 
-    public static function masuk(int $idPengguna): void
+    public static function login(int $userId): void
     {
         session_regenerate_id(true);
-        $_SESSION['pengguna'] = $idPengguna;
+        $_SESSION['user'] = $userId;
     }
 
-    public static function keluar(): void
+    public static function logout(): void
     {
         $_SESSION = [];
         session_regenerate_id(true);
     }
 
-    public static function sudahMasuk(): bool
+    public static function isLoggedIn(): bool
     {
-        return is_int($_SESSION['pengguna'] ?? null);
+        return is_int($_SESSION['user'] ?? null);
     }
 }
 ```
@@ -639,16 +639,16 @@ Method-nya static karena session memang state global milik request, sama seperti
 
 PHP lahir sebagai bahasa templat, dan kemampuan itu masih ada: apa pun di luar tag `<?php ... ?>` dikirim apa adanya sebagai output. Dua bentuk yang dipakai di file templat:
 
-- **`<?= $nilai ?>`** adalah singkatan `<?php echo $nilai ?>`.
+- **`<?= $value ?>`** adalah singkatan `<?php echo $value ?>`.
 - **`<?php if (...): ?>` sampai `<?php endif ?>`** adalah sintaks alternatif untuk blok, lebih mudah dibaca di antara HTML daripada kurung kurawal. Ada juga `foreach (...):` dan `endforeach`.
 
 ### Escaping
 
-Di percobaan `sapa.php`, input yang dicetak mentah berubah menjadi tag `<script>` di halaman. Itulah XSS (*cross-site scripting*): teks dari pengguna diperlakukan browser sebagai HTML. Obatnya satu, yaitu meng-escape setiap nilai tepat saat dicetak ke HTML.
+Di percobaan `greet.php`, input yang dicetak mentah berubah menjadi tag `<script>` di halaman. Itulah XSS (*cross-site scripting*): teks dari pengguna diperlakukan browser sebagai HTML. Obatnya satu, yaitu meng-escape setiap nilai tepat saat dicetak ke HTML.
 
-Buat `src/fungsi.php`:
+Buat `src/functions.php`:
 
-<!-- file: src/fungsi.php -->
+<!-- file: src/functions.php -->
 ```php
 <?php
 
@@ -658,19 +658,19 @@ namespace App;
 
 use App\Http\Session;
 
-function e(string $teks): string
+function e(string $text): string
 {
-    return htmlspecialchars($teks);
+    return htmlspecialchars($text);
 }
 
 /**
  * @param array<string, mixed> $data
  */
-function tampilkan(string $templat, array $data = []): string
+function render(string $template, array $data = []): string
 {
     extract($data);
     ob_start();
-    require __DIR__ . "/../templates/{$templat}.php";
+    require __DIR__ . "/../templates/{$template}.php";
 
     return (string) ob_get_clean();
 }
@@ -678,14 +678,14 @@ function tampilkan(string $templat, array $data = []): string
 /**
  * @param array<string, mixed> $data
  */
-function halaman(string $judul, string $templat, array $data = []): string
+function page(string $title, string $template, array $data = []): string
 {
-    return tampilkan('tata-letak', [
-        'judul' => $judul,
-        'isi' => tampilkan($templat, $data),
-        'flash' => Session::ambilFlash(),
-        'admin' => Session::sudahMasuk(),
-        'csrf' => Session::tokenCsrf(),
+    return render('layout', [
+        'title' => $title,
+        'content' => render($template, $data),
+        'flash' => Session::pullFlash(),
+        'admin' => Session::isLoggedIn(),
+        'csrf' => Session::csrfToken(),
     ]);
 }
 ```
@@ -693,8 +693,8 @@ function halaman(string $judul, string $templat, array $data = []): string
 Tiga fungsi itu:
 
 - **`e()`** mengubah `<`, `>`, `&`, dan tanda kutip menjadi entity HTML. Namanya pendek karena dipanggil di setiap nilai yang dicetak.
-- **`tampilkan()`** menjalankan sebuah file templat dan mengembalikan hasilnya sebagai string. `extract()` mengubah kunci array menjadi variabel lokal, dan pasangan `ob_start()` dengan `ob_get_clean()` menampung output `echo` ke dalam buffer alih-alih mengirimnya.
-- **`halaman()`** membungkus hasil sebuah templat dengan tata letak bersama.
+- **`render()`** menjalankan sebuah file templat dan mengembalikan hasilnya sebagai string. `extract()` mengubah kunci array menjadi variabel lokal, dan pasangan `ob_start()` dengan `ob_get_clean()` menampung output `echo` ke dalam buffer alih-alih mengirimnya.
+- **`page()`** membungkus hasil sebuah templat dengan tata letak bersama.
 
 Seperti di [Bab 6](/06-ekosistem), file berisi fungsi harus didaftarkan sendiri. Tambahkan entri `files` ke `autoload` di `composer.json`, lalu buat ulang autoloader:
 
@@ -704,7 +704,7 @@ Seperti di [Bab 6](/06-ekosistem), file berisi fungsi harus didaftarkan sendiri.
         "App\\": "src/"
     },
     "files": [
-        "src/fungsi.php"
+        "src/functions.php"
     ]
 }
 ```
@@ -715,9 +715,9 @@ composer dump-autoload
 
 ### File templat
 
-Buat `templates/tata-letak.php`:
+Buat `templates/layout.php`:
 
-<!-- file: templates/tata-letak.php -->
+<!-- file: templates/layout.php -->
 ```php
 <?php
 
@@ -726,8 +726,8 @@ declare(strict_types=1);
 use function App\e;
 
 /**
- * @var string $judul
- * @var string $isi
+ * @var string $title
+ * @var string $content
  * @var string|null $flash
  * @var bool $admin
  * @var string $csrf
@@ -738,18 +738,18 @@ use function App\e;
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= e($judul) ?></title>
+    <title><?= e($title) ?></title>
 </head>
 <body>
     <nav>
         <a href="/">Buku Tamu</a>
         <?php if ($admin): ?>
-            <form method="post" action="/keluar">
+            <form method="post" action="/logout">
                 <input type="hidden" name="_token" value="<?= e($csrf) ?>">
                 <button>Keluar</button>
             </form>
         <?php else: ?>
-            <a href="/masuk">Masuk</a>
+            <a href="/login">Masuk</a>
         <?php endif ?>
     </nav>
 
@@ -758,16 +758,16 @@ use function App\e;
     <?php endif ?>
 
     <main>
-        <h1><?= e($judul) ?></h1>
-        <?= $isi ?>
+        <h1><?= e($title) ?></h1>
+        <?= $content ?>
     </main>
 </body>
 </html>
 ```
 
-Buat `templates/beranda.php`:
+Buat `templates/home.php`:
 
-<!-- file: templates/beranda.php -->
+<!-- file: templates/home.php -->
 ```php
 <?php
 
@@ -776,40 +776,40 @@ declare(strict_types=1);
 use function App\e;
 
 /**
- * @var list<App\Pesan> $daftarPesan
+ * @var list<App\Message> $messages
  * @var string $csrf
  * @var bool $admin
- * @var array<string, string> $galat
- * @var string $nama
- * @var string $isi
+ * @var array<string, string> $errors
+ * @var string $name
+ * @var string $body
  */
 ?>
-<form method="post" action="/pesan">
+<form method="post" action="/messages">
     <input type="hidden" name="_token" value="<?= e($csrf) ?>">
 
-    <label for="nama">Nama</label>
-    <input id="nama" name="nama" value="<?= e($nama) ?>" maxlength="50" required>
-    <?php if (isset($galat['nama'])): ?>
-        <p role="alert"><?= e($galat['nama']) ?></p>
+    <label for="name">Nama</label>
+    <input id="name" name="name" value="<?= e($name) ?>" maxlength="50" required>
+    <?php if (isset($errors['name'])): ?>
+        <p role="alert"><?= e($errors['name']) ?></p>
     <?php endif ?>
 
-    <label for="isi">Pesan</label>
-    <textarea id="isi" name="isi" maxlength="500" required><?= e($isi) ?></textarea>
-    <?php if (isset($galat['isi'])): ?>
-        <p role="alert"><?= e($galat['isi']) ?></p>
+    <label for="body">Pesan</label>
+    <textarea id="body" name="body" maxlength="500" required><?= e($body) ?></textarea>
+    <?php if (isset($errors['body'])): ?>
+        <p role="alert"><?= e($errors['body']) ?></p>
     <?php endif ?>
 
     <button>Kirim</button>
 </form>
 
-<?php foreach ($daftarPesan as $pesan): ?>
+<?php foreach ($messages as $message): ?>
     <article>
-        <h2><?= e($pesan->nama) ?></h2>
-        <time datetime="<?= e($pesan->dibuat->format('c')) ?>"><?= e($pesan->dibuat->format('d M Y H:i')) ?></time>
-        <p><?= nl2br(e($pesan->isi)) ?></p>
+        <h2><?= e($message->name) ?></h2>
+        <time datetime="<?= e($message->createdAt->format('c')) ?>"><?= e($message->createdAt->format('d M Y H:i')) ?></time>
+        <p><?= nl2br(e($message->body)) ?></p>
 
         <?php if ($admin): ?>
-            <form method="post" action="/pesan/<?= $pesan->id ?>/hapus">
+            <form method="post" action="/messages/<?= $message->id ?>/delete">
                 <input type="hidden" name="_token" value="<?= e($csrf) ?>">
                 <button>Hapus</button>
             </form>
@@ -818,9 +818,9 @@ use function App\e;
 <?php endforeach ?>
 ```
 
-Buat `templates/masuk.php`:
+Buat `templates/login.php`:
 
-<!-- file: templates/masuk.php -->
+<!-- file: templates/login.php -->
 ```php
 <?php
 
@@ -830,21 +830,21 @@ use function App\e;
 
 /**
  * @var string $csrf
- * @var string|null $galat
+ * @var string|null $error
  */
 ?>
-<form method="post" action="/masuk">
+<form method="post" action="/login">
     <input type="hidden" name="_token" value="<?= e($csrf) ?>">
 
-    <?php if ($galat !== null): ?>
-        <p role="alert"><?= e($galat) ?></p>
+    <?php if ($error !== null): ?>
+        <p role="alert"><?= e($error) ?></p>
     <?php endif ?>
 
-    <label for="nama">Nama</label>
-    <input id="nama" name="nama" autocomplete="username" required>
+    <label for="name">Nama</label>
+    <input id="name" name="name" autocomplete="username" required>
 
-    <label for="sandi">Sandi</label>
-    <input id="sandi" name="sandi" type="password" autocomplete="current-password" required>
+    <label for="password">Sandi</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
 
     <button>Masuk</button>
 </form>
@@ -852,32 +852,32 @@ use function App\e;
 
 Dua pengecualian dari aturan "selalu `e()`" ada di file-file itu, dan keduanya punya alasan:
 
-- **`<?= $isi ?>`** di tata letak: isinya HTML hasil templat lain yang nilainya sudah di-escape satu per satu. Meng-escape-nya lagi justru menampilkan tag sebagai teks.
-- **`<?= $pesan->id ?>`**: bertipe `int`, tidak mungkin berisi HTML.
+- **`<?= $content ?>`** di tata letak: isinya HTML hasil templat lain yang nilainya sudah di-escape satu per satu. Meng-escape-nya lagi justru menampilkan tag sebagai teks.
+- **`<?= $message->id ?>`**: bertipe `int`, tidak mungkin berisi HTML.
 
 ### Templat ikut diperiksa PHPStan
 
-Blok `@var` di awal tiap templat menyatakan variabel apa yang diterima file itu beserta tipenya. Karena folder `templates` masuk ke `paths`, isinya diperiksa seperti kode lain. Kalau baris `@var list<App\Pesan> $daftarPesan` dihapus:
+Blok `@var` di awal tiap templat menyatakan variabel apa yang diterima file itu beserta tipenya. Karena folder `templates` masuk ke `paths`, isinya diperiksa seperti kode lain. Kalau baris `@var list<App\Message> $messages` dihapus:
 
 ```text
   33     Argument of an invalid type mixed supplied for foreach, only
          iterables are supported.
          🪪  foreach.nonIterable
-  33     Variable $daftarPesan might not be defined.
+  33     Variable $messages might not be defined.
          🪪  variable.undefined
-  35     Cannot access property $nama on mixed.
+  35     Cannot access property $name on mixed.
          🪪  property.nonObject
   ...
 ```
 
-Dan kalau `e($pesan->nama)` salah ditulis menjadi `e($pesan->id)`:
+Dan kalau `e($message->name)` salah ditulis menjadi `e($message->id)`:
 
 ```text
-  36     Parameter #1 $teks of function App\e expects string, int given.
+  36     Parameter #1 $text of function App\e expects string, int given.
          🪪  argument.type
 ```
 
-Ada batasnya, dan sebaiknya kamu tahu di mana. PHPStan mempercayai `@var` begitu saja. Ia tidak memeriksa apakah array yang dikirim controller ke `tampilkan()` benar-benar berisi kunci dan tipe yang dijanjikan templat. Batas antara controller dan templat adalah satu tempat di aplikasi ini yang dijaga oleh disiplin, bukan oleh tipe.
+Ada batasnya, dan sebaiknya kamu tahu di mana. PHPStan mempercayai `@var` begitu saja. Ia tidak memeriksa apakah array yang dikirim controller ke `render()` benar-benar berisi kunci dan tipe yang dijanjikan templat. Batas antara controller dan templat adalah satu tempat di aplikasi ini yang dijaga oleh disiplin, bukan oleh tipe.
 
 ## Database dengan PDO
 
@@ -905,9 +905,9 @@ final readonly class Database
 {
     private function __construct(private PDO $pdo) {}
 
-    public static function buka(string $berkas): self
+    public static function open(string $file): self
     {
-        return new self(new PDO("sqlite:{$berkas}", options: [
+        return new self(new PDO("sqlite:{$file}", options: [
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]));
     }
@@ -915,39 +915,39 @@ final readonly class Database
     /**
      * @param array<string, int|string> $parameter
      */
-    public function jalankan(string $sql, array $parameter = []): PDOStatement
+    public function run(string $sql, array $parameter = []): PDOStatement
     {
-        $perintah = $this->pdo->prepare($sql);
+        $statement = $this->pdo->prepare($sql);
 
         // prepare() bertipe PDOStatement|false, walaupun dalam mode exception false tidak pernah muncul.
-        if ($perintah === false) {
+        if ($statement === false) {
             throw new RuntimeException('Query gagal disiapkan');
         }
 
-        $perintah->execute($parameter);
+        $statement->execute($parameter);
 
-        return $perintah;
+        return $statement;
     }
 
     /**
      * @template T
      *
-     * @param Closure(): T $aksi
+     * @param Closure(): T $action
      * @return T
      */
-    public function transaksi(Closure $aksi): mixed
+    public function transaction(Closure $action): mixed
     {
         $this->pdo->beginTransaction();
 
         try {
-            $hasil = $aksi();
+            $result = $action();
             $this->pdo->commit();
 
-            return $hasil;
-        } catch (Throwable $galat) {
+            return $result;
+        } catch (Throwable $error) {
             $this->pdo->rollBack();
 
-            throw $galat;
+            throw $error;
         }
     }
 }
@@ -955,27 +955,27 @@ final readonly class Database
 
 Yang perlu diperhatikan:
 
-- **`"sqlite:{$berkas}"`** adalah DSN, string koneksi PDO. Untuk MySQL bentuknya `mysql:host=...;dbname=...`, ditambah nama pengguna dan sandi sebagai argumen berikutnya.
+- **`"sqlite:{$file}"`** adalah DSN, string koneksi PDO. Untuk MySQL bentuknya `mysql:host=...;dbname=...`, ditambah nama pengguna dan sandi sebagai argumen berikutnya.
 - **`FETCH_ASSOC`** membuat setiap baris hasil query berupa array dengan nama kolom sebagai kunci.
 - **Kegagalan query melempar `PDOException`.** Itu mode bawaan sejak PHP 8.
-- **`jalankan()` selalu memakai prepared statement.** Alasannya ada di bagian SQL injection di bawah.
-- **`transaksi()`** memakai generics dari [Bab 2](/02-type-system): apa pun yang dikembalikan closure menjadi tipe kembaliannya.
+- **`run()` selalu memakai prepared statement.** Alasannya ada di bagian SQL injection di bawah.
+- **`transaction()`** memakai generics dari [Bab 2](/02-type-system): apa pun yang dikembalikan closure menjadi tipe kembaliannya.
 
 Pengecekan `=== false` adalah contoh warisan lama dari [Bab 5](/05-error-handling). Tanpa pengecekan itu PHPStan menolak:
 
 ```text
   32     Cannot call method execute() on PDOStatement|false.
          🪪  method.nonObject
-  34     Method App\Database::jalankan() should return PDOStatement but
-         returns (PDOStatement|false).
+  34     Method App\Database::run() should return PDOStatement but returns
+         (PDOStatement|false).
          🪪  return.type
 ```
 
 ### Dari baris ke objek
 
-Hasil query adalah array yang isinya ditentukan database, bukan oleh kodemu. Bagi PHPStan itu `mixed`, sama seperti superglobal. Polanya juga sama: ubah menjadi objek bertipe di satu tempat. Buat `src/Pesan.php`:
+Hasil query adalah array yang isinya ditentukan database, bukan oleh kodemu. Bagi PHPStan itu `mixed`, sama seperti superglobal. Polanya juga sama: ubah menjadi objek bertipe di satu tempat. Buat `src/Message.php`:
 
-<!-- file: src/Pesan.php -->
+<!-- file: src/Message.php -->
 ```php
 <?php
 
@@ -986,37 +986,37 @@ namespace App;
 use DateTimeImmutable;
 use UnexpectedValueException;
 
-final readonly class Pesan
+final readonly class Message
 {
     public function __construct(
         public int $id,
-        public string $nama,
-        public string $isi,
-        public DateTimeImmutable $dibuat,
+        public string $name,
+        public string $body,
+        public DateTimeImmutable $createdAt,
     ) {}
 
-    public static function dariBaris(mixed $baris): self
+    public static function fromRow(mixed $row): self
     {
-        $baris = is_array($baris) ? $baris : [];
-        $id = $baris['id'] ?? null;
-        $nama = $baris['nama'] ?? null;
-        $isi = $baris['isi'] ?? null;
-        $dibuat = $baris['dibuat'] ?? null;
+        $row = is_array($row) ? $row : [];
+        $id = $row['id'] ?? null;
+        $name = $row['name'] ?? null;
+        $body = $row['body'] ?? null;
+        $createdAt = $row['created_at'] ?? null;
 
-        if (!is_int($id) || !is_string($nama) || !is_string($isi) || !is_string($dibuat)) {
-            throw new UnexpectedValueException('Baris tabel pesan tidak sesuai bentuk yang diharapkan');
+        if (!is_int($id) || !is_string($name) || !is_string($body) || !is_string($createdAt)) {
+            throw new UnexpectedValueException('Baris tabel messages tidak sesuai bentuk yang diharapkan');
         }
 
-        return new self($id, $nama, $isi, new DateTimeImmutable($dibuat));
+        return new self($id, $name, $body, new DateTimeImmutable($createdAt));
     }
 }
 ```
 
 Ini padanan `serde` atau schema zod yang ditulis tangan: kalau bentuk baris tidak sesuai, program berhenti di batas ini, bukan jauh di dalam templat.
 
-Buat `src/PesanRepository.php`:
+Buat `src/MessageRepository.php`:
 
-<!-- file: src/PesanRepository.php -->
+<!-- file: src/MessageRepository.php -->
 ```php
 <?php
 
@@ -1024,41 +1024,41 @@ declare(strict_types=1);
 
 namespace App;
 
-final readonly class PesanRepository
+final readonly class MessageRepository
 {
     public function __construct(private Database $db) {}
 
     /**
-     * @return list<Pesan>
+     * @return list<Message>
      */
-    public function semua(): array
+    public function all(): array
     {
-        $baris = $this->db->jalankan('SELECT id, nama, isi, dibuat FROM pesan ORDER BY id DESC')->fetchAll();
+        $rows = $this->db->run('SELECT id, name, body, created_at FROM messages ORDER BY id DESC')->fetchAll();
 
-        return array_values(array_map(Pesan::dariBaris(...), $baris));
+        return array_values(array_map(Message::fromRow(...), $rows));
     }
 
-    public function tambah(string $nama, string $isi): void
+    public function add(string $name, string $body): void
     {
-        $this->db->jalankan('INSERT INTO pesan (nama, isi, dibuat) VALUES (:nama, :isi, :dibuat)', [
-            'nama' => $nama,
-            'isi' => $isi,
-            'dibuat' => date('Y-m-d H:i:s'),
+        $this->db->run('INSERT INTO messages (name, body, created_at) VALUES (:name, :body, :created_at)', [
+            'name' => $name,
+            'body' => $body,
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
     }
 
-    public function hapus(int $id): void
+    public function delete(int $id): void
     {
-        $this->db->jalankan('DELETE FROM pesan WHERE id = :id', ['id' => $id]);
+        $this->db->run('DELETE FROM messages WHERE id = :id', ['id' => $id]);
     }
 }
 ```
 
-`:nama`, `:isi`, dan `:dibuat` adalah *placeholder*. Nilainya dikirim terpisah dari teks SQL lewat array di argumen kedua.
+`:name`, `:body`, dan `:created_at` adalah *placeholder*. Nilainya dikirim terpisah dari teks SQL lewat array di argumen kedua.
 
 ## Menyimpan sandi
 
-Sandi tidak pernah disimpan apa adanya, dan tidak di-hash dengan fungsi hash umum seperti SHA-256 yang terlalu cepat untuk keperluan ini. PHP punya dua fungsi khusus. Buat `bin/coba-sandi.php`:
+Sandi tidak pernah disimpan apa adanya, dan tidak di-hash dengan fungsi hash umum seperti SHA-256 yang terlalu cepat untuk keperluan ini. PHP punya dua fungsi khusus. Buat `bin/try-password.php`:
 
 ```php
 <?php
@@ -1074,7 +1074,7 @@ var_dump(password_needs_rehash($hash, PASSWORD_DEFAULT));
 ```
 
 ```bash
-php bin/coba-sandi.php
+php bin/try-password.php
 ```
 
 ```text
@@ -1090,9 +1090,9 @@ String hasilnya memuat semua yang dibutuhkan untuk verifikasi: algoritma (`2y`, 
 - **`password_verify()`** membandingkan sandi dengan hash, dengan waktu yang tidak bergantung pada posisi karakter yang salah.
 - **`password_needs_rehash()`** mengembalikan `true` kalau hash lama dibuat dengan pengaturan yang sudah ketinggalan, supaya bisa diperbarui saat pengguna login.
 
-Hapus file coba-coba itu, lalu buat `src/PenggunaRepository.php`:
+Hapus file coba-coba itu, lalu buat `src/UserRepository.php`:
 
-<!-- file: src/PenggunaRepository.php -->
+<!-- file: src/UserRepository.php -->
 ```php
 <?php
 
@@ -1100,29 +1100,29 @@ declare(strict_types=1);
 
 namespace App;
 
-final readonly class PenggunaRepository
+final readonly class UserRepository
 {
     public function __construct(private Database $db) {}
 
-    public function tambah(string $nama, string $sandi): void
+    public function add(string $name, string $password): void
     {
-        $this->db->jalankan('INSERT INTO pengguna (nama, hash_sandi) VALUES (:nama, :hash)', [
-            'nama' => $nama,
-            'hash' => password_hash($sandi, PASSWORD_DEFAULT),
+        $this->db->run('INSERT INTO users (name, password_hash) VALUES (:name, :hash)', [
+            'name' => $name,
+            'hash' => password_hash($password, PASSWORD_DEFAULT),
         ]);
     }
 
     /**
      * Mengembalikan id pengguna kalau nama dan sandinya cocok.
      */
-    public function autentikasi(string $nama, string $sandi): ?int
+    public function authenticate(string $name, string $password): ?int
     {
-        $baris = $this->db->jalankan('SELECT id, hash_sandi FROM pengguna WHERE nama = :nama', ['nama' => $nama])->fetch();
-        $baris = is_array($baris) ? $baris : [];
-        $id = $baris['id'] ?? null;
-        $hash = $baris['hash_sandi'] ?? null;
+        $row = $this->db->run('SELECT id, password_hash FROM users WHERE name = :name', ['name' => $name])->fetch();
+        $row = is_array($row) ? $row : [];
+        $id = $row['id'] ?? null;
+        $hash = $row['password_hash'] ?? null;
 
-        if (!is_int($id) || !is_string($hash) || !password_verify($sandi, $hash)) {
+        if (!is_int($id) || !is_string($hash) || !password_verify($password, $hash)) {
             return null;
         }
 
@@ -1131,69 +1131,69 @@ final readonly class PenggunaRepository
 }
 ```
 
-`autentikasi()` mengembalikan `null` baik saat nama tidak dikenal maupun saat sandinya salah. Pemanggil sengaja tidak diberi tahu yang mana, supaya halaman login tidak bisa dipakai untuk menebak nama pengguna yang terdaftar.
+`authenticate()` mengembalikan `null` baik saat nama tidak dikenal maupun saat sandinya salah. Pemanggil sengaja tidak diberi tahu yang mana, supaya halaman login tidak bisa dipakai untuk menebak nama pengguna yang terdaftar.
 
 ## Membuat database
 
-Buat `bin/siapkan.php`:
+Buat `bin/setup.php`:
 
-<!-- file: bin/siapkan.php -->
+<!-- file: bin/setup.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
 use App\Database;
-use App\PenggunaRepository;
+use App\UserRepository;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $folder = __DIR__ . '/../var';
-$berkas = $folder . '/bukutamu.sqlite';
+$file = $folder . '/guestbook.sqlite';
 
 if (!is_dir($folder)) {
     mkdir($folder);
 }
 
-if (is_file($berkas)) {
-    unlink($berkas);
+if (is_file($file)) {
+    unlink($file);
 }
 
-$db = Database::buka($berkas);
+$db = Database::open($file);
 
-$db->transaksi(static function () use ($db): void {
-    $db->jalankan('CREATE TABLE pesan (
+$db->transaction(static function () use ($db): void {
+    $db->run('CREATE TABLE messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nama TEXT NOT NULL,
-        isi TEXT NOT NULL,
-        dibuat TEXT NOT NULL
+        name TEXT NOT NULL,
+        body TEXT NOT NULL,
+        created_at TEXT NOT NULL
     )');
 
-    $db->jalankan('CREATE TABLE pengguna (
+    $db->run('CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nama TEXT NOT NULL UNIQUE,
-        hash_sandi TEXT NOT NULL
+        name TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL
     )');
 
-    new PenggunaRepository($db)->tambah('admin', 'rahasia123');
+    new UserRepository($db)->add('admin', 'rahasia123');
 });
 
-echo 'Database siap: ' . realpath($berkas) . PHP_EOL;
+echo 'Database siap: ' . realpath($file) . PHP_EOL;
 ```
 
 ```bash
-php bin/siapkan.php
+php bin/setup.php
 ```
 
 ```text
-Database siap: /app/var/bukutamu.sqlite
+Database siap: /app/var/guestbook.sqlite
 ```
 
 Script ini menghapus database lama dan membuat yang baru, jadi aman dijalankan ulang kapan pun kamu ingin mulai dari kosong. Sandi admin ditulis langsung di script karena ini latihan. Di aplikasi sungguhan, sandi awal tidak pernah ada di kode.
 
 ### SQL injection
 
-Sekarang ada data untuk dicoba. Buat `bin/coba-injeksi.php`, yang menjalankan pencarian yang sama dengan dua cara:
+Sekarang ada data untuk dicoba. Buat `bin/try-injection.php`, yang menjalankan pencarian yang sama dengan dua cara:
 
 ```php
 <?php
@@ -1204,19 +1204,19 @@ use App\Database;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$db = Database::buka(__DIR__ . '/../var/bukutamu.sqlite');
+$db = Database::open(__DIR__ . '/../var/guestbook.sqlite');
 
-$nama = "bukan-siapa-siapa' OR '1'='1";
+$name = "bukan-siapa-siapa' OR '1'='1";
 
-$rentan = $db->jalankan("SELECT nama FROM pengguna WHERE nama = '{$nama}'")->fetchAll();
-$aman = $db->jalankan('SELECT nama FROM pengguna WHERE nama = :nama', ['nama' => $nama])->fetchAll();
+$vulnerable = $db->run("SELECT name FROM users WHERE name = '{$name}'")->fetchAll();
+$safe = $db->run('SELECT name FROM users WHERE name = :name', ['name' => $name])->fetchAll();
 
-echo 'Ditempel ke SQL : ' . count($rentan) . ' baris' . PHP_EOL;
-echo 'Prepared        : ' . count($aman) . ' baris' . PHP_EOL;
+echo 'Ditempel ke SQL : ' . count($vulnerable) . ' baris' . PHP_EOL;
+echo 'Prepared        : ' . count($safe) . ' baris' . PHP_EOL;
 ```
 
 ```bash
-php bin/coba-injeksi.php
+php bin/try-injection.php
 ```
 
 ```text
@@ -1224,7 +1224,7 @@ Ditempel ke SQL : 1 baris
 Prepared        : 0 baris
 ```
 
-Tidak ada pengguna bernama `bukan-siapa-siapa' OR '1'='1`, tetapi cara pertama tetap mengembalikan baris admin. Tanda kutip di dalam input menutup string SQL lebih awal, dan sisanya dibaca database sebagai perintah: `WHERE nama = 'bukan-siapa-siapa' OR '1'='1'`, yang benar untuk semua baris.
+Tidak ada pengguna bernama `bukan-siapa-siapa' OR '1'='1`, tetapi cara pertama tetap mengembalikan baris admin. Tanda kutip di dalam input menutup string SQL lebih awal, dan sisanya dibaca database sebagai perintah: `WHERE name = 'bukan-siapa-siapa' OR '1'='1'`, yang benar untuk semua baris.
 
 Pada cara kedua, teks SQL dan nilainya dikirim terpisah. Database menerima input itu sebagai satu nilai string utuh, apa pun isinya. Aturannya sederhana dan tidak punya pengecualian: **nilai dari luar tidak pernah ditempel ke teks SQL**.
 
@@ -1232,7 +1232,7 @@ PHPStan tidak menangkap ini. Bagi sistem tipe, kedua query sama-sama `string`. D
 
 ### Transaksi
 
-Buat `bin/coba-transaksi.php`. Dua operasi dijalankan dalam satu transaksi, dan yang kedua pasti gagal karena nama `admin` sudah ada:
+Buat `bin/try-transaction.php`. Dua operasi dijalankan dalam satu transaksi, dan yang kedua pasti gagal karena nama `admin` sudah ada:
 
 ```php
 <?php
@@ -1240,45 +1240,45 @@ Buat `bin/coba-transaksi.php`. Dua operasi dijalankan dalam satu transaksi, dan 
 declare(strict_types=1);
 
 use App\Database;
-use App\PenggunaRepository;
-use App\PesanRepository;
+use App\MessageRepository;
+use App\UserRepository;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$db = Database::buka(__DIR__ . '/../var/bukutamu.sqlite');
-$pesan = new PesanRepository($db);
-$pengguna = new PenggunaRepository($db);
+$db = Database::open(__DIR__ . '/../var/guestbook.sqlite');
+$messages = new MessageRepository($db);
+$users = new UserRepository($db);
 
-$sebelum = count($pesan->semua());
+$before = count($messages->all());
 
 try {
-    $db->transaksi(static function () use ($pesan, $pengguna): void {
-        $pesan->tambah('Sistem', 'Admin kedua dibuat.');
-        $pengguna->tambah('admin', 'sandi-lain');
+    $db->transaction(static function () use ($messages, $users): void {
+        $messages->add('Sistem', 'Admin kedua dibuat.');
+        $users->add('admin', 'sandi-lain');
     });
-} catch (PDOException $galat) {
-    echo 'Gagal: ' . $galat->getMessage() . PHP_EOL;
+} catch (PDOException $error) {
+    echo 'Gagal: ' . $error->getMessage() . PHP_EOL;
 }
 
-echo "Jumlah pesan: {$sebelum} -> " . count($pesan->semua()) . PHP_EOL;
+echo "Jumlah pesan: {$before} -> " . count($messages->all()) . PHP_EOL;
 ```
 
 ```bash
-php bin/coba-transaksi.php
+php bin/try-transaction.php
 ```
 
 ```text
-Gagal: SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: pengguna.nama
+Gagal: SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: users.name
 Jumlah pesan: 0 -> 0
 ```
 
-Pesan yang sudah sempat ditambahkan ikut dibatalkan. Bentuk `transaksi(fn)` ini sama dengan `DB::transaction()` di Laravel. Hapus kedua file `coba-*.php`.
+Pesan yang sudah sempat ditambahkan ikut dibatalkan. Bentuk `transaction(fn)` ini sama dengan `DB::transaction()` di Laravel. Hapus kedua file `try-*.php`.
 
 ## Controller
 
-Controller menerima `Request`, memanggil repository, dan mengembalikan `Response`. Buat `src/BukuTamuController.php`:
+Controller menerima `Request`, memanggil repository, dan mengembalikan `Response`. Buat `src/GuestbookController.php`:
 
-<!-- file: src/BukuTamuController.php -->
+<!-- file: src/GuestbookController.php -->
 ```php
 <?php
 
@@ -1290,105 +1290,105 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Http\Session;
 
-final readonly class BukuTamuController
+final readonly class GuestbookController
 {
     public function __construct(
-        private PesanRepository $pesan,
-        private PenggunaRepository $pengguna,
+        private MessageRepository $messages,
+        private UserRepository $users,
     ) {}
 
     /**
-     * @param array<string, string> $galat
+     * @param array<string, string> $errors
      */
-    public function beranda(array $galat = [], string $nama = '', string $isi = ''): Response
+    public function home(array $errors = [], string $name = '', string $body = ''): Response
     {
-        $html = halaman('Buku Tamu', 'beranda', [
-            'daftarPesan' => $this->pesan->semua(),
-            'csrf' => Session::tokenCsrf(),
-            'admin' => Session::sudahMasuk(),
-            'galat' => $galat,
-            'nama' => $nama,
-            'isi' => $isi,
+        $html = page('Buku Tamu', 'home', [
+            'messages' => $this->messages->all(),
+            'csrf' => Session::csrfToken(),
+            'admin' => Session::isLoggedIn(),
+            'errors' => $errors,
+            'name' => $name,
+            'body' => $body,
         ]);
 
-        return new Response($html, $galat === [] ? 200 : 422);
+        return new Response($html, $errors === [] ? 200 : 422);
     }
 
-    public function kirim(Request $request): Response
+    public function submit(Request $request): Response
     {
-        $nama = $request->input('nama');
-        $isi = $request->input('isi');
-        $galat = [];
+        $name = $request->input('name');
+        $body = $request->input('body');
+        $errors = [];
 
-        if ($nama === '' || mb_strlen($nama) > 50) {
-            $galat['nama'] = 'Nama wajib diisi, maksimal 50 karakter.';
+        if ($name === '' || mb_strlen($name) > 50) {
+            $errors['name'] = 'Nama wajib diisi, maksimal 50 karakter.';
         }
 
-        if ($isi === '' || mb_strlen($isi) > 500) {
-            $galat['isi'] = 'Pesan wajib diisi, maksimal 500 karakter.';
+        if ($body === '' || mb_strlen($body) > 500) {
+            $errors['body'] = 'Pesan wajib diisi, maksimal 500 karakter.';
         }
 
-        if ($galat !== []) {
-            return $this->beranda($galat, $nama, $isi);
+        if ($errors !== []) {
+            return $this->home($errors, $name, $body);
         }
 
-        $this->pesan->tambah($nama, $isi);
+        $this->messages->add($name, $body);
         Session::setFlash('Pesan terkirim.');
 
-        return Response::alihkan('/');
+        return Response::redirect('/');
     }
 
-    public function hapus(int $id): Response
+    public function delete(int $id): Response
     {
-        if (!Session::sudahMasuk()) {
+        if (!Session::isLoggedIn()) {
             return new Response('Hanya admin yang boleh menghapus pesan.', 403);
         }
 
-        $this->pesan->hapus($id);
+        $this->messages->delete($id);
         Session::setFlash('Pesan dihapus.');
 
-        return Response::alihkan('/');
+        return Response::redirect('/');
     }
 
-    public function formMasuk(?string $galat = null): Response
+    public function loginForm(?string $error = null): Response
     {
-        $html = halaman('Masuk', 'masuk', [
-            'csrf' => Session::tokenCsrf(),
-            'galat' => $galat,
+        $html = page('Masuk', 'login', [
+            'csrf' => Session::csrfToken(),
+            'error' => $error,
         ]);
 
-        return new Response($html, $galat === null ? 200 : 422);
+        return new Response($html, $error === null ? 200 : 422);
     }
 
-    public function masuk(Request $request): Response
+    public function login(Request $request): Response
     {
-        $id = $this->pengguna->autentikasi($request->input('nama'), $request->form['sandi'] ?? '');
+        $id = $this->users->authenticate($request->input('name'), $request->form['password'] ?? '');
 
         if ($id === null) {
-            return $this->formMasuk('Nama atau sandi salah.');
+            return $this->loginForm('Nama atau sandi salah.');
         }
 
-        Session::masuk($id);
+        Session::login($id);
         Session::setFlash('Kamu masuk sebagai admin.');
 
-        return Response::alihkan('/');
+        return Response::redirect('/');
     }
 
-    public function keluar(): Response
+    public function logout(): Response
     {
-        Session::keluar();
+        Session::logout();
         Session::setFlash('Kamu sudah keluar.');
 
-        return Response::alihkan('/');
+        return Response::redirect('/');
     }
 }
 ```
 
 Empat pola di dalamnya akan kamu temui lagi di Laravel:
 
-- **Validasi di server.** Atribut `required` dan `maxlength` di form hanya membantu pengguna yang jujur. Siapa pun bisa mengirim request tanpa lewat form, jadi aturan yang sama diperiksa lagi di `kirim()`. Kalau gagal, form ditampilkan ulang dengan pesan galat dan isian sebelumnya, berstatus 422.
-- **POST lalu redirect.** Setelah berhasil menyimpan, `kirim()` tidak menampilkan halaman, melainkan mengalihkan ke `/` dengan status 303. Tanpa itu, menekan tombol refresh akan mengirim ulang form dan menggandakan pesan.
-- **Otorisasi di server.** Tombol Hapus memang hanya ditampilkan untuk admin, tetapi `hapus()` tetap memeriksa sendiri. Menyembunyikan tombol bukan pengamanan.
+- **Validasi di server.** Atribut `required` dan `maxlength` di form hanya membantu pengguna yang jujur. Siapa pun bisa mengirim request tanpa lewat form, jadi aturan yang sama diperiksa lagi di `submit()`. Kalau gagal, form ditampilkan ulang dengan pesan galat dan isian sebelumnya, berstatus 422.
+- **POST lalu redirect.** Setelah berhasil menyimpan, `submit()` tidak menampilkan halaman, melainkan mengalihkan ke `/` dengan status 303. Tanpa itu, menekan tombol refresh akan mengirim ulang form dan menggandakan pesan.
+- **Otorisasi di server.** Tombol Hapus memang hanya ditampilkan untuk admin, tetapi `delete()` tetap memeriksa sendiri. Menyembunyikan tombol bukan pengamanan.
 - **Dependency lewat constructor.** Controller tidak membuat repository sendiri, melainkan menerimanya, seperti di [Bab 4](/04-oop).
 
 Sandi diambil dari `$request->form` langsung, bukan lewat `input()`, karena `input()` memangkas spasi dan sandi tidak boleh diubah.
@@ -1403,46 +1403,46 @@ Yang tersisa adalah menyambungkan semuanya. Timpa `public/index.php`:
 
 declare(strict_types=1);
 
-use App\BukuTamuController;
 use App\Database;
+use App\GuestbookController;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Session;
-use App\PenggunaRepository;
-use App\PesanRepository;
+use App\MessageRepository;
+use App\UserRepository;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 try {
-    Session::mulai();
+    Session::start();
 
-    $request = Request::dariGlobal();
-    $db = Database::buka(__DIR__ . '/../var/bukutamu.sqlite');
-    $kontroler = new BukuTamuController(new PesanRepository($db), new PenggunaRepository($db));
+    $request = Request::fromGlobals();
+    $db = Database::open(__DIR__ . '/../var/guestbook.sqlite');
+    $controller = new GuestbookController(new MessageRepository($db), new UserRepository($db));
 
-    $metode = $request->method;
+    $method = $request->method;
     $path = $request->path;
 
-    $respons = match (true) {
-        $metode === 'GET' && $path === '/' => $kontroler->beranda(),
-        $metode === 'GET' && $path === '/masuk' => $kontroler->formMasuk(),
+    $response = match (true) {
+        $method === 'GET' && $path === '/' => $controller->home(),
+        $method === 'GET' && $path === '/login' => $controller->loginForm(),
 
         // Semua POST harus membawa token CSRF yang cocok sebelum sampai ke rute di bawahnya.
-        $metode === 'POST' && !Session::csrfCocok($request->input('_token')) => new Response('Token CSRF tidak cocok.', 403),
+        $method === 'POST' && !Session::csrfMatches($request->input('_token')) => new Response('Token CSRF tidak cocok.', 403),
 
-        $metode === 'POST' && $path === '/pesan' => $kontroler->kirim($request),
-        $metode === 'POST' && $path === '/masuk' => $kontroler->masuk($request),
-        $metode === 'POST' && $path === '/keluar' => $kontroler->keluar(),
-        $metode === 'POST' && preg_match('#^/pesan/(\d+)/hapus$#', $path, $cocok) === 1 => $kontroler->hapus((int) $cocok[1]),
+        $method === 'POST' && $path === '/messages' => $controller->submit($request),
+        $method === 'POST' && $path === '/login' => $controller->login($request),
+        $method === 'POST' && $path === '/logout' => $controller->logout(),
+        $method === 'POST' && preg_match('#^/messages/(\d+)/delete$#', $path, $matches) === 1 => $controller->delete((int) $matches[1]),
 
         default => new Response('Halaman tidak ditemukan.', 404),
     };
-} catch (Throwable $galat) {
-    error_log((string) $galat);
-    $respons = new Response('Terjadi kesalahan di server.', 500);
+} catch (Throwable $error) {
+    error_log((string) $error);
+    $response = new Response('Terjadi kesalahan di server.', 500);
 }
 
-$respons->kirim();
+$response->send();
 ```
 
 File ini adalah *front controller*: semua request masuk lewat satu file, apa pun URL-nya. Server bawaan PHP meneruskan URL yang tidak cocok dengan file mana pun di `public/` ke `index.php`. Di server sungguhan, peran itu dipegang aturan rewrite web server, yang disiapkan di [Bab 12](/12-deploy).
@@ -1451,15 +1451,15 @@ Seluruh siklus hidup aplikasi terbaca dari atas ke bawah: muat autoloader, mulai
 
 ### Routing dengan `match`
 
-`match (true)` dari [Bab 3](/03-dasar-bahasa) mengambil lengan pertama yang kondisinya benar, jadi urutan lengan menentukan. Rute dengan bagian yang berubah-ubah, seperti `/pesan/7/hapus`, dicocokkan dengan `preg_match`. PHPStan membaca pola regex itu dan menyimpulkan `$cocok[1]` bertipe `numeric-string`, jadi cast `(int)` di sana aman.
+`match (true)` dari [Bab 3](/03-dasar-bahasa) mengambil lengan pertama yang kondisinya benar, jadi urutan lengan menentukan. Rute dengan bagian yang berubah-ubah, seperti `/messages/7/delete`, dicocokkan dengan `preg_match`. PHPStan membaca pola regex itu dan menyimpulkan `$matches[1]` bertipe `numeric-string`, jadi cast `(int)` di sana aman.
 
 ### CSRF
 
-Browser menyertakan cookie session secara otomatis pada setiap request ke situsmu, termasuk request yang dipicu halaman lain. Seandainya admin sedang login lalu membuka halaman milik penyerang, halaman itu bisa berisi form tersembunyi yang mengirim POST ke `/pesan/1/hapus`. Server melihat cookie session admin yang sah, dan menghapus pesannya. Serangan ini disebut CSRF (*cross-site request forgery*).
+Browser menyertakan cookie session secara otomatis pada setiap request ke situsmu, termasuk request yang dipicu halaman lain. Seandainya admin sedang login lalu membuka halaman milik penyerang, halaman itu bisa berisi form tersembunyi yang mengirim POST ke `/messages/1/delete`. Server melihat cookie session admin yang sah, dan menghapus pesannya. Serangan ini disebut CSRF (*cross-site request forgery*).
 
 Pertahanannya adalah meminta sesuatu yang tidak bisa diketahui halaman penyerang:
 
-1. Server membuat token acak dan menyimpannya di session (`Session::tokenCsrf()`).
+1. Server membuat token acak dan menyimpannya di session (`Session::csrfToken()`).
 2. Setiap form menyertakan token itu sebagai field tersembunyi `_token`.
 3. Setiap POST ditolak kalau token yang dikirim tidak sama dengan yang di session.
 
@@ -1497,12 +1497,12 @@ Set-Cookie: PHPSESSID=c2188e105c78ed941ff537239140f33c; path=/; HttpOnly; SameSi
 ...
 ```
 
-Bandingkan dengan cookie polos di percobaan `hitung.php`: sekarang ada `HttpOnly` dan `SameSite=Lax`.
+Bandingkan dengan cookie polos di percobaan `counter.php`: sekarang ada `HttpOnly` dan `SameSite=Lax`.
 
 ### POST tanpa token ditolak
 
 ```bash
-curl -i -d "nama=Budi" -d "isi=Halo" http://localhost:8000/pesan
+curl -i -d "name=Budi" -d "body=Halo" http://localhost:8000/messages
 ```
 
 ```text
@@ -1546,10 +1546,10 @@ Form dengan nama kosong dijawab 422, lengkap dengan pesan galat dan isian sebelu
 
 ```html
 <p role="alert">Nama wajib diisi, maksimal 50 karakter.</p>
-<textarea id="isi" name="isi" maxlength="500" required>tanpa nama</textarea>
+<textarea id="body" name="body" maxlength="500" required>tanpa nama</textarea>
 ```
 
-Trik `nama[]=x` berakhir di tempat yang sama, karena `Request` hanya meneruskan nilai string.
+Trik `name[]=x` berakhir di tempat yang sama, karena `Request` hanya meneruskan nilai string.
 
 ### Login mengganti ID session
 
@@ -1569,11 +1569,11 @@ Set-Cookie: PHPSESSID=7961a4e01df9e9111153d6bdac8e69c0; path=/; HttpOnly; SameSi
 Location: /
 ```
 
-ID yang dipakai sebelum login tidak berlaku lagi. Itu hasil `session_regenerate_id(true)` di `Session::masuk()`.
+ID yang dipakai sebelum login tidak berlaku lagi. Itu hasil `session_regenerate_id(true)` di `Session::login()`.
 
 ### Error tidak bocor
 
-Untuk melihat penanganan error bekerja, ganti nama file `var/bukutamu.sqlite` sebentar lalu muat halaman:
+Untuk melihat penanganan error bekerja, ganti nama file `var/guestbook.sqlite` sebentar lalu muat halaman:
 
 ```text
 HTTP/1.1 500 Internal Server Error
@@ -1584,17 +1584,17 @@ Terjadi kesalahan di server.
 Rinciannya hanya ada di log server, di terminal pertama:
 
 ```text
-[Mon Nov 16 07:54:51 2026] PDOException: SQLSTATE[HY000]: General error: 1 no such table: pesan in /app/src/Database.php:29
+[Mon Nov 16 07:54:51 2026] PDOException: SQLSTATE[HY000]: General error: 1 no such table: messages in /app/src/Database.php:29
 Stack trace:
-#0 /app/src/Database.php(29): PDO->prepare('SELECT id, nama...')
-#1 /app/src/PesanRepository.php(16): App\Database->jalankan('SELECT id, nama...')
-#2 /app/src/BukuTamuController.php(24): App\PesanRepository->semua()
-#3 /app/public/index.php(26): App\BukuTamuController->beranda()
+#0 /app/src/Database.php(29): PDO->prepare('SELECT id, name...')
+#1 /app/src/MessageRepository.php(16): App\Database->run('SELECT id, name...')
+#2 /app/src/GuestbookController.php(24): App\MessageRepository->all()
+#3 /app/public/index.php(26): App\GuestbookController->home()
 #4 {main}
 [Mon Nov 16 07:54:51 2026] 172.27.0.1:44634 [500]: GET /
 ```
 
-Jalankan `php bin/siapkan.php` untuk memulihkan database.
+Jalankan `php bin/setup.php` untuk memulihkan database.
 
 ## Yang kamu bangun, dan padanannya di Laravel
 
@@ -1603,15 +1603,15 @@ Aplikasi ini sekitar 650 baris termasuk templat, dan hampir semuanya adalah peke
 | Yang kamu tulis sendiri | Di Laravel |
 |---|---|
 | `public/index.php` dan `match` | `public/index.php` bawaan dan file rute `routes/web.php` |
-| `Request::dariGlobal()` | Objek `Request` yang disuntikkan ke controller |
-| `Response` dan `alihkan()` | `response()` dan `redirect()` |
+| `Request::fromGlobals()` | Objek `Request` yang disuntikkan ke controller |
+| `Response` dan `redirect()` | `response()` dan `redirect()` |
 | Validasi dengan `if` di controller | `$request->validate()` dan Form Request |
-| `e()` di setiap nilai | Blade: <span v-pre>`{{ $nilai }}`</span> meng-escape secara bawaan |
-| `Database`, repository, `dariBaris()` | Query builder dan Eloquent |
-| `bin/siapkan.php` | Migration dan seeder |
+| `e()` di setiap nilai | Blade: <span v-pre>`{{ $value }}`</span> meng-escape secara bawaan |
+| `Database`, repository, `fromRow()` | Query builder dan Eloquent |
+| `bin/setup.php` | Migration dan seeder |
 | `Session`, flash | `session()` dan `->with()` |
 | Lengan CSRF di `match` | Middleware CSRF dan direktif `@csrf` |
-| `password_hash()` dan `Session::masuk()` | `Hash` dan `Auth` |
+| `password_hash()` dan `Session::login()` | `Hash` dan `Auth` |
 | `try`/`catch` di `index.php` | Exception handler |
 | Merakit objek dengan `new` di `index.php` | Service container |
 
@@ -1631,21 +1631,21 @@ Dua hal dari bab ini tetap berlaku di Laravel dan tidak diambil alih siapa pun: 
 
 ### 1. Static yang tidak bertahan
 
-Seorang rekan yang terbiasa dengan Rust menulis `public/statis.php` ini dan berharap angkanya naik di setiap request, karena property `static` hidup sepanjang program. Apa output tiga request berturut-turut, dan kenapa?
+Seorang rekan yang terbiasa dengan Rust menulis `public/static.php` ini dan berharap angkanya naik di setiap request, karena property `static` hidup sepanjang program. Apa output tiga request berturut-turut, dan kenapa?
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-final class Penghitung
+final class Counter
 {
-    public static int $jumlah = 0;
+    public static int $count = 0;
 }
 
-Penghitung::$jumlah++;
+Counter::$count++;
 
-echo 'Request ke-' . Penghitung::$jumlah . PHP_EOL;
+echo 'Request ke-' . Counter::$count . PHP_EOL;
 ```
 
 ::: details Jawaban
@@ -1655,54 +1655,54 @@ Request ke-1
 Request ke-1
 ```
 
-Property `static` memang hidup sepanjang program, tetapi di PHP "program" adalah satu request. Class `Penghitung` dideklarasikan ulang dari nol setiap kali file dijalankan. Untuk menghitung lintas request, nilainya harus disimpan di luar proses: di session kalau per pengunjung, di database kalau untuk semua.
+Property `static` memang hidup sepanjang program, tetapi di PHP "program" adalah satu request. Class `Counter` dideklarasikan ulang dari nol setiap kali file dijalankan. Untuk menghitung lintas request, nilainya harus disimpan di luar proses: di session kalau per pengunjung, di database kalau untuk semua.
 :::
 
 ### 2. Halaman pencarian
 
-Tambahkan rute `GET /cari?kata=...` yang menampilkan pesan yang isinya mengandung kata itu. Judul halaman menyebut kata yang dicari dan jumlah seluruh pesan tersimpan, misalnya `Hasil cari: Halo (3 pesan tersimpan)`. Pakai lagi templat `beranda`.
+Tambahkan rute `GET /search?keyword=...` yang menampilkan pesan yang isinya mengandung kata itu. Judul halaman menyebut kata yang dicari dan jumlah seluruh pesan tersimpan, misalnya `Hasil cari: Halo (3 pesan tersimpan)`. Pakai lagi templat `home`.
 
-Setelah jadi, coba dengan `kata=<script>alert(1)</script>` dan `kata=' OR '1'='1`.
+Setelah jadi, coba dengan `keyword=<script>alert(1)</script>` dan `keyword=' OR '1'='1`.
 
 ::: details Jawaban
-Dua method baru di `PesanRepository`:
+Dua method baru di `MessageRepository`:
 
 ```php
 /**
- * @return list<Pesan>
+ * @return list<Message>
  */
-public function cari(string $kata): array
+public function search(string $keyword): array
 {
-    $baris = $this->db->jalankan(
-        'SELECT id, nama, isi, dibuat FROM pesan WHERE isi LIKE :pola ORDER BY id DESC',
-        ['pola' => "%{$kata}%"],
+    $rows = $this->db->run(
+        'SELECT id, name, body, created_at FROM messages WHERE body LIKE :pattern ORDER BY id DESC',
+        ['pattern' => "%{$keyword}%"],
     )->fetchAll();
 
-    return array_values(array_map(Pesan::dariBaris(...), $baris));
+    return array_values(array_map(Message::fromRow(...), $rows));
 }
 
-public function jumlah(): int
+public function count(): int
 {
-    $jumlah = $this->db->jalankan('SELECT COUNT(*) FROM pesan')->fetchColumn();
+    $count = $this->db->run('SELECT COUNT(*) FROM messages')->fetchColumn();
 
-    return is_int($jumlah) ? $jumlah : 0;
+    return is_int($count) ? $count : 0;
 }
 ```
 
-Satu method baru di `BukuTamuController`:
+Satu method baru di `GuestbookController`:
 
 ```php
-public function cari(Request $request): Response
+public function search(Request $request): Response
 {
-    $kata = trim($request->query['kata'] ?? '');
+    $keyword = trim($request->query['keyword'] ?? '');
 
-    $html = halaman("Hasil cari: {$kata} ({$this->pesan->jumlah()} pesan tersimpan)", 'beranda', [
-        'daftarPesan' => $kata === '' ? [] : $this->pesan->cari($kata),
-        'csrf' => Session::tokenCsrf(),
-        'admin' => Session::sudahMasuk(),
-        'galat' => [],
-        'nama' => '',
-        'isi' => '',
+    $html = page("Hasil cari: {$keyword} ({$this->messages->count()} pesan tersimpan)", 'home', [
+        'messages' => $keyword === '' ? [] : $this->messages->search($keyword),
+        'csrf' => Session::csrfToken(),
+        'admin' => Session::isLoggedIn(),
+        'errors' => [],
+        'name' => '',
+        'body' => '',
     ]);
 
     return new Response($html);
@@ -1712,12 +1712,12 @@ public function cari(Request $request): Response
 Dan satu lengan baru di `match`, di antara rute GET lainnya:
 
 ```php
-$metode === 'GET' && $path === '/cari' => $kontroler->cari($request),
+$method === 'GET' && $path === '/search' => $controller->search($request),
 ```
 
 Yang perlu diperhatikan:
 
-- **Tanda `%` ditempel ke nilai, bukan ke SQL.** Placeholder-nya tetap `:pola`.
+- **Tanda `%` ditempel ke nilai, bukan ke SQL.** Placeholder-nya tetap `:pattern`.
 - **`fetchColumn()` bertipe `mixed`**, jadi hasil `COUNT(*)` diperiksa dengan `is_int`.
 - **Pencarian tidak mengubah data**, jadi memakai GET dan tidak membutuhkan token CSRF.
 
@@ -1727,7 +1727,7 @@ Hasil kedua percobaan:
 <h1>Hasil cari: &lt;script&gt;alert(1)&lt;/script&gt; (3 pesan tersimpan)</h1>
 ```
 
-Judul di-escape oleh `e($judul)` di tata letak. Untuk `' OR '1'='1`, hasilnya nol pesan: input itu dicari sebagai teks biasa. Satu hal yang masih tersisa adalah `kata=%`, yang mengembalikan semua pesan karena `%` adalah wildcard `LIKE`. Itu bukan injection, tetapi pantas diketahui.
+Judul di-escape oleh `e($title)` di tata letak. Untuk `' OR '1'='1`, hasilnya nol pesan: input itu dicari sebagai teks biasa. Satu hal yang masih tersisa adalah `keyword=%`, yang mengembalikan semua pesan karena `%` adalah wildcard `LIKE`. Itu bukan injection, tetapi pantas diketahui.
 :::
 
 ### 3. Menghapus lewat tautan
@@ -1735,15 +1735,15 @@ Judul di-escape oleh `e($judul)` di tata letak. Untuk `' OR '1'='1`, hasilnya no
 Seseorang mengusulkan tombol Hapus diganti tautan biasa supaya templatnya lebih ringkas:
 
 ```html
-<a href="/pesan/3/hapus">Hapus</a>
+<a href="/messages/3/delete">Hapus</a>
 ```
 
-dengan rute `GET /pesan/{id}/hapus`. Apa yang salah dengan usul ini?
+dengan rute `GET /messages/{id}/delete`. Apa yang salah dengan usul ini?
 
 ::: details Jawaban
 Tautan berarti request GET, dan GET tidak melewati pemeriksaan token CSRF. Akibatnya:
 
-- **Situs lain bisa memicu penghapusan.** Cukup sebuah tautan ke `/pesan/3/hapus` di halaman lain yang diklik admin. `SameSite=Lax` tidak menolong, karena cookie tetap ikut pada navigasi biasa ke situsmu. Tanpa `SameSite`, tautan pun tidak perlu: gambar dengan `src` yang menunjuk URL itu sudah cukup.
+- **Situs lain bisa memicu penghapusan.** Cukup sebuah tautan ke `/messages/3/delete` di halaman lain yang diklik admin. `SameSite=Lax` tidak menolong, karena cookie tetap ikut pada navigasi biasa ke situsmu. Tanpa `SameSite`, tautan pun tidak perlu: gambar dengan `src` yang menunjuk URL itu sudah cukup.
 - **Perangkat lunak yang mengikuti tautan bisa menghapus data**, misalnya fitur pramuat halaman di browser.
 
 Aturannya: GET hanya untuk membaca. Semua yang mengubah data memakai POST (atau PUT, PATCH, DELETE) dan membawa token CSRF.
@@ -1751,14 +1751,14 @@ Aturannya: GET hanya untuk membaca. Semua yang mengubah data memakai POST (atau 
 
 ### 4. Echo tanpa `e()`
 
-Di `templates/beranda.php`, ubah `<?= nl2br(e($pesan->isi)) ?>` menjadi `<?= $pesan->isi ?>`, lalu jalankan `composer check`. Apa hasilnya, dan apa artinya?
+Di `templates/home.php`, ubah `<?= nl2br(e($message->body)) ?>` menjadi `<?= $message->body ?>`, lalu jalankan `composer check`. Apa hasilnya, dan apa artinya?
 
 ::: details Jawaban
 ```text
  [OK] No errors
 ```
 
-PHPStan tidak mengeluh, karena `$pesan->isi` bertipe `string` dan mencetak string itu sah. Padahal aplikasinya sekarang punya celah XSS: pesan berisi `<script>` akan dijalankan browser setiap pengunjung.
+PHPStan tidak mengeluh, karena `$message->body` bertipe `string` dan mencetak string itu sah. Padahal aplikasinya sekarang punya celah XSS: pesan berisi `<script>` akan dijalankan browser setiap pengunjung.
 
-Sistem tipe tidak membedakan "string yang aman untuk HTML" dari "string mentah". Di aplikasi ini penjaganya adalah kebiasaan menulis `e()`. Laravel membalik bawaannya: di Blade, <span v-pre>`{{ $pesan->isi }}`</span> selalu meng-escape, dan mencetak mentah membutuhkan sintaks lain yang sengaja mencolok. Kembalikan baris itu seperti semula.
+Sistem tipe tidak membedakan "string yang aman untuk HTML" dari "string mentah". Di aplikasi ini penjaganya adalah kebiasaan menulis `e()`. Laravel membalik bawaannya: di Blade, <span v-pre>`{{ $message->body }}`</span> selalu meng-escape, dan mencetak mentah membutuhkan sintaks lain yang sengaja mencolok. Kembalikan baris itu seperti semula.
 :::

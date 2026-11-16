@@ -22,7 +22,7 @@ Aturan praktisnya: tulis tipe native seketat yang dimungkinkan bahasa, lalu perh
 
 ## Persiapan
 
-Lanjutkan di proyek `latihan/php-dasar` dari [Bab 1](/01-setup), dan masuk ke shell container seperti sebelumnya. Buat folder `src/Bab02` untuk file-file bab ini.
+Lanjutkan di proyek `practice/php-basics` dari [Bab 1](/01-setup), dan masuk ke shell container seperti sebelumnya. Buat folder `src/Ch02` untuk file-file bab ini.
 
 Setiap file di bab ini diawali baris yang sama:
 
@@ -31,7 +31,7 @@ Setiap file di bab ini diawali baris yang sama:
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 ```
 
 Baris `namespace` baru muncul di sini. Untuk sekarang anggap seperti `mod` di Rust: ia memberi awalan pada nama fungsi dan class di file itu, sehingga nama yang sama di bab lain tidak bentrok. Detailnya ada di [Bab 6](/06-ekosistem).
@@ -39,48 +39,48 @@ Baris `namespace` baru muncul di sini. Untuk sekarang anggap seperti `mod` di Ru
 Sepanjang bab ada dua macam eksperimen yang memang diharapkan gagal:
 
 - **Tambahan di akhir file**: tempel potongannya, lihat errornya, lalu hapus lagi.
-- **File coba-coba** `src/Bab02/coba.php`: timpa isinya setiap kali, dan hapus file itu di akhir bab supaya `composer check` kembali bersih.
+- **File coba-coba** `src/Ch02/scratch.php`: timpa isinya setiap kali, dan hapus file itu di akhir bab supaya `composer check` kembali bersih.
 
 ## Di mana tipe ditulis
 
-Buat `src/Bab02/dasar.php`:
+Buat `src/Ch02/basics.php`:
 
-<!-- file: src/Bab02/dasar.php -->
+<!-- file: src/Ch02/basics.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function luasPersegi(int $sisi): int
+function squareArea(int $side): int
 {
-    return $sisi * $sisi;
+    return $side * $side;
 }
 
-function rataRata(float $a, float $b): float
+function average(float $a, float $b): float
 {
     return ($a + $b) / 2;
 }
 
-function sapaLengkap(string $nama, bool $formal): string
+function greetFull(string $name, bool $formal): string
 {
-    return $formal ? "Selamat datang, {$nama}." : "Halo, {$nama}!";
+    return $formal ? "Selamat datang, {$name}." : "Halo, {$name}!";
 }
 
-function catat(string $pesan): void
+function logMessage(string $message): void
 {
-    echo "[log] {$pesan}" . PHP_EOL;
+    echo "[log] {$message}" . PHP_EOL;
 }
 
-echo luasPersegi(4) . PHP_EOL;
-echo rataRata(3, 4) . PHP_EOL;
-echo sapaLengkap('Budi', formal: true) . PHP_EOL;
-catat('selesai');
+echo squareArea(4) . PHP_EOL;
+echo average(3, 4) . PHP_EOL;
+echo greetFull('Budi', formal: true) . PHP_EOL;
+logMessage('selesai');
 ```
 
 ```bash
-php src/Bab02/dasar.php
+php src/Ch02/basics.php
 ```
 
 ```text
@@ -94,17 +94,17 @@ Tipe native bisa ditulis di empat tempat: parameter, return value, property clas
 
 Yang tidak bisa diberi tipe adalah variabel lokal. Tidak ada padanan `let x: i64 = ...` atau `const x: number = ...`. Tipe variabel lokal selalu disimpulkan PHPStan dari nilai yang mengisinya.
 
-Untuk melihat tipe yang disimpulkan, pakai `\PHPStan\dumpType()`. Ini padanan hover di editor. Tempel di akhir `dasar.php`:
+Untuk melihat tipe yang disimpulkan, pakai `\PHPStan\dumpType()`. Ini padanan hover di editor. Tempel di akhir `basics.php`:
 
-<!-- demo: dumptype append: src/Bab02/dasar.php norun -->
+<!-- demo: dumptype append: src/Ch02/basics.php norun -->
 ```php
-$luas = luasPersegi(3);
-$teks = 'halo';
-$daftar = [1, 2, 3];
+$area = squareArea(3);
+$text = 'halo';
+$items = [1, 2, 3];
 
-\PHPStan\dumpType($luas);
-\PHPStan\dumpType($teks);
-\PHPStan\dumpType($daftar);
+\PHPStan\dumpType($area);
+\PHPStan\dumpType($text);
+\PHPStan\dumpType($items);
 ```
 
 ```bash
@@ -117,7 +117,7 @@ Dumped type: 'halo'
 Dumped type: array{1, 2, 3}
 ```
 
-Perhatikan dua baris terakhir: PHPStan menyimpan tipe literal, sama seperti TS memperlakukan `const teks = 'halo'`. Fungsi `dumpType` hanya dikenal PHPStan dan tidak ada saat runtime, jadi hapus lagi baris-baris itu.
+Perhatikan dua baris terakhir: PHPStan menyimpan tipe literal, sama seperti TS memperlakukan `const text = 'halo'`. Fungsi `dumpType` hanya dikenal PHPStan dan tidak ada saat runtime, jadi hapus lagi baris-baris itu.
 
 ## Tipe dasar dan padanannya
 
@@ -138,15 +138,15 @@ Perhatikan dua baris terakhir: PHPStan menyimpan tipe literal, sama seperti TS m
 | `<T>` | `<T>` | tidak ada | Lewat PHPDoc `@template` |
 | `Result<T, E>` | tidak ada | tidak ada | Lihat [Bab 5](/05-error-handling) |
 
-Tiga perilaku tipe dasar yang paling sering mengejutkan pendatang dari Rust. Buat `src/Bab02/jebakan.php`:
+Tiga perilaku tipe dasar yang paling sering mengejutkan pendatang dari Rust. Buat `src/Ch02/pitfalls.php`:
 
-<!-- file: src/Bab02/jebakan.php -->
+<!-- file: src/Ch02/pitfalls.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
 // int yang meluap berubah menjadi float, tanpa error
 var_dump(PHP_INT_MAX);
@@ -178,23 +178,23 @@ int(1)
 
 ### Celah di level max: hasil pembagian
 
-Operator `/` adalah tempat PHPStan level max masih longgar. Timpa `src/Bab02/coba.php` dengan ini:
+Operator `/` adalah tempat PHPStan level max masih longgar. Timpa `src/Ch02/scratch.php` dengan ini:
 
-<!-- demo: bagi -->
+<!-- demo: divide -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function bagiDua(int $n): int
+function divideByTwo(int $n): int
 {
     return $n / 2;
 }
 
-var_dump(bagiDua(6));
-var_dump(bagiDua(7));
+var_dump(divideByTwo(6));
+var_dump(divideByTwo(7));
 ```
 
 `composer check` meloloskannya:
@@ -208,10 +208,10 @@ Padahal saat dijalankan, hasilnya bergantung pada data:
 ```text
 int(3)
 
-Fatal error: Uncaught TypeError: Belajar\Bab02\bagiDua(): Return value must be of type int, float returned
+Fatal error: Uncaught TypeError: Learn\Ch02\divideByTwo(): Return value must be of type int, float returned
 ```
 
-`bagiDua(6)` berhasil, `bagiDua(7)` meledak. PHPStan sebenarnya tahu hasil `/` bertipe `float|int`, tetapi menandainya sebagai union yang "dimaklumi" (*benevolent union*, ditulis `(float|int)`) dan secara bawaan tidak melaporkannya. Tutup celah itu dengan satu baris di `phpstan.neon`:
+`divideByTwo(6)` berhasil, `divideByTwo(7)` meledak. PHPStan sebenarnya tahu hasil `/` bertipe `float|int`, tetapi menandainya sebagai union yang "dimaklumi" (*benevolent union*, ditulis `(float|int)`) dan secara bawaan tidak melaporkannya. Tutup celah itu dengan satu baris di `phpstan.neon`:
 
 ```yaml
 parameters:
@@ -224,24 +224,24 @@ parameters:
 Sekarang `composer check` menolak kodenya:
 
 ```text
-Function Belajar\Bab02\bagiDua() should return int but returns (float|int).
+Function Learn\Ch02\divideByTwo() should return int but returns (float|int).
 ```
 
 Biarkan opsi itu menyala di proyek ini. Perbaikannya sendiri sederhana: pakai `intdiv($n, 2)`.
 
 ## Null dengan `?T`
 
-`?string` adalah singkatan `string|null`, padanan `Option<String>`. Buat `src/Bab02/nullable.php`:
+`?string` adalah singkatan `string|null`, padanan `Option<String>`. Buat `src/Ch02/nullable.php`:
 
-<!-- file: src/Bab02/nullable.php -->
+<!-- file: src/Ch02/nullable.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function cariEmail(int $id): ?string
+function findEmail(int $id): ?string
 {
     return match ($id) {
         1 => 'Budi@Example.com',
@@ -250,9 +250,9 @@ function cariEmail(int $id): ?string
     };
 }
 
-function emailRapi(int $id): string
+function tidyEmail(int $id): string
 {
-    $email = cariEmail($id);
+    $email = findEmail($id);
 
     if ($email === null) {
         return '(tidak ada email)';
@@ -262,22 +262,22 @@ function emailRapi(int $id): string
     return strtolower($email);
 }
 
-function emailWajib(int $id): string
+function requireEmail(int $id): string
 {
-    return cariEmail($id) ?? throw new \RuntimeException("Pengguna {$id} tidak punya email");
+    return findEmail($id) ?? throw new \RuntimeException("Pengguna {$id} tidak punya email");
 }
 
-function tanggalDaftar(int $id): ?\DateTimeImmutable
+function registrationDate(int $id): ?\DateTimeImmutable
 {
     return $id === 1 ? new \DateTimeImmutable('2026-01-15') : null;
 }
 
-echo emailRapi(1) . PHP_EOL;
-echo emailRapi(9) . PHP_EOL;
-echo (cariEmail(9) ?? '(kosong)') . PHP_EOL;
-echo emailWajib(2) . PHP_EOL;
-var_dump(tanggalDaftar(1)?->format('Y'));
-var_dump(tanggalDaftar(9)?->format('Y'));
+echo tidyEmail(1) . PHP_EOL;
+echo tidyEmail(9) . PHP_EOL;
+echo (findEmail(9) ?? '(kosong)') . PHP_EOL;
+echo requireEmail(2) . PHP_EOL;
+var_dump(registrationDate(1)?->format('Y'));
+var_dump(registrationDate(9)?->format('Y'));
 ```
 
 ```text
@@ -304,15 +304,15 @@ Yang tidak ada adalah paksaan dari bahasa. PHP sendiri membiarkanmu memanggil `s
 
 ## Union type
 
-`int|string` berarti salah satu dari keduanya, sama seperti union di TS. Buat `src/Bab02/union.php`:
+`int|string` berarti salah satu dari keduanya, sama seperti union di TS. Buat `src/Ch02/union.php`:
 
-<!-- file: src/Bab02/union.php -->
+<!-- file: src/Ch02/union.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
 function formatId(int|string $id): string
 {
@@ -324,21 +324,21 @@ function formatId(int|string $id): string
     return strtoupper($id);
 }
 
-function namaPengguna(string $email): string
+function username(string $email): string
 {
-    $posisi = strpos($email, '@');
+    $position = strpos($email, '@');
 
-    if ($posisi === false) {
+    if ($position === false) {
         return $email;
     }
 
-    return substr($email, 0, $posisi);
+    return substr($email, 0, $position);
 }
 
 echo formatId(42) . PHP_EOL;
 echo formatId('ab-7') . PHP_EOL;
-echo namaPengguna('budi@example.com') . PHP_EOL;
-echo namaPengguna('tanpa-at') . PHP_EOL;
+echo username('budi@example.com') . PHP_EOL;
+echo username('tanpa-at') . PHP_EOL;
 ```
 
 ```text
@@ -352,23 +352,23 @@ tanpa-at
 
 PHPStan mengikuti alur kontrol seperti TS. Pengecekan dengan `is_int()`, `is_string()`, `is_array()`, `instanceof`, `=== null`, atau `match` mempersempit tipe di cabang yang bersangkutan. Tempel di akhir `union.php`:
 
-<!-- demo: sempit append: src/Bab02/union.php norun -->
+<!-- demo: narrow append: src/Ch02/union.php norun -->
 ```php
-function lihatPenyempitan(int|string|null $nilai): void
+function showNarrowing(int|string|null $value): void
 {
-    \PHPStan\dumpType($nilai);
+    \PHPStan\dumpType($value);
 
-    if ($nilai === null) {
+    if ($value === null) {
         return;
     }
-    \PHPStan\dumpType($nilai);
+    \PHPStan\dumpType($value);
 
-    if (is_string($nilai)) {
-        \PHPStan\dumpType($nilai);
+    if (is_string($value)) {
+        \PHPStan\dumpType($value);
 
         return;
     }
-    \PHPStan\dumpType($nilai);
+    \PHPStan\dumpType($value);
 }
 ```
 
@@ -381,7 +381,7 @@ Dumped type: int
 
 ### Warisan lama: `T|false`
 
-Banyak fungsi bawaan PHP lahir sebelum ada exception dan `null` yang rapi, sehingga menandai kegagalan dengan `false`. `strpos()` di atas bertipe `int|false`. PHPStan memperlakukannya seperti `Option`: kamu harus menyingkirkan `false` dulu. Timpa `coba.php`:
+Banyak fungsi bawaan PHP lahir sebelum ada exception dan `null` yang rapi, sehingga menandai kegagalan dengan `false`. `strpos()` di atas bertipe `int|false`. PHPStan memperlakukannya seperti `Option`: kamu harus menyingkirkan `false` dulu. Timpa `scratch.php`:
 
 <!-- demo: strpos -->
 ```php
@@ -389,14 +389,14 @@ Banyak fungsi bawaan PHP lahir sebelum ada exception dan `null` yang rapi, sehin
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function namaSingkat(string $email): string
+function shortName(string $email): string
 {
     return substr($email, 0, strpos($email, '@'));
 }
 
-echo namaSingkat('tanpa-at') . PHP_EOL;
+echo shortName('tanpa-at') . PHP_EOL;
 ```
 
 ```text
@@ -413,26 +413,26 @@ Tipe native `array` tidak mengatakan apa pun tentang isinya. Isinya ditulis lewa
 |---|---|---|
 | `list<int>` | `Vec<i64>` | `number[]` |
 | `array<string, int>` | `HashMap<String, i64>` | `Record<string, number>` |
-| `array{nama: string, umur: int}` | `struct` | `{ nama: string; umur: number }` |
+| `array{name: string, age: int}` | `struct` | `{ name: string; age: number }` |
 | `array{int, string}` | `(i64, String)` | `[number, string]` |
 
-Buat `src/Bab02/koleksi.php`:
+Buat `src/Ch02/collections.php`:
 
-<!-- file: src/Bab02/koleksi.php -->
+<!-- file: src/Ch02/collections.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
 /**
- * @param list<int> $nilai
+ * @param list<int> $values
  */
-function jumlah(array $nilai): int
+function sum(array $values): int
 {
     $total = 0;
-    foreach ($nilai as $n) {
+    foreach ($values as $n) {
         $total += $n;
     }
 
@@ -440,43 +440,43 @@ function jumlah(array $nilai): int
 }
 
 /**
- * @param array<string, int> $stok
+ * @param array<string, int> $stock
  * @return list<string>
  */
-function barangHabis(array $stok): array
+function outOfStockItems(array $stock): array
 {
-    $habis = [];
-    foreach ($stok as $nama => $sisa) {
-        if ($sisa === 0) {
-            $habis[] = $nama;
+    $outOfStock = [];
+    foreach ($stock as $name => $remaining) {
+        if ($remaining === 0) {
+            $outOfStock[] = $name;
         }
     }
 
-    return $habis;
+    return $outOfStock;
 }
 
 /**
- * @param array{nama: string, umur: int} $orang
+ * @param array{name: string, age: int} $person
  */
-function perkenalan(array $orang): string
+function introduce(array $person): string
 {
-    return "{$orang['nama']} ({$orang['umur']} tahun)";
+    return "{$person['name']} ({$person['age']} tahun)";
 }
 
 /**
  * @return array{int, int}
  */
-function bagiDenganSisa(int $a, int $b): array
+function divideWithRemainder(int $a, int $b): array
 {
     return [intdiv($a, $b), $a % $b];
 }
 
-echo jumlah([1, 2, 3]) . PHP_EOL;
-echo implode(', ', barangHabis(['apel' => 0, 'jeruk' => 5, 'mangga' => 0])) . PHP_EOL;
-echo perkenalan(['nama' => 'Siti', 'umur' => 30]) . PHP_EOL;
+echo sum([1, 2, 3]) . PHP_EOL;
+echo implode(', ', outOfStockItems(['apel' => 0, 'jeruk' => 5, 'mangga' => 0])) . PHP_EOL;
+echo introduce(['name' => 'Siti', 'age' => 30]) . PHP_EOL;
 
-[$hasil, $sisa] = bagiDenganSisa(17, 5);
-echo "{$hasil} sisa {$sisa}" . PHP_EOL;
+[$quotient, $remainder] = divideWithRemainder(17, 5);
+echo "{$quotient} sisa {$remainder}" . PHP_EOL;
 ```
 
 ```text
@@ -486,25 +486,25 @@ Siti (30 tahun)
 3 sisa 2
 ```
 
-Sekarang langgar tipe PHPDoc-nya. Tempel di akhir `koleksi.php`:
+Sekarang langgar tipe PHPDoc-nya. Tempel di akhir `collections.php`:
 
-<!-- demo: koleksi-salah append: src/Bab02/koleksi.php -->
+<!-- demo: collections-wrong append: src/Ch02/collections.php -->
 ```php
-echo perkenalan(['nama' => 'Siti']) . PHP_EOL;
-echo jumlah(['a', 'b']) . PHP_EOL;
+echo introduce(['name' => 'Siti']) . PHP_EOL;
+echo sum(['a', 'b']) . PHP_EOL;
 ```
 
 PHPStan menolak keduanya:
 
 ```text
-Parameter #1 $orang of function Belajar\Bab02\perkenalan expects array{nama: string, umur: int}, array{nama: 'Siti'} given.
-Parameter #1 $nilai of function Belajar\Bab02\jumlah expects list<int>, array{'a', 'b'} given.
+Parameter #1 $person of function Learn\Ch02\introduce expects array{name: string, age: int}, array{name: 'Siti'} given.
+Parameter #1 $values of function Learn\Ch02\sum expects list<int>, array{'a', 'b'} given.
 ```
 
 PHP sendiri tidak menolak di batas fungsi, karena yang ia lihat hanya `array`. Kesalahannya baru muncul di dalam, sebagai gejala:
 
 ```text
-Warning: Undefined array key "umur" in /app/src/Bab02/koleksi.php on line 41
+Warning: Undefined array key "age" in /app/src/Ch02/collections.php on line 41
 Siti ( tahun)
 
 Fatal error: Uncaught TypeError: Unsupported operand types: int + string
@@ -514,42 +514,42 @@ Ini konsekuensi dari tipe yang dihapus saat runtime, persis seperti TS. Karena i
 
 ## `void`, `never`, dan `mixed`
 
-Buat `src/Bab02/khusus.php`:
+Buat `src/Ch02/special.php`:
 
-<!-- file: src/Bab02/khusus.php -->
+<!-- file: src/Ch02/special.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function gagal(string $pesan): never
+function fail(string $message): never
 {
-    throw new \RuntimeException($pesan);
+    throw new \RuntimeException($message);
 }
 
 /**
- * @param array<string, int> $harga
+ * @param array<string, int> $prices
  */
-function hargaBarang(array $harga, string $nama): int
+function itemPrice(array $prices, string $name): int
 {
-    return $harga[$nama] ?? gagal("Barang {$nama} tidak dikenal");
+    return $prices[$name] ?? fail("Barang {$name} tidak dikenal");
 }
 
-function bacaUmur(string $json): int
+function readAge(string $json): int
 {
     $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
 
-    if (!is_array($data) || !isset($data['umur']) || !is_int($data['umur'])) {
-        gagal('JSON harus punya field umur bertipe int');
+    if (!is_array($data) || !isset($data['age']) || !is_int($data['age'])) {
+        fail('JSON harus punya field age bertipe int');
     }
 
-    return $data['umur'];
+    return $data['age'];
 }
 
-echo hargaBarang(['apel' => 5000], 'apel') . PHP_EOL;
-echo bacaUmur('{"nama": "Budi", "umur": 30}') . PHP_EOL;
+echo itemPrice(['apel' => 5000], 'apel') . PHP_EOL;
+echo readAge('{"name": "Budi", "age": 30}') . PHP_EOL;
 ```
 
 ```text
@@ -558,10 +558,10 @@ echo bacaUmur('{"nama": "Budi", "umur": 30}') . PHP_EOL;
 ```
 
 - **`void`** berarti fungsi tidak mengembalikan apa pun, seperti `()` di Rust. PHPStan menolak kalau hasilnya dipakai.
-- **`never`** berarti fungsi tidak pernah kembali, seperti `!` di Rust. Karena itu `$harga[$nama] ?? gagal(...)` bertipe `int`, dan setelah `gagal(...)` di `bacaUmur` PHPStan tahu kode di bawahnya hanya berjalan kalau semua pengecekan lolos.
+- **`never`** berarti fungsi tidak pernah kembali, seperti `!` di Rust. Karena itu `$prices[$name] ?? fail(...)` bertipe `int`, dan setelah `fail(...)` di `readAge` PHPStan tahu kode di bawahnya hanya berjalan kalau semua pengecekan lolos.
 - **`mixed`** adalah tipe paling atas: apa pun bisa masuk. `json_decode()` mengembalikan `mixed`, karena isi JSON tidak diketahui sebelum dibaca.
 
-Di level max, `mixed` berperilaku seperti `unknown` di TS: tidak bisa dipakai sebelum dipersempit. Fungsi `bacaUmur` menunjukkan polanya, yaitu periksa bentuknya dulu, baru setelah itu nilainya punya tipe. Tanpa pengecekan, PHPStan menolak. Timpa `coba.php`:
+Di level max, `mixed` berperilaku seperti `unknown` di TS: tidak bisa dipakai sebelum dipersempit. Fungsi `readAge` menunjukkan polanya, yaitu periksa bentuknya dulu, baru setelah itu nilainya punya tipe. Tanpa pengecekan, PHPStan menolak. Timpa `scratch.php`:
 
 <!-- demo: mixed norun -->
 ```php
@@ -569,77 +569,77 @@ Di level max, `mixed` berperilaku seperti `unknown` di TS: tidak bisa dipakai se
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function bacaUmurCeroboh(string $json): int
+function readAgeUnchecked(string $json): int
 {
     $data = json_decode($json, true);
 
-    return $data['umur'];
+    return $data['age'];
 }
 ```
 
 ```text
-Cannot access offset 'umur' on mixed.
-Function Belajar\Bab02\bacaUmurCeroboh() should return int but returns mixed.
+Cannot access offset 'age' on mixed.
+Function Learn\Ch02\readAgeUnchecked() should return int but returns mixed.
 ```
 
 ## Enum
 
-Enum di PHP adalah tipe sungguhan, bukan sekadar konstanta. Buat `src/Bab02/status.php`:
+Enum di PHP adalah tipe sungguhan, bukan sekadar konstanta. Buat `src/Ch02/status.php`:
 
-<!-- file: src/Bab02/status.php -->
+<!-- file: src/Ch02/status.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-enum StatusPesanan: string
+enum OrderStatus: string
 {
-    case Menunggu = 'menunggu';
-    case Dikirim = 'dikirim';
-    case Selesai = 'selesai';
+    case Pending = 'pending';
+    case Shipped = 'shipped';
+    case Completed = 'completed';
 
     public function label(): string
     {
         return match ($this) {
-            self::Menunggu => 'Menunggu pembayaran',
-            self::Dikirim => 'Sedang dikirim',
-            self::Selesai => 'Selesai',
+            self::Pending => 'Menunggu pembayaran',
+            self::Shipped => 'Sedang dikirim',
+            self::Completed => 'Selesai',
         };
     }
 
-    public function bolehDibatalkan(): bool
+    public function canBeCancelled(): bool
     {
-        return $this === self::Menunggu;
+        return $this === self::Pending;
     }
 }
 
-$status = StatusPesanan::from('dikirim');
+$status = OrderStatus::from('shipped');
 
 echo $status->label() . PHP_EOL;
 echo $status->value . PHP_EOL;
-var_dump($status->bolehDibatalkan());
-var_dump(StatusPesanan::tryFrom('hilang'));
-echo count(StatusPesanan::cases()) . PHP_EOL;
+var_dump($status->canBeCancelled());
+var_dump(OrderStatus::tryFrom('lost'));
+echo count(OrderStatus::cases()) . PHP_EOL;
 ```
 
 ```text
 Sedang dikirim
-dikirim
+shipped
 bool(false)
 NULL
 3
 ```
 
-- **Backed enum** (`enum StatusPesanan: string`) memberi tiap case nilai `string` atau `int`, berguna untuk disimpan ke database atau JSON. Tanpa `: string`, enum disebut *pure* dan case-nya tidak punya nilai.
+- **Backed enum** (`enum OrderStatus: string`) memberi tiap case nilai `string` atau `int`, berguna untuk disimpan ke database atau JSON. Tanpa `: string`, enum disebut *pure* dan case-nya tidak punya nilai.
 - **`from()`** mengubah nilai mentah menjadi enum dan melempar error kalau tidak dikenal. **`tryFrom()`** mengembalikan `null`. Keduanya adalah titik validasi untuk data dari luar.
 - **Enum boleh punya method**, seperti `impl` pada enum di Rust.
 - **Case dibandingkan dengan `===`.** Tiap case adalah satu objek tunggal.
 
-`match` pada enum diperiksa kelengkapannya oleh PHPStan, seperti `match` di Rust. Timpa `coba.php`:
+`match` pada enum diperiksa kelengkapannya oleh PHPStan, seperti `match` di Rust. Timpa `scratch.php`:
 
 <!-- demo: match -->
 ```php
@@ -647,100 +647,100 @@ NULL
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-enum Arah
+enum Direction
 {
-    case Utara;
-    case Selatan;
-    case Timur;
-    case Barat;
+    case North;
+    case South;
+    case East;
+    case West;
 }
 
-function berlawanan(Arah $arah): Arah
+function opposite(Direction $direction): Direction
 {
-    return match ($arah) {
-        Arah::Utara => Arah::Selatan,
-        Arah::Selatan => Arah::Utara,
-        Arah::Timur => Arah::Barat,
+    return match ($direction) {
+        Direction::North => Direction::South,
+        Direction::South => Direction::North,
+        Direction::East => Direction::West,
     };
 }
 
-echo berlawanan(Arah::Barat)->name . PHP_EOL;
+echo opposite(Direction::West)->name . PHP_EOL;
 ```
 
 ```text
-Match expression does not handle remaining value: Belajar\Bab02\Arah::Barat
+Match expression does not handle remaining value: Learn\Ch02\Direction::West
 ```
 
 Saat runtime, `match` yang tidak menemukan cabang melempar error:
 
 ```text
-Fatal error: Uncaught UnhandledMatchError: Unhandled match case Belajar\Bab02\Arah::Barat
+Fatal error: Uncaught UnhandledMatchError: Unhandled match case Learn\Ch02\Direction::West
 ```
 
-Satu perbedaan besar dengan Rust: case enum di PHP tidak bisa membawa data. Tidak ada padanan `enum Bentuk { Lingkaran(f64), Persegi(f64, f64) }`. Untuk itu dipakai beberapa class yang digabung dengan union type, dibahas di [Bab 4](/04-oop) dan [Bab 5](/05-error-handling).
+Satu perbedaan besar dengan Rust: case enum di PHP tidak bisa membawa data. Tidak ada padanan `enum Shape { Circle(f64), Rectangle(f64, f64) }`. Untuk itu dipakai beberapa class yang digabung dengan union type, dibahas di [Bab 4](/04-oop) dan [Bab 5](/05-error-handling).
 
 ## Tipe yang dipersempit
 
-PHPDoc bisa menyatakan tipe yang lebih sempit daripada tipe native mana pun. Buat `src/Bab02/sempit.php`:
+PHPDoc bisa menyatakan tipe yang lebih sempit daripada tipe native mana pun. Buat `src/Ch02/narrow.php`:
 
-<!-- file: src/Bab02/sempit.php -->
+<!-- file: src/Ch02/narrow.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
 /**
- * @param 'asc'|'desc' $arah
- * @param int<1, 100> $perHalaman
+ * @param 'asc'|'desc' $direction
+ * @param int<1, 100> $perPage
  */
-function susunQuery(string $arah, int $perHalaman): string
+function buildQuery(string $direction, int $perPage): string
 {
-    return "ORDER BY nama {$arah} LIMIT {$perHalaman}";
+    return "ORDER BY name {$direction} LIMIT {$perPage}";
 }
 
 /**
  * @return int<1, 100>
  */
-function batasiPerHalaman(int $n): int
+function validatePerPage(int $n): int
 {
     if ($n < 1 || $n > 100) {
-        throw new \InvalidArgumentException('perHalaman harus antara 1 dan 100');
+        throw new \InvalidArgumentException('perPage harus antara 1 dan 100');
     }
 
     // PHPStan mempersempit $n dari int menjadi int<1, 100>.
     return $n;
 }
 
-echo susunQuery('asc', batasiPerHalaman(25)) . PHP_EOL;
+echo buildQuery('asc', validatePerPage(25)) . PHP_EOL;
 ```
 
 ```text
-ORDER BY nama asc LIMIT 25
+ORDER BY name asc LIMIT 25
 ```
 
-Tempel pemanggilan yang salah di akhir `sempit.php`:
+Tempel pemanggilan yang salah di akhir `narrow.php`:
 
-<!-- demo: sempit-salah append: src/Bab02/sempit.php -->
+<!-- demo: narrow-wrong append: src/Ch02/narrow.php -->
 ```php
-echo susunQuery('naik', 500) . PHP_EOL;
+echo buildQuery('naik', 500) . PHP_EOL;
 ```
 
 ```text
-Parameter #1 $arah of function Belajar\Bab02\susunQuery expects 'asc'|'desc', 'naik' given.
-Parameter #2 $perHalaman of function Belajar\Bab02\susunQuery expects int<1, 100>, 500 given.
+Parameter #1 $direction of function Learn\Ch02\buildQuery expects 'asc'|'desc', 'naik' given.
+Parameter #2 $perPage of function Learn\Ch02\buildQuery expects int<1, 100>, 500 given.
 ```
 
 Kalau dijalankan, PHP tidak keberatan, karena yang ia lihat hanya `string` dan `int`:
 
 ```text
-ORDER BY nama naik LIMIT 500
+ORDER BY name naik LIMIT 500
 ```
 
-Itu sebabnya `batasiPerHalaman` ada: nilai dari luar divalidasi saat runtime, lalu PHPStan membawa hasil validasi itu sebagai tipe ke seluruh kode sesudahnya.
+Itu sebabnya `validatePerPage` ada: nilai dari luar divalidasi saat runtime, lalu PHPStan membawa hasil validasi itu sebagai tipe ke seluruh kode sesudahnya.
 
 Tipe sempit yang sering dipakai:
 
@@ -755,64 +755,64 @@ Tipe sempit yang sering dipakai:
 
 ## Generics lewat `@template`
 
-PHP tidak punya generics di bahasanya. PHPStan menyediakannya lewat PHPDoc. Buat `src/Bab02/generik.php`:
+PHP tidak punya generics di bahasanya. PHPStan menyediakannya lewat PHPDoc. Buat `src/Ch02/generics.php`:
 
-<!-- file: src/Bab02/generik.php -->
+<!-- file: src/Ch02/generics.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
 /**
  * @template T
- * @param list<T> $daftar
+ * @param list<T> $items
  * @return T|null
  */
-function pertama(array $daftar): mixed
+function first(array $items): mixed
 {
-    return $daftar[0] ?? null;
+    return $items[0] ?? null;
 }
 
 /**
  * @template T
  * @template U
- * @param list<T> $daftar
+ * @param list<T> $items
  * @param callable(T): U $fn
  * @return list<U>
  */
-function petakan(array $daftar, callable $fn): array
+function map(array $items, callable $fn): array
 {
-    $hasil = [];
-    foreach ($daftar as $item) {
-        $hasil[] = $fn($item);
+    $result = [];
+    foreach ($items as $item) {
+        $result[] = $fn($item);
     }
 
-    return $hasil;
+    return $result;
 }
 
 /**
  * @template T of int|float
- * @param non-empty-list<T> $angka
+ * @param non-empty-list<T> $numbers
  * @return T
  */
-function terbesar(array $angka): int|float
+function largest(array $numbers): int|float
 {
-    return max($angka);
+    return max($numbers);
 }
 
 /**
  * @return list<string>
  */
-function namaBuah(): array
+function fruitNames(): array
 {
     return ['apel', 'jeruk', 'mangga'];
 }
 
-echo (pertama(namaBuah()) ?? '(kosong)') . PHP_EOL;
-echo implode(', ', petakan(namaBuah(), fn (string $nama): int => strlen($nama))) . PHP_EOL;
-echo terbesar([3, 9, 4]) . PHP_EOL;
+echo (first(fruitNames()) ?? '(kosong)') . PHP_EOL;
+echo implode(', ', map(fruitNames(), fn (string $name): int => strlen($name))) . PHP_EOL;
+echo largest([3, 9, 4]) . PHP_EOL;
 ```
 
 ```text
@@ -823,16 +823,16 @@ apel
 
 - **`@template T`** mendeklarasikan parameter tipe, padanan `<T>`.
 - **`@template T of int|float`** memberi batas, padanan `T: Trait` di Rust atau `T extends ...` di TS.
-- **`callable(T): U`** adalah tipe fungsi. `fn (string $nama): int => ...` adalah arrow function, dibahas di [Bab 3](/03-dasar-bahasa).
+- **`callable(T): U`** adalah tipe fungsi. `fn (string $name): int => ...` adalah arrow function, dibahas di [Bab 3](/03-dasar-bahasa).
 - **Tipe native-nya tetap longgar.** Yang dilihat PHP hanya `array`, `callable`, dan `mixed`.
 
-Tempel di akhir `generik.php` untuk melihat tipe yang disimpulkan:
+Tempel di akhir `generics.php` untuk melihat tipe yang disimpulkan:
 
-<!-- demo: generik-dump append: src/Bab02/generik.php norun -->
+<!-- demo: generics-dump append: src/Ch02/generics.php norun -->
 ```php
-\PHPStan\dumpType(pertama(namaBuah()));
-\PHPStan\dumpType(petakan(namaBuah(), fn (string $nama): int => strlen($nama)));
-\PHPStan\dumpType(terbesar([1.5, 2.5]));
+\PHPStan\dumpType(first(fruitNames()));
+\PHPStan\dumpType(map(fruitNames(), fn (string $name): int => strlen($name)));
+\PHPStan\dumpType(largest([1.5, 2.5]));
 ```
 
 ```text
@@ -845,42 +845,42 @@ Baris kedua menunjukkan seberapa teliti inferensinya: PHPStan tahu `strlen()` ti
 
 Dan batas `of int|float` benar-benar dijaga:
 
-<!-- demo: generik-salah append: src/Bab02/generik.php norun -->
+<!-- demo: generics-wrong append: src/Ch02/generics.php norun -->
 ```php
-echo terbesar(['a', 'b']) . PHP_EOL;
+echo largest(['a', 'b']) . PHP_EOL;
 ```
 
 ```text
-Parameter #1 $angka of function Belajar\Bab02\terbesar expects non-empty-list<float|int>, array{'a', 'b'} given.
-Unable to resolve the template type T in call to function Belajar\Bab02\terbesar
+Parameter #1 $numbers of function Learn\Ch02\largest expects non-empty-list<float|int>, array{'a', 'b'} given.
+Unable to resolve the template type T in call to function Learn\Ch02\largest
 ```
 
 Di Rust, generics dimonomorfisasi menjadi kode nyata. Di TS, generics dihapus saat kompilasi. Di PHP, generics bahkan tidak pernah ada di kodenya, hanya di komentar yang dibaca PHPStan. Generics pada class dibahas di [Bab 4](/04-oop).
 
 ## Konversi tipe
 
-Cast di PHP tidak pernah gagal. Buat `src/Bab02/konversi.php`:
+Cast di PHP tidak pernah gagal. Buat `src/Ch02/conversion.php`:
 
-<!-- file: src/Bab02/konversi.php -->
+<!-- file: src/Ch02/conversion.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function keInt(string $teks): ?int
+function toInt(string $text): ?int
 {
-    $hasil = filter_var($teks, FILTER_VALIDATE_INT);
+    $result = filter_var($text, FILTER_VALIDATE_INT);
 
-    return $hasil === false ? null : $hasil;
+    return $result === false ? null : $result;
 }
 
 var_dump((int) '42');
 var_dump((int) '42abc');
 var_dump((int) 'abc');
-var_dump(keInt('42'));
-var_dump(keInt('42abc'));
+var_dump(toInt('42'));
+var_dump(toInt('42abc'));
 var_dump((string) 42);
 var_dump((float) '3.14');
 ```
@@ -920,35 +920,35 @@ Supaya ekspektasinya tepat, ini yang tidak akan kamu temukan:
 
 ## Latihan
 
-Kerjakan tiap soal di file tersendiri di `src/Bab02`, dan pastikan `composer check` lulus.
+Kerjakan tiap soal di file tersendiri di `src/Ch02`, dan pastikan `composer check` lulus.
 
 ### 1. Rata-rata yang bisa kosong
 
-Tulis `rataRataNilai()` yang menerima list berisi `int` atau `float` dan mengembalikan rata-ratanya, atau `null` kalau list kosong.
+Tulis `averageScore()` yang menerima list berisi `int` atau `float` dan mengembalikan rata-ratanya, atau `null` kalau list kosong.
 
 ::: details Jawaban
-<!-- file: src/Bab02/latihan1.php -->
+<!-- file: src/Ch02/exercise1.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
 /**
- * @param list<int|float> $nilai
+ * @param list<int|float> $scores
  */
-function rataRataNilai(array $nilai): ?float
+function averageScore(array $scores): ?float
 {
-    if ($nilai === []) {
+    if ($scores === []) {
         return null;
     }
 
-    return array_sum($nilai) / count($nilai);
+    return array_sum($scores) / count($scores);
 }
 
-var_dump(rataRataNilai([80, 90, 100]));
-var_dump(rataRataNilai([]));
+var_dump(averageScore([80, 90, 100]));
+var_dump(averageScore([]));
 ```
 
 ```text
@@ -956,28 +956,28 @@ float(90)
 NULL
 ```
 
-Setelah pengecekan `$nilai === []`, PHPStan tahu list-nya tidak kosong, sehingga `count($nilai)` tidak mungkin nol. Hasil pembagiannya `int` (270 / 3), dan PHP melebarkannya ke `float` saat dikembalikan.
+Setelah pengecekan `$scores === []`, PHPStan tahu list-nya tidak kosong, sehingga `count($scores)` tidak mungkin nol. Hasil pembagiannya `int` (270 / 3), dan PHP melebarkannya ke `float` saat dikembalikan.
 :::
 
 ### 2. `false` yang terlupa
 
 Fungsi ini ditolak PHPStan. Jelaskan kenapa, lalu perbaiki supaya mengembalikan `null` untuk nama file tanpa ekstensi.
 
-<!-- demo: ekstensi -->
+<!-- demo: extension -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function ekstensiCeroboh(string $namaFile): string
+function extensionUnchecked(string $fileName): string
 {
-    return substr($namaFile, strrpos($namaFile, '.'));
+    return substr($fileName, strrpos($fileName, '.'));
 }
 
-echo ekstensiCeroboh('laporan.pdf') . PHP_EOL;
-echo ekstensiCeroboh('README') . PHP_EOL;
+echo extensionUnchecked('laporan.pdf') . PHP_EOL;
+echo extensionUnchecked('README') . PHP_EOL;
 ```
 
 ::: details Jawaban
@@ -997,27 +997,27 @@ Fatal error: Uncaught TypeError: substr(): Argument #2 ($offset) must be of type
 
 Perbaikannya menyingkirkan `false` lebih dulu:
 
-<!-- file: src/Bab02/latihan2.php -->
+<!-- file: src/Ch02/exercise2.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-function ekstensi(string $namaFile): ?string
+function extension(string $fileName): ?string
 {
-    $posisi = strrpos($namaFile, '.');
+    $position = strrpos($fileName, '.');
 
-    if ($posisi === false) {
+    if ($position === false) {
         return null;
     }
 
-    return substr($namaFile, $posisi + 1);
+    return substr($fileName, $position + 1);
 }
 
-var_dump(ekstensi('laporan.pdf'));
-var_dump(ekstensi('README'));
+var_dump(extension('laporan.pdf'));
+var_dump(extension('README'));
 ```
 
 ```text
@@ -1028,38 +1028,38 @@ NULL
 
 ### 3. Enum dengan `match` lengkap
 
-Buat enum `Hari` berbasis `int` (Senin = 1 sampai Minggu = 7) dengan method `akhirPekan(): bool`. Jangan pakai cabang `default`.
+Buat enum `Day` berbasis `int` (Monday = 1 sampai Sunday = 7) dengan method `isWeekend(): bool`. Jangan pakai cabang `default`.
 
 ::: details Jawaban
-<!-- file: src/Bab02/latihan3.php -->
+<!-- file: src/Ch02/exercise3.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
-enum Hari: int
+enum Day: int
 {
-    case Senin = 1;
-    case Selasa = 2;
-    case Rabu = 3;
-    case Kamis = 4;
-    case Jumat = 5;
-    case Sabtu = 6;
-    case Minggu = 7;
+    case Monday = 1;
+    case Tuesday = 2;
+    case Wednesday = 3;
+    case Thursday = 4;
+    case Friday = 5;
+    case Saturday = 6;
+    case Sunday = 7;
 
-    public function akhirPekan(): bool
+    public function isWeekend(): bool
     {
         return match ($this) {
-            self::Sabtu, self::Minggu => true,
-            self::Senin, self::Selasa, self::Rabu, self::Kamis, self::Jumat => false,
+            self::Saturday, self::Sunday => true,
+            self::Monday, self::Tuesday, self::Wednesday, self::Thursday, self::Friday => false,
         };
     }
 }
 
-var_dump(Hari::from(6)->akhirPekan());
-var_dump(Hari::tryFrom(8));
+var_dump(Day::from(6)->isWeekend());
+var_dump(Day::tryFrom(8));
 ```
 
 ```text
@@ -1072,29 +1072,29 @@ Alasannya sama dengan menghindari `_ =>` di Rust: tanpa `default`, PHPStan akan 
 
 ### 4. Generics
 
-Tulis `terakhir()`, pasangan dari `pertama()`: menerima list berisi tipe apa pun dan mengembalikan elemen terakhirnya, atau `null` kalau kosong.
+Tulis `last()`, pasangan dari `first()`: menerima list berisi tipe apa pun dan mengembalikan elemen terakhirnya, atau `null` kalau kosong.
 
 ::: details Jawaban
-<!-- file: src/Bab02/latihan4.php -->
+<!-- file: src/Ch02/exercise4.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab02;
+namespace Learn\Ch02;
 
 /**
  * @template T
- * @param list<T> $daftar
+ * @param list<T> $items
  * @return T|null
  */
-function terakhir(array $daftar): mixed
+function last(array $items): mixed
 {
-    return $daftar[count($daftar) - 1] ?? null;
+    return $items[count($items) - 1] ?? null;
 }
 
-var_dump(terakhir([10, 20, 30]));
-var_dump(terakhir([]));
+var_dump(last([10, 20, 30]));
+var_dump(last([]));
 ```
 
 ```text

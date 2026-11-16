@@ -6,138 +6,138 @@ Di Rust hampir semua itu diurus Cargo. Di PHP perannya terbagi ke beberapa alat,
 
 ## Persiapan
 
-Lanjutkan di proyek `latihan/php-dasar` dan masuk ke shell container seperti biasa. Contoh bab ini adalah keranjang belanja kecil yang terdiri dari empat class, masing-masing di file sendiri:
+Lanjutkan di proyek `practice/php-basics` dan masuk ke shell container seperti biasa. Contoh bab ini adalah keranjang belanja kecil yang terdiri dari empat class, masing-masing di file sendiri:
 
 ```text
-src/Bab06/
-├── Uang/
+src/Ch06/
+├── Money/
 │   └── Rupiah.php
-└── Keranjang/
-    ├── Item.php
-    ├── JumlahTidakValid.php
-    └── Keranjang.php
+└── Cart/
+    ├── Cart.php
+    ├── InvalidQuantity.php
+    └── Item.php
 ```
 
-Buat `src/Bab06/Uang/Rupiah.php`:
+Buat `src/Ch06/Money/Rupiah.php`:
 
-<!-- file: src/Bab06/Uang/Rupiah.php -->
+<!-- file: src/Ch06/Money/Rupiah.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06\Uang;
+namespace Learn\Ch06\Money;
 
 use InvalidArgumentException;
 
 final readonly class Rupiah
 {
-    public function __construct(public int $jumlah)
+    public function __construct(public int $amount)
     {
-        if ($jumlah < 0) {
-            throw new InvalidArgumentException("Jumlah tidak boleh negatif: {$jumlah}");
+        if ($amount < 0) {
+            throw new InvalidArgumentException("Jumlah tidak boleh negatif: {$amount}");
         }
     }
 
-    public function tambah(self $lain): self
+    public function add(self $other): self
     {
-        return new self($this->jumlah + $lain->jumlah);
+        return new self($this->amount + $other->amount);
     }
 
-    public function kali(int $pengali): self
+    public function multiply(int $multiplier): self
     {
-        return new self($this->jumlah * $pengali);
+        return new self($this->amount * $multiplier);
     }
 
     public function format(): string
     {
-        return 'Rp' . number_format($this->jumlah, 0, ',', '.');
+        return 'Rp' . number_format($this->amount, 0, ',', '.');
     }
 }
 ```
 
-Buat `src/Bab06/Keranjang/JumlahTidakValid.php`:
+Buat `src/Ch06/Cart/InvalidQuantity.php`:
 
-<!-- file: src/Bab06/Keranjang/JumlahTidakValid.php -->
+<!-- file: src/Ch06/Cart/InvalidQuantity.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06\Keranjang;
+namespace Learn\Ch06\Cart;
 
 use InvalidArgumentException;
 
-final class JumlahTidakValid extends InvalidArgumentException
+final class InvalidQuantity extends InvalidArgumentException
 {
 }
 ```
 
-Buat `src/Bab06/Keranjang/Item.php`:
+Buat `src/Ch06/Cart/Item.php`:
 
-<!-- file: src/Bab06/Keranjang/Item.php -->
+<!-- file: src/Ch06/Cart/Item.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06\Keranjang;
+namespace Learn\Ch06\Cart;
 
-use Belajar\Bab06\Uang\Rupiah;
+use Learn\Ch06\Money\Rupiah;
 
 final readonly class Item
 {
     public function __construct(
-        public string $nama,
-        public Rupiah $harga,
-        public int $jumlah,
+        public string $name,
+        public Rupiah $price,
+        public int $quantity,
     ) {
-        if ($jumlah < 1) {
-            throw new JumlahTidakValid("Jumlah {$nama} minimal 1, diberikan {$jumlah}");
+        if ($quantity < 1) {
+            throw new InvalidQuantity("Jumlah {$name} minimal 1, diberikan {$quantity}");
         }
     }
 
     public function subtotal(): Rupiah
     {
-        return $this->harga->kali($this->jumlah);
+        return $this->price->multiply($this->quantity);
     }
 }
 ```
 
-Buat `src/Bab06/Keranjang/Keranjang.php`:
+Buat `src/Ch06/Cart/Cart.php`:
 
-<!-- file: src/Bab06/Keranjang/Keranjang.php -->
+<!-- file: src/Ch06/Cart/Cart.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06\Keranjang;
+namespace Learn\Ch06\Cart;
 
-use Belajar\Bab06\Uang\Rupiah;
+use Learn\Ch06\Money\Rupiah;
 
-final class Keranjang
+final class Cart
 {
     /** @var list<Item> */
-    private array $item = [];
+    private array $items = [];
 
-    public function tambah(Item $item): void
+    public function add(Item $item): void
     {
-        $this->item[] = $item;
+        $this->items[] = $item;
     }
 
     public function total(): Rupiah
     {
         return array_reduce(
-            $this->item,
-            static fn (Rupiah $total, Item $item): Rupiah => $total->tambah($item->subtotal()),
+            $this->items,
+            static fn (Rupiah $total, Item $item): Rupiah => $total->add($item->subtotal()),
             new Rupiah(0),
         );
     }
 
-    public function jumlahItem(): int
+    public function itemCount(): int
     {
-        return count($this->item);
+        return count($this->items);
     }
 }
 ```
@@ -148,7 +148,7 @@ Nama folder dan nama file sengaja dibuat sama persis dengan nama namespace dan n
 
 ### Namespace hanyalah awalan nama
 
-Baris `namespace Belajar\Bab06\Uang;` membuat nama lengkap class di file itu menjadi `Belajar\Bab06\Uang\Rupiah`. Hanya itu yang dilakukannya. Namespace tidak memuat file, tidak mengatur siapa boleh mengakses apa, dan tidak terikat ke folder.
+Baris `namespace Learn\Ch06\Money;` membuat nama lengkap class di file itu menjadi `Learn\Ch06\Money\Rupiah`. Hanya itu yang dilakukannya. Namespace tidak memuat file, tidak mengatur siapa boleh mengakses apa, dan tidak terikat ke folder.
 
 | | Rust | TypeScript | PHP |
 |---|---|---|---|
@@ -167,78 +167,78 @@ Aturan penulisannya:
 
 Ada tiga cara menulis nama, dan PHP mengartikannya berbeda:
 
-| Bentuk | Contoh di file ber-namespace `Belajar\Bab06` | Diartikan sebagai |
+| Bentuk | Contoh di file ber-namespace `Learn\Ch06` | Diartikan sebagai |
 |---|---|---|
-| Fully qualified | `\Belajar\Bab06\Uang\Rupiah` | Persis nama itu |
-| Qualified | `Uang\Rupiah` | Relatif terhadap namespace file: `Belajar\Bab06\Uang\Rupiah` |
-| Unqualified | `Rupiah` | Alias dari `use` kalau ada. Kalau tidak ada: `Belajar\Bab06\Rupiah` |
+| Fully qualified | `\Learn\Ch06\Money\Rupiah` | Persis nama itu |
+| Qualified | `Money\Rupiah` | Relatif terhadap namespace file: `Learn\Ch06\Money\Rupiah` |
+| Unqualified | `Rupiah` | Alias dari `use` kalau ada. Kalau tidak ada: `Learn\Ch06\Rupiah` |
 
 `use` mendaftarkan alias supaya nama pendek bisa dipakai. Bentuk-bentuknya:
 
 ```php
-use Belajar\Bab06\Uang\Rupiah;                  // class
-use Belajar\Bab06\Keranjang\Keranjang as Troli; // dengan nama lain
-use Belajar\Bab06\Keranjang\{Item, Keranjang};  // beberapa sekaligus
+use Learn\Ch06\Money\Rupiah;         // class
+use Learn\Ch06\Cart\Cart as Trolley; // dengan nama lain
+use Learn\Ch06\Cart\{Cart, Item};    // beberapa sekaligus
 
-use function Belajar\Bab06\rupiah;              // fungsi
+use function Learn\Ch06\rupiah;      // fungsi
 ```
 
-Untuk konstanta ada `use const`. Class yang berada di namespace yang sama tidak perlu `use`: itu sebabnya `Item.php` bisa menulis `JumlahTidakValid` begitu saja.
+Untuk konstanta ada `use const`. Class yang berada di namespace yang sama tidak perlu `use`: itu sebabnya `Item.php` bisa menulis `InvalidQuantity` begitu saja.
 
-Buat file coba-coba `src/Bab06/coba.php` untuk melihat hasil penyelesaian nama. `::class` mengembalikan nama lengkap sebuah class sebagai string:
+Buat file coba-coba `src/Ch06/scratch.php` untuk melihat hasil penyelesaian nama. `::class` mengembalikan nama lengkap sebuah class sebagai string:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 
-use Belajar\Bab06\Keranjang\Keranjang as Troli;
-use Belajar\Bab06\Uang\Rupiah;
+use Learn\Ch06\Cart\Cart as Trolley;
+use Learn\Ch06\Money\Rupiah;
 
 echo Rupiah::class . PHP_EOL;
-echo Troli::class . PHP_EOL;
+echo Trolley::class . PHP_EOL;
 echo __NAMESPACE__ . PHP_EOL;
 echo \strlen('abc') . PHP_EOL;
 ```
 
 ```bash
-php src/Bab06/coba.php
+php src/Ch06/scratch.php
 ```
 
 ```text
-Belajar\Bab06\Uang\Rupiah
-Belajar\Bab06\Keranjang\Keranjang
-Belajar\Bab06
+Learn\Ch06\Money\Rupiah
+Learn\Ch06\Cart\Cart
+Learn\Ch06
 3
 ```
 
-Script ini jalan walaupun file `Rupiah.php` dan `Keranjang.php` belum dimuat sama sekali. `::class` diselesaikan dari teks kode, tanpa menyentuh class-nya. Kamu akan sering melihatnya di Laravel, misalnya `User::class`, sebagai cara menyebut class tanpa menulis string dengan tangan.
+Script ini jalan walaupun file `Rupiah.php` dan `Cart.php` belum dimuat sama sekali. `::class` diselesaikan dari teks kode, tanpa menyentuh class-nya. Kamu akan sering melihatnya di Laravel, misalnya `User::class`, sebagai cara menyebut class tanpa menulis string dengan tangan.
 
 ### Jebakan: class bawaan PHP
 
-Semua class bawaan PHP ada di namespace global. Timpa `coba.php`:
+Semua class bawaan PHP ada di namespace global. Timpa `scratch.php`:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 
 echo strlen('halo') . PHP_EOL;
 echo PHP_VERSION . PHP_EOL;
 
-$tanggal = new DateTimeImmutable('2026-11-16');
-echo $tanggal->format('Y-m-d') . PHP_EOL;
+$date = new DateTimeImmutable('2026-11-16');
+echo $date->format('Y-m-d') . PHP_EOL;
 ```
 
 ```text
 4
 8.5.12
 
-Fatal error: Uncaught Error: Class "Belajar\Bab06\DateTimeImmutable" not found in /app/src/Bab06/coba.php:10
+Fatal error: Uncaught Error: Class "Learn\Ch06\DateTimeImmutable" not found in /app/src/Ch06/scratch.php:10
 ```
 
 Fungsi `strlen` dan konstanta `PHP_VERSION` ditemukan, tetapi class `DateTimeImmutable` tidak. Aturannya asimetris:
@@ -256,16 +256,16 @@ composer check
 
 ```text
  ------ ----------------------------------------------------------------------
-  Line   src/Bab06/coba.php
+  Line   Ch06/scratch.php
  ------ ----------------------------------------------------------------------
-  10     Instantiated class Belajar\Bab06\DateTimeImmutable not found.
+  10     Instantiated class Learn\Ch06\DateTimeImmutable not found.
          🪪  class.notFound
          💡  Learn more at https://phpstan.org/user-guide/discovering-symbols
   11     Binary operation "." between mixed and "\n"|"\r\n" results in an
          error.
          🪪  binaryOp.invalid
   11     Call to method format() on an unknown class
-         Belajar\Bab06\DateTimeImmutable.
+         Learn\Ch06\DateTimeImmutable.
          🪪  class.notFound
          💡  Learn more at https://phpstan.org/user-guide/discovering-symbols
  ------ ----------------------------------------------------------------------
@@ -273,7 +273,7 @@ composer check
  [ERROR] Found 3 errors
 ```
 
-Hapus `coba.php` sebelum lanjut.
+Hapus `scratch.php` sebelum lanjut.
 
 ### Tidak ada privasi tingkat modul
 
@@ -283,7 +283,7 @@ Konvensinya adalah menandai sesuatu dengan `@internal` di PHPDoc:
 
 ```php
 /** @internal */
-final class Pembulat
+final class Rounder
 {
     // ...
 }
@@ -292,8 +292,8 @@ final class Pembulat
 Yang kamu dapat dari tanda itu terbatas:
 
 - **Bagi PHP**: tidak ada. Itu hanya komentar.
-- **Bagi PHPStan dengan konfigurasi bawaan**: juga tidak ada. Pemakaian `Pembulat` dari namespace mana pun lolos.
-- **Bagi PHPStan dengan bleeding edge**: pemakaian dari luar *root namespace* dilaporkan. Root namespace adalah segmen pertama nama, di sini `Belajar`.
+- **Bagi PHPStan dengan konfigurasi bawaan**: juga tidak ada. Pemakaian `Rounder` dari namespace mana pun lolos.
+- **Bagi PHPStan dengan bleeding edge**: pemakaian dari luar *root namespace* dilaporkan. Root namespace adalah segmen pertama nama, di sini `Learn`.
 
 Bleeding edge adalah kumpulan aturan PHPStan versi berikutnya, yang dinyalakan dengan menambahkan `includes` ke `phpstan.neon`:
 
@@ -302,13 +302,13 @@ includes:
     - phar://phpstan.phar/conf/bleedingEdge.neon
 ```
 
-Dengan itu, kode di namespace `Toko\Kasir` yang memakai `Pembulat` dilaporkan begini:
+Dengan itu, kode di namespace `Shop\Cashier` yang memakai `Rounder` dilaporkan begini:
 
 ```text
-  9      Instantiation of internal class Belajar\Bab06\Uang\Pembulat.
+  9      Instantiation of internal class Learn\Ch06\Money\Rounder.
          🪪  new.internalClass
-  10     Call to internal method Belajar\Bab06\Uang\Pembulat::keRatusan() from
-         outside its root namespace Belajar.
+  10     Call to internal method Learn\Ch06\Money\Rounder::toHundreds() from
+         outside its root namespace Learn.
          🪪  method.internal
 ```
 
@@ -320,33 +320,33 @@ Namespace mengatur nama, tetapi belum ada yang memuat file. Bagian ini melewati 
 
 ### `require` dengan tangan
 
-Buat `src/Bab06/manual.php`:
+Buat `src/Ch06/manual.php`:
 
-<!-- file: src/Bab06/manual.php -->
+<!-- file: src/Ch06/manual.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 
-use Belajar\Bab06\Keranjang\Item;
-use Belajar\Bab06\Keranjang\Keranjang;
-use Belajar\Bab06\Uang\Rupiah;
+use Learn\Ch06\Cart\Cart;
+use Learn\Ch06\Cart\Item;
+use Learn\Ch06\Money\Rupiah;
 
-require_once __DIR__ . '/Uang/Rupiah.php';
-require_once __DIR__ . '/Keranjang/Item.php';
-require_once __DIR__ . '/Keranjang/Keranjang.php';
+require_once __DIR__ . '/Money/Rupiah.php';
+require_once __DIR__ . '/Cart/Item.php';
+require_once __DIR__ . '/Cart/Cart.php';
 
-$keranjang = new Keranjang();
-$keranjang->tambah(new Item('Kopi', new Rupiah(18_000), 2));
-$keranjang->tambah(new Item('Roti', new Rupiah(12_500), 1));
+$cart = new Cart();
+$cart->add(new Item('Kopi', new Rupiah(18_000), 2));
+$cart->add(new Item('Roti', new Rupiah(12_500), 1));
 
-echo $keranjang->total()->format() . PHP_EOL;
+echo $cart->total()->format() . PHP_EOL;
 ```
 
 ```bash
-php src/Bab06/manual.php
+php src/Ch06/manual.php
 ```
 
 ```text
@@ -362,43 +362,43 @@ Rp48.500
 | `include` | Warning, lalu lanjut | Dimuat lagi |
 | `include_once` | Warning, lalu lanjut | Dilewati |
 
-Script di atas jalan, tetapi ada satu file yang lupa dimuat: `JumlahTidakValid.php`. Kesalahannya baru terlihat ketika jalur error dilewati. Ganti jumlah `Kopi` menjadi `0`:
+Script di atas jalan, tetapi ada satu file yang lupa dimuat: `InvalidQuantity.php`. Kesalahannya baru terlihat ketika jalur error dilewati. Ganti jumlah `Kopi` menjadi `0`:
 
 ```text
-Fatal error: Uncaught Error: Class "Belajar\Bab06\Keranjang\JumlahTidakValid" not found in /app/src/Bab06/Keranjang/Item.php:17
+Fatal error: Uncaught Error: Class "Learn\Ch06\Cart\InvalidQuantity" not found in /app/src/Ch06/Cart/Item.php:17
 ```
 
-Yang seharusnya muncul adalah exception `JumlahTidakValid` dengan pesan yang jelas. Yang muncul malah error bahwa class exception-nya sendiri tidak ditemukan. Inilah masalah `require` manual: daftar file harus dijaga dengan tangan, dan yang terlupa baru ketahuan saat runtime. Kembalikan jumlahnya ke `2`.
+Yang seharusnya muncul adalah exception `InvalidQuantity` dengan pesan yang jelas. Yang muncul malah error bahwa class exception-nya sendiri tidak ditemukan. Inilah masalah `require` manual: daftar file harus dijaga dengan tangan, dan yang terlupa baru ketahuan saat runtime. Kembalikan jumlahnya ke `2`.
 
 ### Autoload buatan sendiri
 
 PHP menyediakan jalan keluar: daftarkan sebuah fungsi yang dipanggil setiap kali PHP bertemu class yang belum dikenalnya. Fungsi itu yang bertugas memuat filenya.
 
-Buat `src/Bab06/autoload-sendiri.php`:
+Buat `src/Ch06/custom-autoload.php`:
 
-<!-- file: src/Bab06/autoload-sendiri.php -->
+<!-- file: src/Ch06/custom-autoload.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 
-use Belajar\Bab06\Keranjang\Item;
-use Belajar\Bab06\Keranjang\Keranjang;
-use Belajar\Bab06\Uang\Rupiah;
+use Learn\Ch06\Cart\Cart;
+use Learn\Ch06\Cart\Item;
+use Learn\Ch06\Money\Rupiah;
 
-spl_autoload_register(static function (string $kelas): void {
-    $awalan = 'Belajar\\';
+spl_autoload_register(static function (string $class): void {
+    $prefix = 'Learn\\';
 
-    if (!str_starts_with($kelas, $awalan)) {
+    if (!str_starts_with($class, $prefix)) {
         return;
     }
 
-    // Belajar\Bab06\Uang\Rupiah menjadi src/Bab06/Uang/Rupiah.php
-    $file = __DIR__ . '/../' . str_replace('\\', '/', substr($kelas, strlen($awalan))) . '.php';
+    // Learn\Ch06\Money\Rupiah menjadi src/Ch06/Money/Rupiah.php
+    $file = __DIR__ . '/../' . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
 
-    echo "  [autoload] {$kelas}" . PHP_EOL;
+    echo "  [autoload] {$class}" . PHP_EOL;
 
     if (is_file($file)) {
         require $file;
@@ -406,31 +406,31 @@ spl_autoload_register(static function (string $kelas): void {
 });
 
 echo 'Mulai' . PHP_EOL;
-$keranjang = new Keranjang();
+$cart = new Cart();
 
 echo 'Keranjang dibuat' . PHP_EOL;
-$keranjang->tambah(new Item('Kopi', new Rupiah(18_000), 2));
+$cart->add(new Item('Kopi', new Rupiah(18_000), 2));
 
-echo $keranjang->total()->format() . PHP_EOL;
+echo $cart->total()->format() . PHP_EOL;
 ```
 
 ```bash
-php src/Bab06/autoload-sendiri.php
+php src/Ch06/custom-autoload.php
 ```
 
 ```text
 Mulai
-  [autoload] Belajar\Bab06\Keranjang\Keranjang
+  [autoload] Learn\Ch06\Cart\Cart
 Keranjang dibuat
-  [autoload] Belajar\Bab06\Keranjang\Item
-  [autoload] Belajar\Bab06\Uang\Rupiah
+  [autoload] Learn\Ch06\Cart\Item
+  [autoload] Learn\Ch06\Money\Rupiah
 Rp36.000
 ```
 
 Dua hal terlihat dari outputnya:
 
 - **Tidak ada lagi daftar `require`.** Nama class diterjemahkan menjadi path file lewat satu aturan.
-- **Pemuatannya malas.** `Item.php` baru dibaca saat `new Item` dieksekusi, bukan di awal. `JumlahTidakValid.php` tidak dibaca sama sekali karena tidak pernah dibutuhkan.
+- **Pemuatannya malas.** `Item.php` baru dibaca saat `new Item` dieksekusi, bukan di awal. `InvalidQuantity.php` tidak dibaca sama sekali karena tidak pernah dibutuhkan.
 
 Sifat malas itu cocok dengan cara PHP dijalankan: setiap request hanya membayar biaya file yang benar-benar dipakainya.
 
@@ -441,7 +441,7 @@ Aturan penerjemahan di atas (awalan namespace dipetakan ke folder, sisanya menja
 ```json
 "autoload": {
     "psr-4": {
-        "Belajar\\": "src/"
+        "Learn\\": "src/"
     }
 }
 ```
@@ -461,34 +461,34 @@ Hasilnya ada di `vendor/composer/`. Isi `autoload_psr4.php` persis pemetaan yang
 
 ```php
 return array(
-    'Belajar\\' => array($baseDir . '/src'),
+    'Learn\\' => array($baseDir . '/src'),
 );
 ```
 
-Sekarang cukup satu `require` di titik masuk program. Buat `src/Bab06/belanja.php`:
+Sekarang cukup satu `require` di titik masuk program. Buat `src/Ch06/shopping.php`:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 
-use Belajar\Bab06\Keranjang\Item;
-use Belajar\Bab06\Keranjang\Keranjang;
-use Belajar\Bab06\Uang\Rupiah;
+use Learn\Ch06\Cart\Cart;
+use Learn\Ch06\Cart\Item;
+use Learn\Ch06\Money\Rupiah;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
-$keranjang = new Keranjang();
-$keranjang->tambah(new Item('Kopi', new Rupiah(18_000), 2));
-$keranjang->tambah(new Item('Roti', new Rupiah(12_500), 1));
+$cart = new Cart();
+$cart->add(new Item('Kopi', new Rupiah(18_000), 2));
+$cart->add(new Item('Roti', new Rupiah(12_500), 1));
 
-echo $keranjang->total()->format() . PHP_EOL;
+echo $cart->total()->format() . PHP_EOL;
 ```
 
 ```bash
-php src/Bab06/belanja.php
+php src/Ch06/shopping.php
 ```
 
 ```text
@@ -506,7 +506,7 @@ Supaya PSR-4 bekerja, tiga aturan harus dipatuhi:
 File-file dari Bab 2 sampai 5 tidak mengikuti aturan itu, dan tidak apa-apa. File itu dijalankan langsung, tidak pernah dimuat lewat autoload.
 
 ::: warning Huruf besar-kecil: jalan di container, gagal di server
-Folder proyekmu berada di Windows dan di-mount ke container, sehingga sistem file di dalam container ikut tidak membedakan huruf besar-kecil. Class `Diskon` yang disimpan di file `diskon.php` tetap ditemukan di mesinmu. Di server Linux, file itu tidak ditemukan.
+Folder proyekmu berada di Windows dan di-mount ke container, sehingga sistem file di dalam container ikut tidak membedakan huruf besar-kecil. Class `Discount` yang disimpan di file `discount.php` tetap ditemukan di mesinmu. Di server Linux, file itu tidak ditemukan.
 
 Composer bisa memeriksanya tanpa bergantung pada sistem file:
 
@@ -516,8 +516,8 @@ composer dump-autoload --optimize --strict-psr
 
 ```text
 Generating optimized autoload files
-Class Belajar\Bab06\Uang\Diskon located in ./src/Bab06/Uang/diskon.php does not comply with psr-4 autoloading standard
-(rule: Belajar\ => ./src). Skipping.
+Class Learn\Ch06\Money\Discount located in ./src/Ch06/Money/discount.php does not comply with psr-4 autoloading standard
+(rule: Learn\ => ./src). Skipping.
 ```
 
 Perintah itu berakhir dengan exit code 1 kalau ada pelanggaran. Di proyek latihan ini, file bab sebelumnya yang menaruh class di file bernama lain akan ikut disebut. Jalankan `composer dump-autoload` biasa sesudahnya untuk kembali ke autoloader normal.
@@ -527,48 +527,48 @@ Perintah itu berakhir dengan exit code 1 kalau ada pelanggaran. Di proyek latiha
 
 Autoload hanya berlaku untuk class, interface, trait, dan enum. PHP tidak punya mekanisme serupa untuk fungsi.
 
-Buat `src/Bab06/fungsi.php`, berisi satu fungsi pembantu supaya membuat `Rupiah` lebih ringkas:
+Buat `src/Ch06/functions.php`, berisi satu fungsi pembantu supaya membuat `Rupiah` lebih ringkas:
 
-<!-- file: src/Bab06/fungsi.php -->
+<!-- file: src/Ch06/functions.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 
-use Belajar\Bab06\Uang\Rupiah;
+use Learn\Ch06\Money\Rupiah;
 
-function rupiah(int $jumlah): Rupiah
+function rupiah(int $amount): Rupiah
 {
-    return new Rupiah($jumlah);
+    return new Rupiah($amount);
 }
 ```
 
-Ubah `belanja.php` supaya memakainya. Baris `use Belajar\Bab06\Uang\Rupiah;` tidak lagi dibutuhkan:
+Ubah `shopping.php` supaya memakainya. Baris `use Learn\Ch06\Money\Rupiah;` tidak lagi dibutuhkan:
 
-<!-- file: src/Bab06/belanja.php -->
+<!-- file: src/Ch06/shopping.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 
-use Belajar\Bab06\Keranjang\Item;
-use Belajar\Bab06\Keranjang\Keranjang;
+use Learn\Ch06\Cart\Cart;
+use Learn\Ch06\Cart\Item;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
-$keranjang = new Keranjang();
-$keranjang->tambah(new Item('Kopi', rupiah(18_000), 2));
-$keranjang->tambah(new Item('Roti', rupiah(12_500), 1));
+$cart = new Cart();
+$cart->add(new Item('Kopi', rupiah(18_000), 2));
+$cart->add(new Item('Roti', rupiah(12_500), 1));
 
-echo $keranjang->total()->format() . PHP_EOL;
+echo $cart->total()->format() . PHP_EOL;
 ```
 
 ```text
-Fatal error: Uncaught Error: Call to undefined function Belajar\Bab06\rupiah() in /app/src/Bab06/belanja.php:13
+Fatal error: Uncaught Error: Call to undefined function Learn\Ch06\rupiah() in /app/src/Ch06/shopping.php:13
 ```
 
 File berisi fungsi harus didaftarkan satu per satu di entri `files`. Composer memuat semua file di daftar itu setiap kali `vendor/autoload.php` dijalankan:
@@ -576,17 +576,17 @@ File berisi fungsi harus didaftarkan satu per satu di entri `files`. Composer me
 ```json
 "autoload": {
     "psr-4": {
-        "Belajar\\": "src/"
+        "Learn\\": "src/"
     },
     "files": [
-        "src/Bab06/fungsi.php"
+        "src/Ch06/functions.php"
     ]
 }
 ```
 
 ```bash
 composer dump-autoload
-php src/Bab06/belanja.php
+php src/Ch06/shopping.php
 ```
 
 ```text
@@ -624,18 +624,18 @@ Pilihan di file itu:
 - **`"declare_strict_types": true`** membuat Pint menambahkan `declare(strict_types=1);` ke file yang belum punya. Ketentuan yang selama ini kamu jaga dengan tangan sekarang dijaga alat.
 - **Dua aturan terakhir** menyimpang dari PER di dua tempat, supaya sama dengan gaya yang dipakai sejak [Bab 1](/01-setup) dan dengan gaya Laravel: `fn (` ditulis dengan spasi, dan badan class atau method yang kosong tidak dipadatkan menjadi `{}`.
 
-Untuk melihat kerjanya, buat file yang sengaja berantakan, `src/Bab06/Berantakan.php`:
+Untuk melihat kerjanya, buat file yang sengaja berantakan, `src/Ch06/Messy.php`:
 
 ```php
 <?php
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 use InvalidArgumentException;
-use Belajar\Bab06\Uang\Rupiah;
-class Berantakan {
-    function diskon(Rupiah $harga,int $persen) : Rupiah
+use Learn\Ch06\Money\Rupiah;
+class Messy {
+    function discount(Rupiah $price,int $percent) : Rupiah
     {
-        if($persen<0||$persen>100){ throw new InvalidArgumentException("Persen tidak valid"); }
-        return new Rupiah(intdiv($harga->jumlah*(100-$persen),100));
+        if($percent<0||$percent>100){ throw new InvalidArgumentException("Persen tidak valid"); }
+        return new Rupiah(intdiv($price->amount*(100-$percent),100));
     }
 }
 ```
@@ -643,33 +643,33 @@ class Berantakan {
 `--test` memeriksa tanpa mengubah file, dan `-v` menampilkan perbedaannya:
 
 ```bash
-vendor/bin/pint --test -v src/Bab06/Berantakan.php
+vendor/bin/pint --test -v src/Ch06/Messy.php
 ```
 
 ```text
-  ⨯ src/Bab06/Berantakan.php modifier_keywords, class_definition, single_space
+  ⨯ src/Ch06/Messy.php modifier_keywords, class_definition, single_space_aroun
   @@ -1,11 +1,19 @@
    <?php
   +
   +declare(strict_types=1);
   +
-   namespace Belajar\Bab06;
+   namespace Learn\Ch06;
   +
    use InvalidArgumentException;
-   use Belajar\Bab06\Uang\Rupiah;
-  -class Berantakan {
-  -    function diskon(Rupiah $harga,int $persen) : Rupiah
+   use Learn\Ch06\Money\Rupiah;
+  -class Messy {
+  -    function discount(Rupiah $price,int $percent) : Rupiah
   +
-  +class Berantakan
+  +class Messy
   +{
-  +    public function diskon(Rupiah $harga, int $persen): Rupiah
+  +    public function discount(Rupiah $price, int $percent): Rupiah
        {
-  -        if($persen<0||$persen>100){ throw new InvalidArgumentException("Persen tidak valid"); }
-  -        return new Rupiah(intdiv($harga->jumlah*(100-$persen),100));
-  +        if ($persen < 0 || $persen > 100) {
+  -        if($percent<0||$percent>100){ throw new InvalidArgumentException("Persen tidak valid"); }
+  -        return new Rupiah(intdiv($price->amount*(100-$percent),100));
+  +        if ($percent < 0 || $percent > 100) {
   +            throw new InvalidArgumentException("Persen tidak valid");
   +        }
-  +        return new Rupiah(intdiv($harga->jumlah * (100 - $persen), 100));
+  +        return new Rupiah(intdiv($price->amount * (100 - $percent), 100));
        }
    }
 ```
@@ -690,14 +690,14 @@ composer format
 Tanpa argumen, Pint merapikan seluruh proyek. Kalau file dari bab sebelumnya kamu ketik persis seperti di materi, tidak ada yang berubah, karena `pint.json` di atas disetel mengikuti gaya itu. Kalau ada yang berubah, perubahannya hanya gaya, bukan perilaku.
 
 ::: info Preset `laravel`
-Tanpa `pint.json`, Pint memakai preset `laravel`, yang seleranya sedikit berbeda. Inilah yang diubahnya di `belanja.php`:
+Tanpa `pint.json`, Pint memakai preset `laravel`, yang seleranya sedikit berbeda. Inilah yang diubahnya di `shopping.php`:
 
 ```text
--$keranjang = new Keranjang();
-+$keranjang = new Keranjang;
+-$cart = new Cart();
++$cart = new Cart;
 ...
--echo $keranjang->total()->format() . PHP_EOL;
-+echo $keranjang->total()->format().PHP_EOL;
+-echo $cart->total()->format() . PHP_EOL;
++echo $cart->total()->format().PHP_EOL;
 ```
 
 Di proyek Laravel, ikuti preset bawaan itu supaya kodemu seragam dengan kode framework.
@@ -716,7 +716,7 @@ Test ditaruh di folder `tests/`, terpisah dari `src/`. Supaya class test ikut di
 ```json
 "autoload-dev": {
     "psr-4": {
-        "Belajar\\Tests\\": "tests/"
+        "Learn\\Tests\\": "tests/"
     }
 }
 ```
@@ -725,7 +725,7 @@ Tambahkan juga script `test`. Seluruh `composer.json` sekarang seperti ini:
 
 ```json
 {
-    "name": "belajar/php-dasar",
+    "name": "learn/php-basics",
     "type": "project",
     "require": {
         "php": "^8.5"
@@ -737,15 +737,15 @@ Tambahkan juga script `test`. Seluruh `composer.json` sekarang seperti ini:
     },
     "autoload": {
         "psr-4": {
-            "Belajar\\": "src/"
+            "Learn\\": "src/"
         },
         "files": [
-            "src/Bab06/fungsi.php"
+            "src/Ch06/functions.php"
         ]
     },
     "autoload-dev": {
         "psr-4": {
-            "Belajar\\Tests\\": "tests/"
+            "Learn\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -780,49 +780,49 @@ PHPUnit sendiri diatur lewat `phpunit.xml` di folder proyek:
 
 ### Test pertama
 
-Buat `tests/Bab06/RupiahTest.php`:
+Buat `tests/Ch06/RupiahTest.php`:
 
-<!-- file: tests/Bab06/RupiahTest.php -->
+<!-- file: tests/Ch06/RupiahTest.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Tests\Bab06;
+namespace Learn\Tests\Ch06;
 
-use Belajar\Bab06\Uang\Rupiah;
 use InvalidArgumentException;
+use Learn\Ch06\Money\Rupiah;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class RupiahTest extends TestCase
 {
-    public function test_tambah_menghasilkan_objek_baru(): void
+    public function test_add_returns_new_object(): void
     {
         $a = new Rupiah(10_000);
         $b = new Rupiah(2_500);
 
-        $hasil = $a->tambah($b);
+        $result = $a->add($b);
 
-        self::assertSame(12_500, $hasil->jumlah);
-        self::assertSame(10_000, $a->jumlah);
+        self::assertSame(12_500, $result->amount);
+        self::assertSame(10_000, $a->amount);
     }
 
-    #[DataProvider('contohFormat')]
-    public function test_format(int $jumlah, string $harapan): void
+    #[DataProvider('formatExamples')]
+    public function test_format(int $amount, string $expected): void
     {
-        self::assertSame($harapan, new Rupiah($jumlah)->format());
+        self::assertSame($expected, new Rupiah($amount)->format());
     }
 
     /** @return iterable<string, array{int, string}> */
-    public static function contohFormat(): iterable
+    public static function formatExamples(): iterable
     {
         yield 'nol' => [0, 'Rp0'];
         yield 'ribuan' => [18_000, 'Rp18.000'];
         yield 'jutaan' => [1_250_000, 'Rp1.250.000'];
     }
 
-    public function test_jumlah_negatif_ditolak(): void
+    public function test_negative_amount_is_rejected(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('tidak boleh negatif');
@@ -832,50 +832,50 @@ final class RupiahTest extends TestCase
 }
 ```
 
-Buat `tests/Bab06/KeranjangTest.php`:
+Buat `tests/Ch06/CartTest.php`:
 
-<!-- file: tests/Bab06/KeranjangTest.php -->
+<!-- file: tests/Ch06/CartTest.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Tests\Bab06;
+namespace Learn\Tests\Ch06;
 
-use Belajar\Bab06\Keranjang\Item;
-use Belajar\Bab06\Keranjang\JumlahTidakValid;
-use Belajar\Bab06\Keranjang\Keranjang;
+use Learn\Ch06\Cart\Cart;
+use Learn\Ch06\Cart\InvalidQuantity;
+use Learn\Ch06\Cart\Item;
 use PHPUnit\Framework\TestCase;
 
-use function Belajar\Bab06\rupiah;
+use function Learn\Ch06\rupiah;
 
-final class KeranjangTest extends TestCase
+final class CartTest extends TestCase
 {
-    public function test_keranjang_kosong_totalnya_nol(): void
+    public function test_empty_cart_total_is_zero(): void
     {
-        self::assertSame(0, new Keranjang()->total()->jumlah);
+        self::assertSame(0, new Cart()->total()->amount);
     }
 
-    public function test_total_menjumlahkan_subtotal_tiap_item(): void
+    public function test_total_sums_subtotal_of_each_item(): void
     {
-        $keranjang = new Keranjang();
-        $keranjang->tambah(new Item('Kopi', rupiah(18_000), 2));
-        $keranjang->tambah(new Item('Roti', rupiah(12_500), 1));
+        $cart = new Cart();
+        $cart->add(new Item('Kopi', rupiah(18_000), 2));
+        $cart->add(new Item('Roti', rupiah(12_500), 1));
 
-        self::assertSame(48_500, $keranjang->total()->jumlah);
-        self::assertSame(2, $keranjang->jumlahItem());
+        self::assertSame(48_500, $cart->total()->amount);
+        self::assertSame(2, $cart->itemCount());
     }
 
-    public function test_jumlah_nol_ditolak(): void
+    public function test_zero_quantity_is_rejected(): void
     {
-        $this->expectException(JumlahTidakValid::class);
+        $this->expectException(InvalidQuantity::class);
 
         new Item('Kopi', rupiah(18_000), 0);
     }
 }
 ```
 
-File kedua berada di namespace `Belajar\Tests\Bab06`, jadi fungsi `rupiah()` harus diimpor dengan `use function`.
+File kedua berada di namespace `Learn\Tests\Ch06`, jadi fungsi `rupiah()` harus diimpor dengan `use function`.
 
 ```bash
 composer test
@@ -901,17 +901,17 @@ vendor/bin/phpunit --testdox
 ```
 
 ```text
-Keranjang (Belajar\Tests\Bab06\Keranjang)
- ✔ Keranjang kosong totalnya nol
- ✔ Total menjumlahkan subtotal tiap item
- ✔ Jumlah nol ditolak
+Cart (Learn\Tests\Ch06\Cart)
+ ✔ Empty cart total is zero
+ ✔ Total sums subtotal of each item
+ ✔ Zero quantity is rejected
 
-Rupiah (Belajar\Tests\Bab06\Rupiah)
- ✔ Tambah menghasilkan objek baru
+Rupiah (Learn\Tests\Ch06\Rupiah)
+ ✔ Add returns new object
  ✔ Format with nol
  ✔ Format with ribuan
  ✔ Format with jutaan
- ✔ Jumlah negatif ditolak
+ ✔ Negative amount is rejected
 ```
 
 ### Dibanding Rust dan TS
@@ -920,7 +920,7 @@ Rupiah (Belajar\Tests\Bab06\Rupiah)
 |---|---|---|---|
 | Lokasi test | Modul `#[cfg(test)]` di file yang sama, atau `tests/` | File `*.test.ts` | Folder `tests/`, class `*Test` |
 | Satu test | Fungsi ber-`#[test]` | `test('...', () => {})` | Method berawalan `test` di turunan `TestCase` |
-| Assertion | `assert_eq!(a, b)` | `expect(a).toBe(b)` | `self::assertSame($harapan, $hasil)` |
+| Assertion | `assert_eq!(a, b)` | `expect(a).toBe(b)` | `self::assertSame($expected, $result)` |
 | Banyak kasus | Loop, atau crate `rstest` | `test.each` | `#[DataProvider]` |
 | Mengharapkan error | `#[should_panic]`, atau memeriksa `Err` | `expect(() => ...).toThrow()` | `$this->expectException(...)` |
 | Menjalankan | `cargo test` | `vitest` | `composer test` |
@@ -930,29 +930,29 @@ Empat hal dari contoh di atas yang perlu diperhatikan:
 - **Urutan argumen assertion**: nilai yang diharapkan dulu, baru nilai hasil.
 - **Data provider** adalah method `public static` yang menghasilkan daftar argumen. Kuncinya (`'nol'`, `'ribuan'`) menjadi nama kasus di output.
 - **`expectException` ditulis sebelum** kode yang melempar, bukan sesudahnya.
-- **`new Rupiah($jumlah)->format()`** tanpa kurung tambahan di sekeliling `new` adalah sintaks PHP 8.4 ke atas.
+- **`new Rupiah($amount)->format()`** tanpa kurung tambahan di sekeliling `new` adalah sintaks PHP 8.4 ke atas.
 
 ### `assertSame` lawan `assertEquals`
 
 Dua assertion ini berbeda persis seperti `===` dan `==` di [Bab 3](/03-dasar-bahasa). Empat test berikut memperlihatkannya:
 
 ```php
-public function test_assert_equals_longgar(): void
+public function test_assert_equals_is_loose(): void
 {
     self::assertEquals('18000', 18_000);
 }
 
-public function test_assert_same_ketat(): void
+public function test_assert_same_is_strict(): void
 {
     self::assertSame('18000', 18_000);
 }
 
-public function test_assert_equals_objek_nilai(): void
+public function test_assert_equals_value_objects(): void
 {
     self::assertEquals(new Rupiah(100), new Rupiah(100));
 }
 
-public function test_assert_same_objek_nilai(): void
+public function test_assert_same_value_objects(): void
 {
     self::assertSame(new Rupiah(100), new Rupiah(100));
 }
@@ -961,10 +961,10 @@ public function test_assert_same_objek_nilai(): void
 ```text
 There were 2 failures:
 
-1) Belajar\Tests\Bab06\TmpBandingTest::test_assert_same_ketat
+1) Learn\Tests\Ch06\TmpCompareTest::test_assert_same_is_strict
 Failed asserting that 18000 is identical to '18000'.
 
-2) Belajar\Tests\Bab06\TmpBandingTest::test_assert_same_objek_nilai
+2) Learn\Tests\Ch06\TmpCompareTest::test_assert_same_value_objects
 Failed asserting that two variables reference the same object.
 
 FAILURES!
@@ -985,7 +985,7 @@ Ubah harapan kasus `'ribuan'` menjadi `'Rp18,000'`, lalu jalankan lagi:
 ```text
 There was 1 failure:
 
-1) Belajar\Tests\Bab06\RupiahTest::test_format@ribuan with data (18000, 'Rp18,000')
+1) Learn\Tests\Ch06\RupiahTest::test_format@ribuan with data (18000, 'Rp18,000')
 Failed asserting that two strings are identical.
 --- Expected
 +++ Actual
@@ -993,7 +993,7 @@ Failed asserting that two strings are identical.
 -'Rp18,000'
 +'Rp18.000'
 
-/app/tests/Bab06/RupiahTest.php:28
+/app/tests/Ch06/RupiahTest.php:28
 
 FAILURES!
 Tests: 8, Assertions: 11, Failures: 1.
@@ -1024,10 +1024,10 @@ composer check
 
 Analisis pertama setelah `tests` ditambahkan terasa lama, sekitar setengah menit di mesin tempat materi ini diuji, karena PHPStan harus membaca kode PHPUnit lewat folder yang di-mount. Analisis berikutnya dalam sesi shell yang sama hanya beberapa detik.
 
-Di level max, data provider pun harus bertipe lengkap. Tanpa PHPDoc `@return` di `contohFormat()`:
+Di level max, data provider pun harus bertipe lengkap. Tanpa PHPDoc `@return` di `formatExamples()`:
 
 ```text
-  32     Method Belajar\Tests\Bab06\RupiahTest::contohFormat() return type has
+  32     Method Learn\Tests\Ch06\RupiahTest::formatExamples() return type has
          no value type specified in iterable type iterable.
          🪪  missingType.iterableValue
 ```
@@ -1052,18 +1052,18 @@ Kamu sudah memakai Composer untuk tiga hal: memasang paket, membuat autoloader, 
 | Keperluan | Cargo | npm | Composer |
 |---|---|---|---|
 | Membuat manifest | `cargo init` | `npm init` | `composer init` |
-| Menambah dependency | `cargo add serde` | `npm install zod` | `composer require vendor/paket` |
-| Menambah dependency dev | `cargo add --dev x` | `npm install -D x` | `composer require --dev vendor/paket` |
-| Menghapus dependency | `cargo remove x` | `npm uninstall x` | `composer remove vendor/paket` |
+| Menambah dependency | `cargo add serde` | `npm install zod` | `composer require vendor/package` |
+| Menambah dependency dev | `cargo add --dev x` | `npm install -D x` | `composer require --dev vendor/package` |
+| Menghapus dependency | `cargo remove x` | `npm uninstall x` | `composer remove vendor/package` |
 | Memasang sesuai lockfile | `cargo build --locked` | `npm ci` | `composer install` |
 | Menaikkan versi dalam batas constraint | `cargo update` | `npm update` | `composer update` |
 | Melihat yang terpasang | `cargo tree` | `npm ls` | `composer show` |
 | Mencari versi yang lebih baru | plugin `cargo-outdated` | `npm outdated` | `composer outdated` |
 | Memeriksa celah keamanan | plugin `cargo-audit` | `npm audit` | `composer audit` |
-| Kenapa paket ini terpasang | `cargo tree -i x` | `npm why x` | `composer why vendor/paket` |
+| Kenapa paket ini terpasang | `cargo tree -i x` | `npm why x` | `composer why vendor/package` |
 | Menjalankan script | tidak ada bawaan | `npm run x` | `composer x` |
 
-Nama paket di Composer selalu dua bagian, `vendor/paket`, seperti scope di npm tetapi wajib. Registry-nya adalah packagist.org.
+Nama paket di Composer selalu dua bagian, `vendor/package`, seperti scope di npm tetapi wajib. Registry-nya adalah packagist.org.
 
 ### Constraint versi
 
@@ -1276,12 +1276,12 @@ Tanpa menjalankannya, tentukan output lima baris `echo` di file ini. Baris mana 
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06;
+namespace Learn\Ch06;
 
-use Belajar\Bab06\Keranjang\Keranjang as Troli;
+use Learn\Ch06\Cart\Cart as Trolley;
 
-echo Uang\Rupiah::class . PHP_EOL;
-echo Troli::class . PHP_EOL;
+echo Money\Rupiah::class . PHP_EOL;
+echo Trolley::class . PHP_EOL;
 echo \Exception::class . PHP_EOL;
 echo Exception::class . PHP_EOL;
 echo strtoupper('halo') . PHP_EOL;
@@ -1289,84 +1289,84 @@ echo strtoupper('halo') . PHP_EOL;
 
 ::: details Jawaban
 ```text
-Belajar\Bab06\Uang\Rupiah
-Belajar\Bab06\Keranjang\Keranjang
+Learn\Ch06\Money\Rupiah
+Learn\Ch06\Cart\Cart
 Exception
-Belajar\Bab06\Exception
+Learn\Ch06\Exception
 HALO
 ```
 
 - **Baris 1**: nama qualified, relatif terhadap namespace file.
 - **Baris 2**: alias dari `use ... as`.
 - **Baris 3**: backslash di depan berarti namespace global.
-- **Baris 4**: tanpa `use`, nama class dianggap milik namespace file. Class itu tidak ada, tetapi `::class` tidak memuat class, jadi PHP tidak mengeluh. PHPStan melaporkannya: `Class Belajar\Bab06\Exception not found.`
+- **Baris 4**: tanpa `use`, nama class dianggap milik namespace file. Class itu tidak ada, tetapi `::class` tidak memuat class, jadi PHP tidak mengeluh. PHPStan melaporkannya: `Class Learn\Ch06\Exception not found.`
 - **Baris 5**: fungsi jatuh ke namespace global.
 :::
 
 ### 2. Class baru beserta test-nya
 
-Buat class `Diskon` di namespace `Belajar\Bab06\Uang`:
+Buat class `Discount` di namespace `Learn\Ch06\Money`:
 
-- Constructor menerima `int $persen` dan menolak nilai di luar 0 sampai 100 dengan `InvalidArgumentException`.
-- Method `terapkan(Rupiah $harga): Rupiah` mengembalikan harga setelah diskon, dibulatkan ke bawah.
+- Constructor menerima `int $percent` dan menolak nilai di luar 0 sampai 100 dengan `InvalidArgumentException`.
+- Method `apply(Rupiah $price): Rupiah` mengembalikan harga setelah diskon, dibulatkan ke bawah.
 
 Tulis test-nya dengan data provider untuk kasus 0%, 10%, 100%, dan satu kasus pembulatan. `composer format`, `composer check`, dan `composer test` harus lulus.
 
 ::: details Jawaban
-`src/Bab06/Uang/Diskon.php`:
+`src/Ch06/Money/Discount.php`:
 
-<!-- file: src/Bab06/Uang/Diskon.php -->
+<!-- file: src/Ch06/Money/Discount.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab06\Uang;
+namespace Learn\Ch06\Money;
 
 use InvalidArgumentException;
 
-final readonly class Diskon
+final readonly class Discount
 {
-    public function __construct(public int $persen)
+    public function __construct(public int $percent)
     {
-        if ($persen < 0 || $persen > 100) {
-            throw new InvalidArgumentException("Persen harus 0 sampai 100, diberikan {$persen}");
+        if ($percent < 0 || $percent > 100) {
+            throw new InvalidArgumentException("Persen harus 0 sampai 100, diberikan {$percent}");
         }
     }
 
-    public function terapkan(Rupiah $harga): Rupiah
+    public function apply(Rupiah $price): Rupiah
     {
-        return new Rupiah(intdiv($harga->jumlah * (100 - $this->persen), 100));
+        return new Rupiah(intdiv($price->amount * (100 - $this->percent), 100));
     }
 }
 ```
 
-`tests/Bab06/DiskonTest.php`:
+`tests/Ch06/DiscountTest.php`:
 
-<!-- file: tests/Bab06/DiskonTest.php -->
+<!-- file: tests/Ch06/DiscountTest.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Tests\Bab06;
+namespace Learn\Tests\Ch06;
 
-use Belajar\Bab06\Uang\Diskon;
-use Belajar\Bab06\Uang\Rupiah;
 use InvalidArgumentException;
+use Learn\Ch06\Money\Discount;
+use Learn\Ch06\Money\Rupiah;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class DiskonTest extends TestCase
+final class DiscountTest extends TestCase
 {
-    #[DataProvider('contohDiskon')]
-    public function test_terapkan(int $persen, int $harga, int $harapan): void
+    #[DataProvider('discountExamples')]
+    public function test_apply(int $percent, int $price, int $expected): void
     {
-        self::assertSame($harapan, new Diskon($persen)->terapkan(new Rupiah($harga))->jumlah);
+        self::assertSame($expected, new Discount($percent)->apply(new Rupiah($price))->amount);
     }
 
     /** @return iterable<string, array{int, int, int}> */
-    public static function contohDiskon(): iterable
+    public static function discountExamples(): iterable
     {
         yield 'tanpa diskon' => [0, 20_000, 20_000];
         yield 'sepuluh persen' => [10, 20_000, 18_000];
@@ -1374,18 +1374,18 @@ final class DiskonTest extends TestCase
         yield 'dibulatkan ke bawah' => [15, 999, 849];
     }
 
-    public function test_persen_di_luar_rentang_ditolak(): void
+    public function test_percent_out_of_range_is_rejected(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new Diskon(101);
+        new Discount(101);
     }
 }
 ```
 
 `intdiv` menjaga hasilnya tetap `int`. Operator `/` bisa menghasilkan `float`, yang ditolak constructor `Rupiah`.
 
-Nama file harus `Diskon.php` dengan D besar. Dengan `diskon.php`, semuanya tetap lulus di container tetapi gagal di server Linux, seperti dijelaskan di bagian PSR-4.
+Nama file harus `Discount.php` dengan D besar. Dengan `discount.php`, semuanya tetap lulus di container tetapi gagal di server Linux, seperti dijelaskan di bagian PSR-4.
 :::
 
 ### 3. `install` atau `update`

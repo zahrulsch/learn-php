@@ -2,75 +2,75 @@
 
 Rust memisahkan dua hal dengan tegas: `panic!` untuk bug, `Result` untuk kegagalan yang wajar. PHP secara bawaan hanya punya exception, seperti TS. Bab ini menunjukkan cara kerja exception di PHP, sisa-sisa mekanisme lama yang masih ada, lalu cara membuat kegagalan terlihat di tipe supaya PHPStan bisa memaksanya ditangani.
 
-Lanjutkan di proyek `latihan/php-dasar`. Buat folder `src/Bab05`, dan awali setiap file dengan `namespace Belajar\Bab05;`.
+Lanjutkan di proyek `practice/php-basics`. Buat folder `src/Ch05`, dan awali setiap file dengan `namespace Learn\Ch05;`.
 
 ## Exception
 
-Buat `src/Bab05/dasar.php`:
+Buat `src/Ch05/basics.php`:
 
-<!-- file: src/Bab05/dasar.php -->
+<!-- file: src/Ch05/basics.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
-final class SaldoTidakCukup extends \RuntimeException
+final class InsufficientBalance extends \RuntimeException
 {
     public function __construct(
-        public readonly int $saldo,
-        public readonly int $diminta,
+        public readonly int $balance,
+        public readonly int $requested,
     ) {
-        parent::__construct("Saldo {$saldo} tidak cukup untuk menarik {$diminta}");
+        parent::__construct("Saldo {$balance} tidak cukup untuk menarik {$requested}");
     }
 }
 
-final class BatasTerlampaui extends \RuntimeException
+final class LimitExceeded extends \RuntimeException
 {
 }
 
-const BATAS_SEKALI_TARIK = 1000;
+const WITHDRAWAL_LIMIT = 1000;
 
 /**
- * @throws SaldoTidakCukup
- * @throws BatasTerlampaui
+ * @throws InsufficientBalance
+ * @throws LimitExceeded
  */
-function tarik(int $saldo, int $jumlah): int
+function withdraw(int $balance, int $amount): int
 {
-    if ($jumlah <= 0) {
+    if ($amount <= 0) {
         throw new \InvalidArgumentException('Jumlah penarikan harus positif');
     }
 
-    if ($jumlah > BATAS_SEKALI_TARIK) {
-        throw new BatasTerlampaui('Maksimal ' . BATAS_SEKALI_TARIK . ' per penarikan');
+    if ($amount > WITHDRAWAL_LIMIT) {
+        throw new LimitExceeded('Maksimal ' . WITHDRAWAL_LIMIT . ' per penarikan');
     }
 
-    if ($jumlah > $saldo) {
-        throw new SaldoTidakCukup($saldo, $jumlah);
+    if ($amount > $balance) {
+        throw new InsufficientBalance($balance, $amount);
     }
 
-    return $saldo - $jumlah;
+    return $balance - $amount;
 }
 
-function cobaTarik(int $saldo, int $jumlah): string
+function tryWithdraw(int $balance, int $amount): string
 {
     try {
-        $sisa = tarik($saldo, $jumlah);
+        $remaining = withdraw($balance, $amount);
 
-        return "berhasil, sisa {$sisa}";
-    } catch (SaldoTidakCukup $e) {
-        return 'ditolak, kurang ' . ($e->diminta - $e->saldo);
-    } catch (BatasTerlampaui $e) {
+        return "berhasil, sisa {$remaining}";
+    } catch (InsufficientBalance $e) {
+        return 'ditolak, kurang ' . ($e->requested - $e->balance);
+    } catch (LimitExceeded $e) {
         return "ditolak: {$e->getMessage()}";
     } finally {
-        echo "[audit] percobaan tarik {$jumlah}" . PHP_EOL;
+        echo "[audit] percobaan tarik {$amount}" . PHP_EOL;
     }
 }
 
-echo cobaTarik(100, 30) . PHP_EOL;
-echo cobaTarik(100, 500) . PHP_EOL;
-echo cobaTarik(5000, 2000) . PHP_EOL;
+echo tryWithdraw(100, 30) . PHP_EOL;
+echo tryWithdraw(100, 500) . PHP_EOL;
+echo tryWithdraw(5000, 2000) . PHP_EOL;
 ```
 
 ```text
@@ -82,25 +82,25 @@ ditolak, kurang 400
 ditolak: Maksimal 1000 per penarikan
 ```
 
-- **Exception adalah objek** dari class yang menurunkan `\Exception`. Class buatan sendiri boleh membawa data, seperti `$saldo` dan `$diminta`, sehingga penangkapnya tidak perlu membedah teks pesan.
+- **Exception adalah objek** dari class yang menurunkan `\Exception`. Class buatan sendiri boleh membawa data, seperti `$balance` dan `$requested`, sehingga penangkapnya tidak perlu membedah teks pesan.
 - **`catch` memilih berdasarkan tipe**, dari atas ke bawah. Beberapa tipe bisa digabung: `catch (A|B $e)`.
 - **`finally`** selalu berjalan, baik blok `try` selesai normal, mengembalikan nilai, maupun melempar.
 - **Tidak ada padanan `Drop`** yang bisa diandalkan untuk membereskan resource. Pakai `finally`.
 - **`\InvalidArgumentException` sengaja tidak ditangkap.** Jumlah nol atau negatif adalah bug di kode pemanggil, bukan keadaan yang perlu ditangani. Pembedaannya dijelaskan di bagian hierarki.
 
-Exception yang tidak ditangkap siapa pun menghentikan program. Tempel di akhir `dasar.php`:
+Exception yang tidak ditangkap siapa pun menghentikan program. Tempel di akhir `basics.php`:
 
-<!-- demo: tak-tertangkap append: src/Bab05/dasar.php -->
+<!-- demo: uncaught append: src/Ch05/basics.php -->
 ```php
-echo tarik(100, 500) . PHP_EOL;
+echo withdraw(100, 500) . PHP_EOL;
 ```
 
 ```text
-Fatal error: Uncaught Belajar\Bab05\SaldoTidakCukup: Saldo 100 tidak cukup untuk menarik 500 in /app/src/Bab05/dasar.php:38
+Fatal error: Uncaught Learn\Ch05\InsufficientBalance: Saldo 100 tidak cukup untuk menarik 500 in /app/src/Ch05/basics.php:38
 Stack trace:
-#0 /app/src/Bab05/dasar.php(63): Belajar\Bab05\tarik(100, 500)
+#0 /app/src/Ch05/basics.php(63): Learn\Ch05\withdraw(100, 500)
 #1 {main}
-  thrown in /app/src/Bab05/dasar.php on line 38
+  thrown in /app/src/Ch05/basics.php on line 38
 ```
 
 PHPStan tidak mengeluh soal baris itu. Seperti di TS, tidak ada yang memaksa pemanggil menangani exception. Bagian "Membuat exception terlihat" di bawah memperbaikinya.
@@ -125,34 +125,34 @@ Throwable
     └── JsonException
 ```
 
-Buat `src/Bab05/hierarki.php` untuk melihat beberapa di antaranya:
+Buat `src/Ch05/hierarchy.php` untuk melihat beberapa di antaranya:
 
-<!-- file: src/Bab05/hierarki.php -->
+<!-- file: src/Ch05/hierarchy.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
-enum Warna: string
+enum Color: string
 {
-    case Merah = 'merah';
-    case Biru = 'biru';
+    case Red = 'red';
+    case Blue = 'blue';
 }
 
-function nol(): int
+function zero(): int
 {
     return 0;
 }
 
 /**
- * @param \Closure(): mixed $aksi
+ * @param \Closure(): mixed $action
  */
-function jenisError(\Closure $aksi): string
+function errorType(\Closure $action): string
 {
     try {
-        $aksi();
+        $action();
 
         return 'tidak ada error';
     } catch (\Throwable $e) {
@@ -160,18 +160,18 @@ function jenisError(\Closure $aksi): string
     }
 }
 
-echo jenisError(fn (): int => intdiv(10, nol())) . PHP_EOL;
-echo jenisError(fn (): int => 10 % nol()) . PHP_EOL;
-echo jenisError(fn (): mixed => json_decode('{rusak', flags: JSON_THROW_ON_ERROR)) . PHP_EOL;
-echo jenisError(fn (): Warna => Warna::from('hijau')) . PHP_EOL;
-echo jenisError(fn (): int => strlen('aman')) . PHP_EOL;
+echo errorType(fn (): int => intdiv(10, zero())) . PHP_EOL;
+echo errorType(fn (): int => 10 % zero()) . PHP_EOL;
+echo errorType(fn (): mixed => json_decode('{rusak', flags: JSON_THROW_ON_ERROR)) . PHP_EOL;
+echo errorType(fn (): Color => Color::from('green')) . PHP_EOL;
+echo errorType(fn (): int => strlen('aman')) . PHP_EOL;
 ```
 
 ```text
 DivisionByZeroError: Division by zero
 DivisionByZeroError: Modulo by zero
 JsonException: Syntax error
-ValueError: "hijau" is not a valid backing value for enum Belajar\Bab05\Warna
+ValueError: "green" is not a valid backing value for enum Learn\Ch05\Color
 tidak ada error
 ```
 
@@ -183,52 +183,52 @@ Pemetaannya ke Rust:
 | `Err(e)` yang diteruskan dengan `?` | `\RuntimeException` dan turunannya | Biarkan merambat, tangkap di tempat yang bisa berbuat sesuatu |
 | `Err(e)` yang ditangani pemanggil langsung | Nilai kembalian, lihat di bawah | Wajib ditangani |
 
-`catch (\Throwable $e)` seperti di `jenisError()` menangkap semuanya, termasuk bug. Tempatnya hanya di batas terluar program, misalnya untuk mencatat error lalu menampilkan halaman 500. Laravel sudah menyediakan batas itu.
+`catch (\Throwable $e)` seperti di `errorType()` menangkap semuanya, termasuk bug. Tempatnya hanya di batas terluar program, misalnya untuk mencatat error lalu menampilkan halaman 500. Laravel sudah menyediakan batas itu.
 
 ## Warisan lama: warning dan `false`
 
-Fungsi bawaan yang lebih tua dari exception tidak melempar apa pun. Ia mencetak *warning* lalu mengembalikan `false`. Buat `src/Bab05/warisan.php`:
+Fungsi bawaan yang lebih tua dari exception tidak melempar apa pun. Ia mencetak *warning* lalu mengembalikan `false`. Buat `src/Ch05/legacy.php`:
 
-<!-- file: src/Bab05/warisan.php -->
+<!-- file: src/Ch05/legacy.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
 /**
  * @throws \RuntimeException
  */
-function bacaBerkas(string $jalur): string
+function readTextFile(string $path): string
 {
-    if (!is_file($jalur)) {
-        throw new \RuntimeException("Berkas {$jalur} tidak ditemukan");
+    if (!is_file($path)) {
+        throw new \RuntimeException("Berkas {$path} tidak ditemukan");
     }
 
-    $isi = file_get_contents($jalur);
+    $contents = file_get_contents($path);
 
-    if ($isi === false) {
-        throw new \RuntimeException("Berkas {$jalur} gagal dibaca");
+    if ($contents === false) {
+        throw new \RuntimeException("Berkas {$path} gagal dibaca");
     }
 
-    return $isi;
+    return $contents;
 }
 
 try {
-    echo bacaBerkas('/tidak/ada.txt') . PHP_EOL;
+    echo readTextFile('/tidak/ada.txt') . PHP_EOL;
 } catch (\RuntimeException $e) {
     echo $e->getMessage() . PHP_EOL;
 }
 
 // Mengubah setiap warning menjadi exception.
-set_error_handler(function (int $tingkat, string $pesan, string $berkas, int $baris): never {
-    throw new \ErrorException($pesan, 0, $tingkat, $berkas, $baris);
+set_error_handler(function (int $level, string $message, string $file, int $line): never {
+    throw new \ErrorException($message, 0, $level, $file, $line);
 });
 
 try {
-    $isi = file_get_contents('/tidak/ada.txt');
-    echo ($isi === false ? 'gagal tanpa exception' : 'terbaca') . PHP_EOL;
+    $contents = file_get_contents('/tidak/ada.txt');
+    echo ($contents === false ? 'gagal tanpa exception' : 'terbaca') . PHP_EOL;
 } catch (\ErrorException $e) {
     echo 'Tertangkap: ' . $e->getMessage() . PHP_EOL;
 }
@@ -241,16 +241,16 @@ Tertangkap: file_get_contents(/tidak/ada.txt): Failed to open stream: No such fi
 
 Ada dua cara menghadapi fungsi seperti ini:
 
-- **Bungkus sekali**, seperti `bacaBerkas()`: periksa `false`, ubah menjadi exception, dan kembalikan tipe yang bersih. PHPStan memaksa pengecekan `false` itu, seperti yang kamu lihat di [Bab 2](/02-type-system).
+- **Bungkus sekali**, seperti `readTextFile()`: periksa `false`, ubah menjadi exception, dan kembalikan tipe yang bersih. PHPStan memaksa pengecekan `false` itu, seperti yang kamu lihat di [Bab 2](/02-type-system).
 - **Ubah semua warning menjadi exception** dengan `set_error_handler()`. Laravel melakukannya untukmu, sehingga di aplikasi Laravel sebuah warning langsung menghentikan request.
 
 Beberapa fungsi punya saklar sendiri. Yang paling sering dipakai adalah `JSON_THROW_ON_ERROR` pada `json_decode()` dan `json_encode()`, yang sudah dipakai sejak [Bab 2](/02-type-system).
 
 ## Membuat exception terlihat
 
-Kelemahan exception adalah tidak tampak di signature. Dari `function tarik(int $saldo, int $jumlah): int` kamu tidak tahu ia bisa gagal. Konvensinya adalah tag `@throws`, seperti pada `tarik()` dan `bacaBerkas()` di atas.
+Kelemahan exception adalah tidak tampak di signature. Dari `function withdraw(int $balance, int $amount): int` kamu tidak tahu ia bisa gagal. Konvensinya adalah tag `@throws`, seperti pada `withdraw()` dan `readTextFile()` di atas.
 
-PHPStan sudah memanfaatkan tag itu tanpa pengaturan apa pun: daftar `@throws` dianggap lengkap, sehingga menangkap exception yang tidak tercantum dilaporkan. Timpa `src/Bab05/coba.php`:
+PHPStan sudah memanfaatkan tag itu tanpa pengaturan apa pun: daftar `@throws` dianggap lengkap, sehingga menangkap exception yang tidak tercantum dilaporkan. Timpa `src/Ch05/scratch.php`:
 
 <!-- demo: dead-catch norun -->
 ```php
@@ -258,22 +258,22 @@ PHPStan sudah memanfaatkan tag itu tanpa pengaturan apa pun: daftar `@throws` di
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
 /**
  * @throws \RuntimeException
  */
-function muatTeks(string $jalur): string
+function loadText(string $path): string
 {
-    if (!is_file($jalur)) {
-        throw new \RuntimeException("Berkas {$jalur} tidak ada");
+    if (!is_file($path)) {
+        throw new \RuntimeException("Berkas {$path} tidak ada");
     }
 
     return 'isi berkas';
 }
 
 try {
-    echo muatTeks('/tidak/ada.txt') . PHP_EOL;
+    echo loadText('/tidak/ada.txt') . PHP_EOL;
 } catch (\InvalidArgumentException $e) {
     echo 'argumen salah' . PHP_EOL;
 }
@@ -299,146 +299,146 @@ parameters:
             - Error
 ```
 
-Dengan konfigurasi ini, setiap exception dianggap *checked* kecuali `LogicException`, `Error`, dan turunannya. Fungsi yang bisa melempar exception checked wajib menuliskannya di `@throws`, atau menangkapnya. Buat `src/Bab05/throws.php`:
+Dengan konfigurasi ini, setiap exception dianggap *checked* kecuali `LogicException`, `Error`, dan turunannya. Fungsi yang bisa melempar exception checked wajib menuliskannya di `@throws`, atau menangkapnya. Buat `src/Ch05/throws.php`:
 
-<!-- file: src/Bab05/throws.php -->
+<!-- file: src/Ch05/throws.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
-final class KonfigurasiTidakAda extends \RuntimeException
+final class ConfigMissing extends \RuntimeException
 {
 }
 
 /**
  * @return array<string, string>
  *
- * @throws KonfigurasiTidakAda
+ * @throws ConfigMissing
  */
-function muatKonfigurasi(string $jalur): array
+function loadConfig(string $path): array
 {
-    if (!is_file($jalur)) {
-        throw new KonfigurasiTidakAda("Berkas konfigurasi {$jalur} tidak ada");
+    if (!is_file($path)) {
+        throw new ConfigMissing("Berkas konfigurasi {$path} tidak ada");
     }
 
-    return ['mode' => 'produksi'];
+    return ['mode' => 'production'];
 }
 
 /**
- * @throws KonfigurasiTidakAda
+ * @throws ConfigMissing
  */
-function modeAplikasi(string $jalur): string
+function appMode(string $path): string
 {
-    return muatKonfigurasi($jalur)['mode'] ?? 'pengembangan';
+    return loadConfig($path)['mode'] ?? 'development';
 }
 
-function modeAtauBawaan(string $jalur): string
+function modeOrDefault(string $path): string
 {
     try {
-        return modeAplikasi($jalur);
-    } catch (KonfigurasiTidakAda) {
-        return 'pengembangan';
+        return appMode($path);
+    } catch (ConfigMissing) {
+        return 'development';
     }
 }
 
-echo modeAtauBawaan('/tidak/ada.ini') . PHP_EOL;
+echo modeOrDefault('/tidak/ada.ini') . PHP_EOL;
 ```
 
 ```text
-pengembangan
+development
 ```
 
 Periksa folder bab ini dengan konfigurasi tadi:
 
 ```bash
-vendor/bin/phpstan analyse -c phpstan-throws.neon src/Bab05
+vendor/bin/phpstan analyse -c phpstan-throws.neon src/Ch05
 ```
 
 ```text
  [OK] No errors
 ```
 
-`modeAplikasi()` hanya meneruskan exception, jadi ia wajib menuliskannya. `modeAtauBawaan()` menangkapnya, jadi tidak perlu. Sekarang hapus `@throws` dari salah satunya. Timpa `src/Bab05/coba.php`:
+`appMode()` hanya meneruskan exception, jadi ia wajib menuliskannya. `modeOrDefault()` menangkapnya, jadi tidak perlu. Sekarang hapus `@throws` dari salah satunya. Timpa `src/Ch05/scratch.php`:
 
-<!-- demo: throws-kurang norun -->
+<!-- demo: throws-missing norun -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
-final class StokHabis extends \RuntimeException
+final class OutOfStock extends \RuntimeException
 {
 }
 
-function ambilSatu(int $stok): int
+function takeOne(int $stock): int
 {
-    if ($stok === 0) {
-        throw new StokHabis('Stok habis');
+    if ($stock === 0) {
+        throw new OutOfStock('Stok habis');
     }
 
-    return $stok - 1;
+    return $stock - 1;
 }
 ```
 
 ```text
-Function Belajar\Bab05\ambilSatu() throws checked exception Belajar\Bab05\StokHabis but it's missing from the PHPDoc @throws tag.
+Function Learn\Ch05\takeOne() throws checked exception Learn\Ch05\OutOfStock but it's missing from the PHPDoc @throws tag.
 ```
 
 Ini padanan terdekat dari `Result` di signature: kegagalan menjadi bagian dari kontrak fungsi, dan lupa menuliskannya adalah error.
 
 ::: info Kenapa di berkas terpisah
-Aturan ini berlaku untuk seluruh kode yang dianalisis, termasuk contoh-contoh bab sebelumnya yang belum menulis `@throws`. Di materi ini ia hanya dipakai untuk `src/Bab05`. Di proyek baru milikmu sendiri, taruh langsung di `phpstan.neon`.
+Aturan ini berlaku untuk seluruh kode yang dianalisis, termasuk contoh-contoh bab sebelumnya yang belum menulis `@throws`. Di materi ini ia hanya dipakai untuk `src/Ch05`. Di proyek baru milikmu sendiri, taruh langsung di `phpstan.neon`.
 :::
 
 ## Kegagalan sebagai nilai
 
-Untuk kegagalan yang wajar dan harus langsung ditangani pemanggil, seperti input yang tidak valid, exception terasa berlebihan. Alternatifnya mengembalikan kegagalan itu sebagai nilai, lewat union type. Buat `src/Bab05/union.php`:
+Untuk kegagalan yang wajar dan harus langsung ditangani pemanggil, seperti input yang tidak valid, exception terasa berlebihan. Alternatifnya mengembalikan kegagalan itu sebagai nilai, lewat union type. Buat `src/Ch05/union.php`:
 
-<!-- file: src/Bab05/union.php -->
+<!-- file: src/Ch05/union.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
-enum GalatUmur
+enum AgeError
 {
-    case BukanAngka;
-    case Negatif;
-    case TerlaluBesar;
+    case NotANumber;
+    case Negative;
+    case TooLarge;
 
-    public function pesan(): string
+    public function message(): string
     {
         return match ($this) {
-            self::BukanAngka => 'bukan bilangan bulat',
-            self::Negatif => 'tidak boleh negatif',
-            self::TerlaluBesar => 'terlalu besar',
+            self::NotANumber => 'bukan bilangan bulat',
+            self::Negative => 'tidak boleh negatif',
+            self::TooLarge => 'terlalu besar',
         };
     }
 }
 
-function parseUmur(string $teks): int|GalatUmur
+function parseAge(string $text): int|AgeError
 {
-    $angka = filter_var($teks, FILTER_VALIDATE_INT);
+    $number = filter_var($text, FILTER_VALIDATE_INT);
 
     return match (true) {
-        $angka === false => GalatUmur::BukanAngka,
-        $angka < 0 => GalatUmur::Negatif,
-        $angka > 150 => GalatUmur::TerlaluBesar,
-        default => $angka,
+        $number === false => AgeError::NotANumber,
+        $number < 0 => AgeError::Negative,
+        $number > 150 => AgeError::TooLarge,
+        default => $number,
     };
 }
 
-foreach (['42', 'abc', '-5', '999'] as $masukan) {
-    $hasil = parseUmur($masukan);
+foreach (['42', 'abc', '-5', '999'] as $input) {
+    $result = parseAge($input);
 
-    echo $masukan . ' -> ' . ($hasil instanceof GalatUmur ? $hasil->pesan() : "umur {$hasil}") . PHP_EOL;
+    echo $input . ' -> ' . ($result instanceof AgeError ? $result->message() : "umur {$result}") . PHP_EOL;
 }
 ```
 
@@ -449,35 +449,35 @@ abc -> bukan bilangan bulat
 999 -> terlalu besar
 ```
 
-`int|GalatUmur` adalah `Result<i64, GalatUmur>` versi ringan. Pemanggil tidak bisa memakai hasilnya sebagai `int` sebelum menyingkirkan `GalatUmur`. Tempel di akhir `union.php`:
+`int|AgeError` adalah `Result<i64, AgeError>` versi ringan. Pemanggil tidak bisa memakai hasilnya sebagai `int` sebelum menyingkirkan `AgeError`. Tempel di akhir `union.php`:
 
-<!-- demo: union-salah append: src/Bab05/union.php -->
+<!-- demo: union-wrong append: src/Ch05/union.php -->
 ```php
-echo (parseUmur('abc') + 1) . PHP_EOL;
+echo (parseAge('abc') + 1) . PHP_EOL;
 ```
 
 ```text
-Binary operation "+" between Belajar\Bab05\GalatUmur|int and 1 results in an error.
+Binary operation "+" between int|Learn\Ch05\AgeError and 1 results in an error.
 Binary operation "." between mixed and "\n"|"\r\n" results in an error.
 ```
 
 ```text
-Fatal error: Uncaught TypeError: Unsupported operand types: Belajar\Bab05\GalatUmur + int
+Fatal error: Uncaught TypeError: Unsupported operand types: Learn\Ch05\AgeError + int
 ```
 
 Untuk kasus tanpa alasan kegagalan, `?T` sudah cukup: itu `Option`.
 
 ### `Ok` dan `Err`
 
-Union langsung seperti di atas tidak bisa dipakai kalau nilai sukses dan nilai gagal bertipe sama, dan tidak punya bentuk yang seragam. Kalau kamu ingin `Result` yang sesungguhnya, dua class generic kecil sudah cukup. Buat `src/Bab05/result.php`:
+Union langsung seperti di atas tidak bisa dipakai kalau nilai sukses dan nilai gagal bertipe sama, dan tidak punya bentuk yang seragam. Kalau kamu ingin `Result` yang sesungguhnya, dua class generic kecil sudah cukup. Buat `src/Ch05/result.php`:
 
-<!-- file: src/Bab05/result.php -->
+<!-- file: src/Ch05/result.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
 /**
  * @template-covariant T
@@ -485,9 +485,9 @@ namespace Belajar\Bab05;
 final readonly class Ok
 {
     /**
-     * @param T $nilai
+     * @param T $value
      */
-    public function __construct(public mixed $nilai)
+    public function __construct(public mixed $value)
     {
     }
 }
@@ -498,92 +498,92 @@ final readonly class Ok
 final readonly class Err
 {
     /**
-     * @param E $galat
+     * @param E $error
      */
-    public function __construct(public mixed $galat)
+    public function __construct(public mixed $error)
     {
     }
 }
 
-enum GalatStok
+enum StockError
 {
-    case JumlahTidakValid;
-    case StokKurang;
+    case InvalidQuantity;
+    case InsufficientStock;
 }
 
 /**
- * @return Ok<int>|Err<GalatStok>
+ * @return Ok<int>|Err<StockError>
  */
 #[\NoDiscard]
-function kurangiStok(int $stok, int $jumlah): Ok|Err
+function reduceStock(int $stock, int $quantity): Ok|Err
 {
-    if ($jumlah <= 0) {
-        return new Err(GalatStok::JumlahTidakValid);
+    if ($quantity <= 0) {
+        return new Err(StockError::InvalidQuantity);
     }
 
-    if ($jumlah > $stok) {
-        return new Err(GalatStok::StokKurang);
+    if ($quantity > $stock) {
+        return new Err(StockError::InsufficientStock);
     }
 
-    return new Ok($stok - $jumlah);
+    return new Ok($stock - $quantity);
 }
 
 /**
- * @return Ok<int>|Err<GalatStok>
+ * @return Ok<int>|Err<StockError>
  */
 #[\NoDiscard]
-function jualDuaKali(int $stok, int $pertama, int $kedua): Ok|Err
+function sellTwice(int $stock, int $first, int $second): Ok|Err
 {
-    $hasil = kurangiStok($stok, $pertama);
+    $result = reduceStock($stock, $first);
 
-    if ($hasil instanceof Err) {
-        return $hasil;
+    if ($result instanceof Err) {
+        return $result;
     }
 
-    return kurangiStok($hasil->nilai, $kedua);
+    return reduceStock($result->value, $second);
 }
 
 /**
- * @param Ok<int>|Err<GalatStok> $hasil
+ * @param Ok<int>|Err<StockError> $result
  */
-function laporan(Ok|Err $hasil): string
+function report(Ok|Err $result): string
 {
     return match (true) {
-        $hasil instanceof Ok => "sisa stok {$hasil->nilai}",
-        $hasil instanceof Err => "gagal: {$hasil->galat->name}",
+        $result instanceof Ok => "sisa stok {$result->value}",
+        $result instanceof Err => "gagal: {$result->error->name}",
     };
 }
 
-echo laporan(jualDuaKali(10, 3, 4)) . PHP_EOL;
-echo laporan(jualDuaKali(10, 3, 9)) . PHP_EOL;
-echo laporan(jualDuaKali(10, 0, 1)) . PHP_EOL;
+echo report(sellTwice(10, 3, 4)) . PHP_EOL;
+echo report(sellTwice(10, 3, 9)) . PHP_EOL;
+echo report(sellTwice(10, 0, 1)) . PHP_EOL;
 ```
 
 ```text
 sisa stok 3
-gagal: StokKurang
-gagal: JumlahTidakValid
+gagal: InsufficientStock
+gagal: InvalidQuantity
 ```
 
-- **`@template-covariant`** membuat `Err<GalatStok::StokKurang>` diterima sebagai `Err<GalatStok>`. Itu aman karena class-nya `readonly`: isinya hanya bisa dibaca.
-- **Tidak ada operator `?`.** Tiga baris `if ($hasil instanceof Err) { return $hasil; }` di `jualDuaKali()` adalah penggantinya, ditulis tangan di setiap langkah.
+- **`@template-covariant`** membuat `Err<StockError::InsufficientStock>` diterima sebagai `Err<StockError>`. Itu aman karena class-nya `readonly`: isinya hanya bisa dibaca.
+- **Tidak ada operator `?`.** Tiga baris `if ($result instanceof Err) { return $result; }` di `sellTwice()` adalah penggantinya, ditulis tangan di setiap langkah.
 - **`#[\NoDiscard]`** (PHP 8.5) adalah padanan `#[must_use]`: hasil fungsi tidak boleh dibuang begitu saja.
 
 Tanpa `#[\NoDiscard]`, kegagalan yang dikembalikan sebagai nilai bisa hilang tanpa jejak. Tempel di akhir `result.php`:
 
-<!-- demo: dibuang append: src/Bab05/result.php -->
+<!-- demo: discarded append: src/Ch05/result.php -->
 ```php
-kurangiStok(5, 10);
-(void) kurangiStok(5, 10);
+reduceStock(5, 10);
+(void) reduceStock(5, 10);
 ```
 
 ```text
-Call to function Belajar\Bab05\kurangiStok() on a separate line discards return value.
-Call to function Belajar\Bab05\kurangiStok() on a separate line has no effect.
+Call to function Learn\Ch05\reduceStock() on a separate line discards return value.
+Call to function Learn\Ch05\reduceStock() on a separate line has no effect.
 ```
 
 ```text
-Warning: The return value of function Belajar\Bab05\kurangiStok() should either be used or intentionally ignored by casting it as (void)
+Warning: The return value of function Learn\Ch05\reduceStock() should either be used or intentionally ignored by casting it as (void)
 ```
 
 Kedua pesan itu untuk baris pertama. Baris kedua, dengan cast `(void)`, tidak dilaporkan: itu cara menyatakan bahwa hasilnya memang sengaja diabaikan.
@@ -595,7 +595,7 @@ Kedua pesan itu untuk baris pertama. Baris kedua, dengan cast `(void)`, tidak di
 | Bug: argumen mustahil, keadaan yang seharusnya tidak terjadi | Lempar `\LogicException` atau biarkan `\Error`. Jangan ditangkap |
 | Kegagalan lingkungan: berkas, jaringan, database | Exception turunan `\RuntimeException`, dengan `@throws`, dibiarkan merambat |
 | Tidak ditemukan, tanpa perlu alasan | `?T` |
-| Kegagalan wajar yang harus ditangani pemanggil langsung: validasi, parsing | Union `T\|Galat`, atau `Ok\|Err` |
+| Kegagalan wajar yang harus ditangani pemanggil langsung: validasi, parsing | Union `T\|Error`, atau `Ok\|Err` |
 
 Dua catatan supaya ekspektasinya tepat:
 
@@ -614,44 +614,44 @@ Dua catatan supaya ekspektasinya tepat:
 
 ### 1. Membungkus exception
 
-Tulis `muatPengaturan()` yang menerima teks JSON dan mengembalikan array. Kalau JSON-nya rusak atau isinya bukan objek, lempar exception buatanmu sendiri, `PengaturanRusak`. Exception asli dari `json_decode()` tidak boleh hilang.
+Tulis `loadSettings()` yang menerima teks JSON dan mengembalikan array. Kalau JSON-nya rusak atau isinya bukan objek, lempar exception buatanmu sendiri, `SettingsCorrupted`. Exception asli dari `json_decode()` tidak boleh hilang.
 
 ::: details Jawaban
-<!-- file: src/Bab05/latihan1.php -->
+<!-- file: src/Ch05/exercise1.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
-final class PengaturanRusak extends \RuntimeException
+final class SettingsCorrupted extends \RuntimeException
 {
 }
 
 /**
  * @return array<mixed>
  *
- * @throws PengaturanRusak
+ * @throws SettingsCorrupted
  */
-function muatPengaturan(string $json): array
+function loadSettings(string $json): array
 {
     try {
         $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
     } catch (\JsonException $e) {
-        throw new PengaturanRusak('Pengaturan bukan JSON yang sah', previous: $e);
+        throw new SettingsCorrupted('Pengaturan bukan JSON yang sah', previous: $e);
     }
 
     if (!is_array($data)) {
-        throw new PengaturanRusak('Pengaturan harus berupa objek JSON');
+        throw new SettingsCorrupted('Pengaturan harus berupa objek JSON');
     }
 
     return $data;
 }
 
 try {
-    muatPengaturan('{rusak');
-} catch (PengaturanRusak $e) {
+    loadSettings('{rusak');
+} catch (SettingsCorrupted $e) {
     echo $e->getMessage() . PHP_EOL;
     echo 'Penyebab: ' . ($e->getPrevious()?->getMessage() ?? '(tidak ada)') . PHP_EOL;
 }
@@ -662,58 +662,58 @@ Pengaturan bukan JSON yang sah
 Penyebab: Syntax error
 ```
 
-Argumen `previous` menyimpan exception asal, seperti `source()` pada error di Rust. Pemanggil hanya perlu mengenal `PengaturanRusak`, sedangkan detail teknisnya tetap tersedia untuk log.
+Argumen `previous` menyimpan exception asal, seperti `source()` pada error di Rust. Pemanggil hanya perlu mengenal `SettingsCorrupted`, sedangkan detail teknisnya tetap tersedia untuk log.
 :::
 
 ### 2. Dari exception ke nilai
 
-Tulis `parseHarga()` yang menerima teks seperti `'18.000'` dan mengembalikan harga sebagai `int`, atau alasan kegagalannya: kosong, bukan angka, atau tidak positif. Jangan melempar exception.
+Tulis `parsePrice()` yang menerima teks seperti `'18.000'` dan mengembalikan harga sebagai `int`, atau alasan kegagalannya: kosong, bukan angka, atau tidak positif. Jangan melempar exception.
 
 ::: details Jawaban
-<!-- file: src/Bab05/latihan2.php -->
+<!-- file: src/Ch05/exercise2.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
-enum GalatHarga
+enum PriceError
 {
-    case Kosong;
-    case BukanAngka;
-    case TidakPositif;
+    case Blank;
+    case NotANumber;
+    case NotPositive;
 }
 
-function parseHarga(string $teks): int|GalatHarga
+function parsePrice(string $text): int|PriceError
 {
-    $rapi = str_replace('.', '', trim($teks));
+    $clean = str_replace('.', '', trim($text));
 
-    if ($rapi === '') {
-        return GalatHarga::Kosong;
+    if ($clean === '') {
+        return PriceError::Blank;
     }
 
-    $angka = filter_var($rapi, FILTER_VALIDATE_INT);
+    $number = filter_var($clean, FILTER_VALIDATE_INT);
 
-    if ($angka === false) {
-        return GalatHarga::BukanAngka;
+    if ($number === false) {
+        return PriceError::NotANumber;
     }
 
-    return $angka > 0 ? $angka : GalatHarga::TidakPositif;
+    return $number > 0 ? $number : PriceError::NotPositive;
 }
 
-foreach (['18.000', '', 'gratis', '0'] as $masukan) {
-    $hasil = parseHarga($masukan);
+foreach (['18.000', '', 'gratis', '0'] as $input) {
+    $result = parsePrice($input);
 
-    echo "'{$masukan}' -> " . ($hasil instanceof GalatHarga ? $hasil->name : $hasil) . PHP_EOL;
+    echo "'{$input}' -> " . ($result instanceof PriceError ? $result->name : $result) . PHP_EOL;
 }
 ```
 
 ```text
 '18.000' -> 18000
-'' -> Kosong
-'gratis' -> BukanAngka
-'0' -> TidakPositif
+'' -> Blank
+'gratis' -> NotANumber
+'0' -> NotPositive
 ```
 :::
 
@@ -721,15 +721,15 @@ foreach (['18.000', '', 'gratis', '0'] as $masukan) {
 
 Tebak outputnya sebelum menjalankan.
 
-<!-- file: src/Bab05/latihan3.php -->
+<!-- file: src/Ch05/exercise3.php -->
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Belajar\Bab05;
+namespace Learn\Ch05;
 
-function urutan(): string
+function sequence(): string
 {
     try {
         echo 'A';
@@ -744,7 +744,7 @@ function urutan(): string
     }
 }
 
-echo urutan() . PHP_EOL;
+echo sequence() . PHP_EOL;
 ```
 
 ::: details Jawaban

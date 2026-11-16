@@ -36,8 +36,8 @@ PHP tidak perlu dipasang di mesinmu. PHP dan Composer berjalan di dalam containe
 Buat folder proyek di luar folder `docs`:
 
 ```powershell
-mkdir latihan/php-dasar/src
-cd latihan/php-dasar
+mkdir practice/php-basics/src
+cd practice/php-basics
 ```
 
 Buat `Dockerfile`:
@@ -113,7 +113,7 @@ Buat `composer.json` di folder proyek. Ini padanan `Cargo.toml` atau `package.js
 
 ```json
 {
-    "name": "belajar/php-dasar",
+    "name": "learn/php-basics",
     "type": "project",
     "require": {
         "php": "^8.5"
@@ -123,25 +123,25 @@ Buat `composer.json` di folder proyek. Ini padanan `Cargo.toml` atau `package.js
 
 `"php": "^8.5"` menyatakan versi PHP yang dibutuhkan proyek. Aturan caret-nya sama dengan Cargo dan npm: 8.5 ke atas, di bawah 9.0. Bedanya dengan field `engines` di `package.json`, Composer menolak memasang dependency kalau versi PHP-nya tidak cocok.
 
-Lalu buat `src/halo.php`:
+Lalu buat `src/hello.php`:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-function sapa(string $nama): string
+function greet(string $name): string
 {
-    return "Halo, {$nama}!";
+    return "Halo, {$name}!";
 }
 
-echo sapa('dunia') . PHP_EOL;
+echo greet('dunia') . PHP_EOL;
 ```
 
 Jalankan dari shell container:
 
 ```bash
-php src/halo.php
+php src/hello.php
 ```
 
 ```text
@@ -152,16 +152,16 @@ Yang langsung terlihat berbeda dari Rust dan TS:
 
 - **`<?php`** mengawali setiap file PHP. Tag penutup `?>` tidak ditulis di file yang isinya hanya PHP.
 - **`$`** mengawali setiap nama variabel.
-- **Tanda kutip ganda** melakukan interpolasi (`"Halo, {$nama}!"`), tanda kutip tunggal tidak. Mirip beda template literal dan string biasa di TS.
+- **Tanda kutip ganda** melakukan interpolasi (`"Halo, {$name}!"`), tanda kutip tunggal tidak. Mirip beda template literal dan string biasa di TS.
 - **`.`** adalah operator penggabung string, bukan `+`.
 - **`PHP_EOL`** adalah konstanta newline sesuai sistem operasi.
 
 ## `strict_types`
 
-Baris `declare(strict_types=1);` mematikan konversi tipe otomatis saat memanggil fungsi. Untuk melihat pengaruhnya, tambahkan satu baris di akhir `src/halo.php`:
+Baris `declare(strict_types=1);` mematikan konversi tipe otomatis saat memanggil fungsi. Untuk melihat pengaruhnya, tambahkan satu baris di akhir `src/hello.php`:
 
 ```php
-echo sapa(42) . PHP_EOL;
+echo greet(42) . PHP_EOL;
 ```
 
 Jalankan lagi:
@@ -169,7 +169,7 @@ Jalankan lagi:
 ```text
 Halo, dunia!
 
-Fatal error: Uncaught TypeError: sapa(): Argument #1 ($nama) must be of type string, int given, called in /app/src/halo.php on line 11 and defined in /app/src/halo.php:5
+Fatal error: Uncaught TypeError: greet(): Argument #1 ($name) must be of type string, int given, called in /app/src/hello.php on line 11 and defined in /app/src/hello.php:5
 ```
 
 Sekarang hapus baris `declare(strict_types=1);` dan jalankan lagi:
@@ -220,7 +220,7 @@ parameters:
 
 ### Jalankan
 
-Baris `sapa(42)` yang salah tadi masih ada di `src/halo.php`. Kali ini jangan jalankan kodenya, analisis saja:
+Baris `greet(42)` yang salah tadi masih ada di `src/hello.php`. Kali ini jangan jalankan kodenya, analisis saja:
 
 ```bash
 vendor/bin/phpstan analyse
@@ -228,19 +228,19 @@ vendor/bin/phpstan analyse
 
 ```text
 Note: Using configuration file /app/phpstan.neon.
- ------ ----------------------------------------------------------------
-  Line   halo.php
- ------ ----------------------------------------------------------------
-  11     Parameter #1 $nama of function sapa expects string, int given.
+ ------ -----------------------------------------------------------------
+  Line   hello.php
+ ------ -----------------------------------------------------------------
+  11     Parameter #1 $name of function greet expects string, int given.
          🪪  argument.type
- ------ ----------------------------------------------------------------
+ ------ -----------------------------------------------------------------
 
  [ERROR] Found 1 error
 ```
 
 PHPStan menemukan error itu tanpa mengeksekusi satu baris pun. Bedanya terasa ketika baris yang salah berada di dalam fungsi yang jarang dipanggil: PHP baru mengeluh saat fungsi itu akhirnya dijalankan, mungkin di production, sedangkan PHPStan memeriksa semua jalur kode setiap kali.
 
-Hapus baris `sapa(42)`, lalu jalankan lagi:
+Hapus baris `greet(42)`, lalu jalankan lagi:
 
 ```text
 Note: Using configuration file /app/phpstan.neon.
@@ -306,19 +306,19 @@ Mulai bab ini, urutan kerjanya selalu sama:
 
 ## Latihan
 
-Kerjakan di `src/halo.php`. Tebak dulu hasilnya, baru jalankan.
+Kerjakan di `src/hello.php`. Tebak dulu hasilnya, baru jalankan.
 
 ### 1. Pengecualian `int` ke `float`
 
-Tambahkan kode ini. Apakah `composer check` dan `php src/halo.php` melaporkan error?
+Tambahkan kode ini. Apakah `composer check` dan `php src/hello.php` melaporkan error?
 
 ```php
-function setengah(float $x): float
+function half(float $x): float
 {
     return $x / 2;
 }
 
-echo setengah(10) . PHP_EOL;
+echo half(10) . PHP_EOL;
 ```
 
 ::: details Jawaban
@@ -330,12 +330,12 @@ Tidak ada error di keduanya, dan outputnya `5`. `int` ke `float` adalah satu-sat
 `?string` berarti `string` atau `null`, padanan `Option<String>` di Rust dan `string | null` di TS. Tambahkan kode ini, lalu jalankan `composer check`:
 
 ```php
-function cariNama(int $id): ?string
+function findName(int $id): ?string
 {
     return $id === 1 ? 'Budi' : null;
 }
 
-echo strtoupper(cariNama(2)) . PHP_EOL;
+echo strtoupper(findName(2)) . PHP_EOL;
 ```
 
 Apa yang dilaporkan PHPStan, dan bagaimana memperbaikinya?
@@ -350,7 +350,7 @@ Parameter #1 $string of function strtoupper expects string, string|null given.
 Kalau tetap dijalankan, PHP melempar `TypeError` saat baris itu dieksekusi. Tangani kasus `null` sebelum memakai nilainya, misalnya dengan operator `??` yang memberi nilai pengganti:
 
 ```php
-echo strtoupper(cariNama(2) ?? 'tidak ditemukan') . PHP_EOL;
+echo strtoupper(findName(2) ?? 'tidak ditemukan') . PHP_EOL;
 ```
 
 Sekarang `composer check` lulus dan outputnya `TIDAK DITEMUKAN`.
@@ -360,7 +360,7 @@ Sama seperti di Rust, kamu tidak bisa memakai isi `Option` tanpa menangani `None
 
 ### 3. Posisi `declare`
 
-Pindahkan baris `declare(strict_types=1);` ke bawah fungsi `sapa`, lalu jalankan `php src/halo.php`. Apa yang terjadi?
+Pindahkan baris `declare(strict_types=1);` ke bawah fungsi `greet`, lalu jalankan `php src/hello.php`. Apa yang terjadi?
 
 ::: details Jawaban
 PHP berhenti sebelum menjalankan apa pun:

@@ -44,14 +44,14 @@ app/
 
 ## 1. Siapkan proyek
 
-Langkahnya sama dengan [Bab 8](/08-laravel-dasar). Dari PowerShell, di folder `latihan`:
+Langkahnya sama dengan [Bab 8](/08-laravel-dasar). Dari PowerShell, di folder `practice`:
 
 ```powershell
-docker run --rm -v "${PWD}:/app" -w /app composer:2 create-project laravel/laravel dompet
-cd dompet
+docker run --rm -v "${PWD}:/app" -w /app composer:2 create-project laravel/laravel wallet
+cd wallet
 ```
 
-Salin `Dockerfile` dari `latihan/laravel-dasar` tanpa perubahan. `compose.yaml` hanya berbeda di nama database:
+Salin `Dockerfile` dari `practice/laravel-basics` tanpa perubahan. `compose.yaml` hanya berbeda di nama database:
 
 ```yaml
 services:
@@ -70,8 +70,8 @@ services:
   mysql:
     image: mysql:8.4
     environment:
-      MYSQL_DATABASE: dompet
-      MYSQL_USER: dompet
+      MYSQL_DATABASE: wallet
+      MYSQL_USER: wallet
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: secret
     volumes:
@@ -88,7 +88,7 @@ volumes:
 ```
 
 ::: warning Matikan dulu proyek [Bab 8](/08-laravel-dasar)
-Kedua proyek memakai port 8000. Jalankan `docker compose down` di `latihan/laravel-dasar` sebelum menyalakan Dompet.
+Kedua proyek memakai port 8000. Jalankan `docker compose down` di `practice/laravel-basics` sebelum menyalakan Dompet.
 :::
 
 ### Konfigurasi
@@ -102,8 +102,8 @@ APP_LOCALE=id
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
-DB_DATABASE=dompet
-DB_USERNAME=dompet
+DB_DATABASE=wallet
+DB_USERNAME=wallet
 DB_PASSWORD=secret
 ```
 
@@ -599,7 +599,7 @@ Output di atas dipotong.
 
 ## 4. Akun
 
-Alur daftar, masuk, dan keluar sama dengan [Bab 9](/09-laravel-lanjut#autentikasi). Salin empat file ini dari `latihan/laravel-dasar` tanpa perubahan:
+Alur daftar, masuk, dan keluar sama dengan [Bab 9](/09-laravel-lanjut#autentikasi). Salin empat file ini dari `practice/laravel-basics` tanpa perubahan:
 
 - `app/Http/Requests/RegisterRequest.php`
 - `app/Http/Requests/LoginRequest.php`

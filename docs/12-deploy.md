@@ -32,7 +32,7 @@ Dari model itu lahir tiga aturan yang dipakai sepanjang bab:
 
 ```text
 /home/u123/
-├── dompet/
+├── wallet/
 │   ├── releases/
 │   │   ├── 20261116-074732/     satu folder per rilis
 │   │   └── 20261116-075101/
@@ -70,16 +70,16 @@ ssh-keygen -t ed25519
 Daftarkan isi file `.pub`-nya di panel hosting, di menu yang biasanya bernama SSH Access atau SSH Keys. Lalu buat file `C:\Users\NAMAMU\.ssh\config` supaya tidak perlu mengetik alamat, user, dan port berulang kali:
 
 ```text
-Host dompet
+Host wallet
     HostName server.hostingmu.example
     User u123
     Port 22
 ```
 
-Isi tiga nilai itu dari panel hosting. Sekarang `ssh dompet` membuka shell di server, dan `scp` mengenal nama yang sama.
+Isi tiga nilai itu dari panel hosting. Sekarang `ssh wallet` membuka shell di server, dan `scp` mengenal nama yang sama.
 
 ::: warning Jangan menyalurkan kunci lewat pipe PowerShell
-Cara yang sering ditulis di tutorial, `Get-Content kunci.pub | ssh dompet "cat >> ~/.ssh/authorized_keys"`, gagal di mesin uji. PowerShell menyisipkan tiga byte tak terlihat (BOM) di depan baris, sehingga server tidak lagi mengenali kuncinya dan login ditolak:
+Cara yang sering ditulis di tutorial, `Get-Content key.pub | ssh wallet "cat >> ~/.ssh/authorized_keys"`, gagal di mesin uji. PowerShell menyisipkan tiga byte tak terlihat (BOM) di depan baris, sehingga server tidak lagi mengenali kuncinya dan login ditolak:
 
 ```text
 u123@server: Permission denied (publickey,password).
@@ -90,7 +90,7 @@ Pakai panel hosting, atau unggah file `.pub`-nya dengan `scp` seperti di bagian 
 
 ## Siapkan server
 
-Masuk dengan `ssh dompet`. Semua perintah di bagian ini dijalankan di server.
+Masuk dengan `ssh wallet`. Semua perintah di bagian ini dijalankan di server.
 
 ### Catat path PHP
 
@@ -131,7 +131,7 @@ Run the "diagnose" command to get more detailed diagnostics output.
 Di materi ini Composer selalu dipanggil sebagai `php ~/bin/composer`. Alasannya terlihat kalau perintah dikirim langsung dari laptop tanpa membuka shell dulu: folder `~/bin` tidak ada di PATH.
 
 ```powershell
-ssh dompet "composer --version"
+ssh wallet "composer --version"
 ```
 
 ```text
@@ -140,7 +140,7 @@ bash: line 1: composer: command not found
 
 ### Buat database
 
-Buat database dan penggunanya lewat panel hosting. Catat empat hal: host (hampir selalu `localhost`), nama database, nama pengguna, dan password. Di banyak panel, nama database dan pengguna diberi awalan nama akunmu, misalnya `u123_dompet`.
+Buat database dan penggunanya lewat panel hosting. Catat empat hal: host (hampir selalu `localhost`), nama database, nama pengguna, dan password. Di banyak panel, nama database dan pengguna diberi awalan nama akunmu, misalnya `u123_wallet`.
 
 Catat juga mesinnya, MySQL atau MariaDB, karena Laravel punya driver terpisah untuk keduanya.
 
@@ -153,7 +153,7 @@ Server tiruan mengambil kode dari remote Git lokal, bukan dari GitHub. Langkah d
 Repo-mu privat, jadi server perlu kunci sendiri untuk membacanya. Buat kunci di server:
 
 ```bash
-ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "deploy-dompet"
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "deploy-wallet"
 cat ~/.ssh/id_ed25519.pub
 ```
 
@@ -174,9 +174,9 @@ Deploy pertama dikerjakan dengan tangan, langkah demi langkah, supaya kamu tahu 
 ### 1. Ambil kode
 
 ```bash
-mkdir -p ~/dompet/releases ~/dompet/shared ~/dompet/incoming
-RELEASE=~/dompet/releases/$(date +%Y%m%d-%H%M%S)
-git clone --quiet --depth 1 git@github.com:AKUN/dompet.git "$RELEASE"
+mkdir -p ~/wallet/releases ~/wallet/shared ~/wallet/incoming
+RELEASE=~/wallet/releases/$(date +%Y%m%d-%H%M%S)
+git clone --quiet --depth 1 git@github.com:AKUN/wallet.git "$RELEASE"
 cd "$RELEASE"
 ```
 
@@ -197,9 +197,9 @@ Karena ada `composer.lock`, versi yang terpasang persis sama dengan di laptopmu.
 ### 3. Tulis `.env` produksi
 
 ```bash
-cp .env.example ~/dompet/shared/.env
-chmod 600 ~/dompet/shared/.env
-nano ~/dompet/shared/.env
+cp .env.example ~/wallet/shared/.env
+chmod 600 ~/wallet/shared/.env
+nano ~/wallet/shared/.env
 ```
 
 `chmod 600` membuat file itu hanya bisa dibaca pemilik akun. Kalau `nano` tidak ada di server, sunting file itu lewat File Manager di panel. Nilai yang harus diganti:
@@ -208,21 +208,21 @@ nano ~/dompet/shared/.env
 APP_NAME=Dompet
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://dompet.example.com
+APP_URL=https://wallet.example.com
 
 DB_CONNECTION=mariadb
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=u123_dompet
-DB_USERNAME=u123_dompet
+DB_DATABASE=u123_wallet
+DB_USERNAME=u123_wallet
 DB_PASSWORD=password-dari-panel
 
 MAIL_MAILER=smtp
 MAIL_HOST=mail.example.com
 MAIL_PORT=465
-MAIL_USERNAME=dompet@example.com
+MAIL_USERNAME=wallet@example.com
 MAIL_PASSWORD=password-email
-MAIL_FROM_ADDRESS="dompet@example.com"
+MAIL_FROM_ADDRESS="wallet@example.com"
 ```
 
 - **`APP_DEBUG=false`** tidak bisa ditawar. Dokumentasi Laravel memperingatkan bahwa mode debug di produksi bisa menampilkan nilai konfigurasi sensitif ke pengunjung.
@@ -233,7 +233,7 @@ MAIL_FROM_ADDRESS="dompet@example.com"
 Sambungkan file itu ke rilis, lalu buat kunci aplikasi:
 
 ```bash
-ln -s ~/dompet/shared/.env .env
+ln -s ~/wallet/shared/.env .env
 php artisan key:generate
 ```
 
@@ -246,8 +246,8 @@ Kunci itu ditulis ke `shared/.env` lewat symlink. Jalankan `key:generate` sekali
 ### 4. Pindahkan `storage` ke tempat bersama
 
 ```bash
-mv storage ~/dompet/shared/storage
-ln -s ~/dompet/shared/storage storage
+mv storage ~/wallet/shared/storage
+ln -s ~/wallet/shared/storage storage
 ```
 
 Folder `storage` dari repo sudah berisi struktur subfolder yang dibutuhkan Laravel, jadi cukup dipindahkan.
@@ -278,7 +278,7 @@ Server tidak punya Node, jadi aset di-build di laptop. Jalankan ini **di laptop*
 
 ```powershell
 npm run build
-scp -r public/build dompet:dompet/incoming/
+scp -r public/build wallet:wallet/incoming/
 ```
 
 ```text
@@ -294,12 +294,12 @@ public/build/assets/app-BvRk9kiK.js                             0.00 kB │ gzip
 ✓ built in 530ms
 ```
 
-Output di atas dipotong: baris file font dihilangkan. Di perintah `scp`, `dompet:` di depan adalah nama host dari file config SSH, sedangkan `dompet/incoming/` sesudahnya adalah folder di server.
+Output di atas dipotong: baris file font dihilangkan. Di perintah `scp`, `wallet:` di depan adalah nama host dari file config SSH, sedangkan `wallet/incoming/` sesudahnya adalah folder di server.
 
 Kembali **di server**, pindahkan hasil unggahan ke dalam rilis:
 
 ```bash
-mv ~/dompet/incoming/build public/build
+mv ~/wallet/incoming/build public/build
 ```
 
 ### 7. Cache untuk produksi
@@ -334,13 +334,13 @@ DompetBaru
 ### 8. Aktifkan rilis
 
 ```bash
-ln -sfn "$RELEASE" ~/dompet/current
-ls -l ~/dompet
+ln -sfn "$RELEASE" ~/wallet/current
+ls -l ~/wallet
 ```
 
 ```text
 total 12
-lrwxrwxrwx 1 u123 u123   42 Nov 16 07:47 current -> /home/u123/dompet/releases/20261116-074732
+lrwxrwxrwx 1 u123 u123   42 Nov 16 07:47 current -> /home/u123/wallet/releases/20261116-074732
 drwxrwxr-x 2 u123 u123 4096 Nov 16 07:47 incoming
 drwxrwxr-x 3 u123 u123 4096 Nov 16 07:47 releases
 drwxrwxr-x 3 u123 u123 4096 Nov 16 07:47 shared
@@ -348,20 +348,20 @@ drwxrwxr-x 3 u123 u123 4096 Nov 16 07:47 shared
 
 ### 9. Arahkan web root
 
-Web server harus melayani `~/dompet/current/public`. Ada dua cara, tergantung host-mu.
+Web server harus melayani `~/wallet/current/public`. Ada dua cara, tergantung host-mu.
 
-**Cara A: atur document root lewat panel.** Kalau panel mengizinkan, isi document root domain dengan `/home/u123/dompet/current/public`. Ini cara yang lebih bersih. Di banyak panel, pilihan ini hanya ada untuk subdomain dan domain tambahan, bukan domain utama.
+**Cara A: atur document root lewat panel.** Kalau panel mengizinkan, isi document root domain dengan `/home/u123/wallet/current/public`. Ini cara yang lebih bersih. Di banyak panel, pilihan ini hanya ada untuk subdomain dan domain tambahan, bukan domain utama.
 
 **Cara B: ganti `public_html` dengan symlink.** Kalau web root domain utama dikunci di `~/public_html`, simpan folder aslinya lalu ganti dengan symlink:
 
 ```bash
 mv ~/public_html ~/public_html.bawaan
-ln -s ~/dompet/current/public ~/public_html
+ln -s ~/wallet/current/public ~/public_html
 ls -ld ~/public_html ~/public_html.bawaan
 ```
 
 ```text
-lrwxrwxrwx 1 u123 u123   32 Nov 16 07:48 /home/u123/public_html -> /home/u123/dompet/current/public
+lrwxrwxrwx 1 u123 u123   32 Nov 16 07:48 /home/u123/public_html -> /home/u123/wallet/current/public
 drwxr-xr-x 2 u123 u123 4096 Nov 16 07:41 /home/u123/public_html.bawaan
 ```
 
@@ -374,7 +374,7 @@ Kalau host-mu menolak keduanya, jangan mengakalinya dengan menaruh seluruh proye
 Buka domainmu di browser. Dari server, ringkasan keadaan aplikasi bisa dilihat dengan:
 
 ```bash
-cd ~/dompet/current && php artisan about
+cd ~/wallet/current && php artisan about
 ```
 
 ```text
@@ -426,15 +426,15 @@ Dokumentasi Laravel hanya meminta satu hal: proses web server harus bisa menulis
 Di shared hosting, PHP umumnya dijalankan sebagai pemilik akun, yaitu kamu sendiri. Jadi permission bawaan hasil `git clone` sudah benar, dan tidak ada yang perlu diubah:
 
 ```bash
-ls -ld storage .env bootstrap/cache ~/dompet/shared/storage ~/dompet/shared/.env
+ls -ld storage .env bootstrap/cache ~/wallet/shared/storage ~/wallet/shared/.env
 ```
 
 ```text
-lrwxrwxrwx 1 u123 u123   29 Nov 16 07:47 .env -> /home/u123/dompet/shared/.env
--rw------- 1 u123 u123 1153 Nov 16 07:47 /home/u123/dompet/shared/.env
-drwxrwxr-x 5 u123 u123 4096 Nov 16 07:47 /home/u123/dompet/shared/storage
+lrwxrwxrwx 1 u123 u123   29 Nov 16 07:47 .env -> /home/u123/wallet/shared/.env
+-rw------- 1 u123 u123 1153 Nov 16 07:47 /home/u123/wallet/shared/.env
+drwxrwxr-x 5 u123 u123 4096 Nov 16 07:47 /home/u123/wallet/shared/storage
 drwxrwxr-x 2 u123 u123 4096 Nov 16 07:47 bootstrap/cache
-lrwxrwxrwx 1 u123 u123   32 Nov 16 07:47 storage -> /home/u123/dompet/shared/storage
+lrwxrwxrwx 1 u123 u123   32 Nov 16 07:47 storage -> /home/u123/wallet/shared/storage
 ```
 
 `.env` dengan permission `600` tetap terbaca aplikasi, karena PHP berjalan sebagai `u123`.
@@ -458,7 +458,7 @@ Pasang lewat menu Cron Jobs di panel, atau dengan `crontab -e` di SSH.
 Entri di atas, kalau disalin apa adanya, gagal di server uji. Supaya pesan error-nya terlihat, output-nya sementara diarahkan ke file:
 
 ```text
-* * * * * cd /home/u123/dompet/current && php artisan schedule:run >> /home/u123/cron.log 2>&1
+* * * * * cd /home/u123/wallet/current && php artisan schedule:run >> /home/u123/cron.log 2>&1
 ```
 
 ```bash
@@ -472,7 +472,7 @@ cat ~/cron.log
 Cron berjalan dengan PATH yang jauh lebih pendek daripada shell SSH-mu, jadi `php` tidak ditemukan. Dengan `/dev/null` sebagai tujuan output, kegagalan ini tidak akan pernah kamu lihat. Entri yang benar memakai path dari `which php`:
 
 ```text
-* * * * * cd /home/u123/dompet/current && /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /home/u123/wallet/current && /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
 Perhatikan path-nya lewat `current`, bukan folder rilis. Dengan begitu cron selalu menjalankan rilis yang aktif.
@@ -543,11 +543,11 @@ Langkah deploy pertama tadi, tanpa bagian yang hanya dikerjakan sekali, menjadi 
 
 ```bash
 #!/usr/bin/env bash
-# Membuat rilis baru lalu mengaktifkannya. Dijalankan di server: bash ~/dompet/deploy.sh
+# Membuat rilis baru lalu mengaktifkannya. Dijalankan di server: bash ~/wallet/deploy.sh
 set -euo pipefail
 
-APP="$HOME/dompet"
-REPO="git@github.com:AKUN/dompet.git"
+APP="$HOME/wallet"
+REPO="git@github.com:AKUN/wallet.git"
 PHP="/usr/local/bin/php"            # hasil `which php` di server
 COMPOSER="$HOME/bin/composer"
 KEEP=3                              # jumlah rilis yang disimpan
@@ -590,14 +590,14 @@ Tiga hal yang tidak ada di langkah manual:
 Simpan script itu di laptop sebagai `deploy.sh`, lalu unggah:
 
 ```powershell
-scp deploy.sh dompet:dompet/deploy.sh
+scp deploy.sh wallet:wallet/deploy.sh
 ```
 
 ::: warning Script harus berakhiran baris LF
 File yang dibuat di Windows sering memakai akhiran baris CRLF, dan bash di server gagal membacanya. Di VS Code, klik tulisan `CRLF` di pojok kanan bawah dan ganti ke `LF` sebelum menyimpan. Untuk memeriksa di server, perintah ini harus mencetak `0`:
 
 ```bash
-grep -c $'\r' ~/dompet/deploy.sh
+grep -c $'\r' ~/wallet/deploy.sh
 ```
 :::
 
@@ -607,8 +607,8 @@ Mulai sekarang, merilis versi baru adalah: push ke GitHub, lalu tiga perintah **
 
 ```powershell
 npm run build
-scp -r public/build dompet:dompet/incoming/
-ssh dompet "bash ~/dompet/deploy.sh"
+scp -r public/build wallet:wallet/incoming/
+ssh wallet "bash ~/wallet/deploy.sh"
 ```
 
 Ini output deploy versi kedua di server uji, yang membawa satu migrasi baru:
@@ -616,7 +616,7 @@ Ini output deploy versi kedua di server uji, yang membawa satu migrasi baru:
 ```text
    INFO  Running migrations.
 
-  2026_11_16_000000_create_catatan_table ........................ 26.27ms DONE
+  2026_11_16_000000_create_notes_table .......................... 26.27ms DONE
 
 
    INFO  Caching framework bootstrap, configuration, and metadata.
@@ -638,7 +638,7 @@ Rilis berikutnya di server uji menambahkan satu komponen Livewire 4.4.8 ke halam
 Dua kegagalan diuji dengan sengaja. Yang pertama, menjalankan script tanpa mengunggah aset:
 
 ```text
-Unggah dulu public/build ke /home/u123/dompet/incoming
+Unggah dulu public/build ke /home/u123/wallet/incoming
 ```
 
 Yang kedua, rilis dengan migrasi yang melempar exception:
@@ -681,8 +681,8 @@ Di shared hosting kamu tidak bisa mengosongkan ingatan itu sendiri. Yang bisa ka
 Karena rilis lama masih ada di disk, kembali ke versi sebelumnya hanya mengganti symlink:
 
 ```bash
-ls ~/dompet/releases
-ln -sfn ~/dompet/releases/20261116-074732 ~/dompet/current
+ls ~/wallet/releases
+ln -sfn ~/wallet/releases/20261116-074732 ~/wallet/current
 ```
 
 Tidak ada yang perlu dipasang atau di-build ulang, karena tiap folder rilis sudah lengkap dengan `vendor`, aset, dan cache-nya sendiri. Jeda dua menit di atas berlaku juga di sini.
@@ -698,20 +698,20 @@ php artisan migrate:status
   0001_01_01_000000_create_users_table ............................... [1] Ran
   0001_01_01_000001_create_cache_table ............................... [1] Ran
   0001_01_01_000002_create_jobs_table ................................ [1] Ran
-  2026_11_16_000000_create_catatan_table ............................. [2] Ran
+  2026_11_16_000000_create_notes_table ............................... [2] Ran
 ```
 
 Kalau kode lama tidak terganggu oleh skema baru, biarkan. Kalau terganggu, batalkan migrasinya **dari rilis yang baru**, sebelum mengalihkan symlink, karena hanya rilis itu yang punya file migrasinya:
 
 ```bash
-cd ~/dompet/current
+cd ~/wallet/current
 php artisan migrate:rollback --force
 ```
 
 ```text
    INFO  Rolling back migrations.
 
-  2026_11_16_000000_create_catatan_table ........................ 10.63ms DONE
+  2026_11_16_000000_create_notes_table .......................... 10.63ms DONE
 ```
 
 ::: warning `migrate:rollback` bisa menghapus data
@@ -723,7 +723,7 @@ Perintah itu menjalankan method `down()` dari kelompok migrasi terakhir. Kalau `
 Untuk perubahan yang tidak boleh disentuh kode lama, tutup dulu aplikasinya:
 
 ```bash
-cd ~/dompet/current
+cd ~/wallet/current
 php artisan down
 ```
 
@@ -734,7 +734,7 @@ php artisan down
 Selama itu semua request dijawab 503. Penanda maintenance disimpan di `storage`, yang dipakai bersama, jadi rilis lama dan rilis baru sama-sama tertutup. Urutannya: `down`, deploy, tunggu dua menit, lalu buka lagi:
 
 ```bash
-cd ~/dompet/current
+cd ~/wallet/current
 php artisan up
 ```
 
@@ -753,17 +753,17 @@ Tiga perintah tadi bisa dijalankan GitHub setiap kali kamu push ke `main`, setel
 CI butuh kunci SSH sendiri, terpisah dari kunci laptopmu, supaya bisa dicabut tanpa mengganggu aksesmu. Buat di laptop, dan tekan Enter saat ditanya passphrase, karena CI tidak bisa mengetiknya:
 
 ```powershell
-ssh-keygen -t ed25519 -f dompet-ci -C "github-actions"
+ssh-keygen -t ed25519 -f wallet-ci -C "github-actions"
 ```
 
 Daftarkan kunci publiknya di server:
 
 ```powershell
-scp dompet-ci.pub dompet:dompet-ci.pub
-ssh dompet "cat ~/dompet-ci.pub >> ~/.ssh/authorized_keys && rm ~/dompet-ci.pub"
+scp wallet-ci.pub wallet:wallet-ci.pub
+ssh wallet "cat ~/wallet-ci.pub >> ~/.ssh/authorized_keys && rm ~/wallet-ci.pub"
 ```
 
-CI juga harus tahu sidik jari server, supaya tidak tersambung ke server palsu. Kamu sudah menyimpannya saat pertama kali `ssh dompet`. Tampilkan dengan:
+CI juga harus tahu sidik jari server, supaya tidak tersambung ke server palsu. Kamu sudah menyimpannya saat pertama kali `ssh wallet`. Tampilkan dengan:
 
 ```powershell
 ssh-keygen -F server.hostingmu.example
@@ -792,13 +792,13 @@ Di repo, buka Settings, Secrets and variables, Actions, lalu buat lima secret:
 
 | Nama | Isi |
 |---|---|
-| `SSH_PRIVATE_KEY` | Seluruh isi file `dompet-ci`, termasuk baris `BEGIN` dan `END` |
+| `SSH_PRIVATE_KEY` | Seluruh isi file `wallet-ci`, termasuk baris `BEGIN` dan `END` |
 | `SSH_KNOWN_HOSTS` | Baris sidik jari server dari langkah di atas |
 | `SSH_HOST` | Alamat server, sama persis dengan yang tertulis di baris sidik jari |
 | `SSH_USER` | Nama akun hosting |
 | `SSH_PORT` | Port SSH |
 
-Setelah tersimpan di GitHub, hapus file `dompet-ci` dari laptop.
+Setelah tersimpan di GitHub, hapus file `wallet-ci` dari laptop.
 
 ### Workflow
 
@@ -858,9 +858,9 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
       - name: Unggah aset
-        run: scp -P "$SSH_PORT" -r public/build "$SSH_USER@$SSH_HOST:dompet/incoming/"
+        run: scp -P "$SSH_PORT" -r public/build "$SSH_USER@$SSH_HOST:wallet/incoming/"
       - name: Jalankan deploy
-        run: ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash ~/dompet/deploy.sh'
+        run: ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash ~/wallet/deploy.sh'
 ```
 
 - **Job `test`** adalah `cargo check` dan `cargo test`-nya proyek ini: `composer check` menjalankan PHPStan, script yang dibuat sejak [Bab 1](/01-setup), dan `php artisan test` menjalankan test. Aset ikut di-build karena halaman yang diuji memuatnya. Test memakai SQLite di memori, sesuai `phpunit.xml` bawaan Laravel, jadi CI tidak butuh server database.
@@ -877,7 +877,7 @@ Yang sudah diuji adalah isinya, bukan bungkusnya. Perintah di job `deploy`, mula
 Tempat pertama yang dilihat selalu log aplikasi, yang sekarang berada di folder bersama:
 
 ```bash
-tail -n 50 ~/dompet/shared/storage/logs/laravel.log
+tail -n 50 ~/wallet/shared/storage/logs/laravel.log
 ```
 
 Semua pesan di tabel ini muncul sungguhan selama pengujian bab ini.
@@ -890,7 +890,7 @@ Semua pesan di tabel ini muncul sungguhan selama pengujian bab ini.
 | `The "intl" PHP extension is required to use the [format] method.` | Extension `intl` belum aktif | Aktifkan di pemilih extension PHP di panel |
 | `Permission denied (publickey,password)` setelah menambah kunci | Baris di `authorized_keys` rusak | Hapus baris itu, tambahkan ulang dengan `scp` |
 | Versi lama masih tampil setelah deploy | Proses PHP masih mengingat tujuan symlink yang lama | Tunggu dua menit |
-| `composer: command not found` lewat `ssh dompet "..."` | `~/bin` tidak ada di PATH | Panggil sebagai `php ~/bin/composer` |
+| `composer: command not found` lewat `ssh wallet "..."` | `~/bin` tidak ada di PATH | Panggil sebagai `php ~/bin/composer` |
 
 Kalau cache yang jadi tersangka, buang semuanya lalu buat ulang:
 
@@ -933,10 +933,10 @@ Perbaikannya, pindahkan jadwal ke menit yang dilewati cron, misalnya `08:00` ata
 
 ### 3. Rollback dan database
 
-Kamu men-deploy versi yang menambah kolom `catatan` ke tabel pengeluaran. Ternyata ada bug, dan kamu mengalihkan `current` ke rilis sebelumnya tanpa menjalankan `migrate:rollback`. Apakah versi lama berjalan? Kapan jawabannya berubah?
+Kamu men-deploy versi yang menambah kolom `tag` ke tabel pengeluaran. Ternyata ada bug, dan kamu mengalihkan `current` ke rilis sebelumnya tanpa menjalankan `migrate:rollback`. Apakah versi lama berjalan? Kapan jawabannya berubah?
 
 ::: details Jawaban
-Ya, berjalan. Kode lama tidak tahu ada kolom `catatan`, dan kolom tambahan tidak mengganggu query yang tidak menyebutnya. Itu sebabnya menambah kolom disebut perubahan yang aman.
+Ya, berjalan. Kode lama tidak tahu ada kolom `tag`, dan kolom tambahan tidak mengganggu query yang tidak menyebutnya. Itu sebabnya menambah kolom disebut perubahan yang aman.
 
 Jawabannya berubah kalau migrasinya menghapus atau mengganti nama kolom yang masih dipakai kode lama. Dalam keadaan itu, kode lama gagal di setiap query yang menyebut kolom tersebut, dan kamu harus menjalankan `migrate:rollback` dari rilis yang baru sebelum mengalihkan symlink. Data yang sempat dihapus migrasi itu tidak kembali, jadi untuk perubahan semacam ini buat backup database dulu.
 :::

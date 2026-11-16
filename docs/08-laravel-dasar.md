@@ -23,11 +23,11 @@ Harga dari serba ada itu adalah banyaknya "sihir": method yang tidak pernah ditu
 
 ## Buat proyek
 
-Laravel dibuat dengan `composer create-project`. PHP tidak ada di mesinmu, jadi jalankan Composer dari image resminya. Dari PowerShell, di dalam folder `latihan`:
+Laravel dibuat dengan `composer create-project`. PHP tidak ada di mesinmu, jadi jalankan Composer dari image resminya. Dari PowerShell, di dalam folder `practice`:
 
 ```powershell
-docker run --rm -v "${PWD}:/app" -w /app composer:2 create-project laravel/laravel laravel-dasar
-cd laravel-dasar
+docker run --rm -v "${PWD}:/app" -w /app composer:2 create-project laravel/laravel laravel-basics
+cd laravel-basics
 ```
 
 Perintah itu mengunduh skeleton Laravel beserta semua dependency-nya, lalu menjalankan beberapa langkah awal:
@@ -332,15 +332,15 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/halo/{nama}', function (string $nama): string {
-    return "Halo, {$nama}!";
+Route::get('/hello/{name}', function (string $name): string {
+    return "Halo, {$name}!";
 });
 ```
 
-`{nama}` adalah parameter route, diteruskan ke closure sebagai argumen. Coba dari shell container:
+`{name}` adalah parameter route, diteruskan ke closure sebagai argumen. Coba dari shell container:
 
 ```bash
-curl http://localhost:8000/halo/Budi
+curl http://localhost:8000/hello/Budi
 ```
 
 ```text
@@ -520,7 +520,7 @@ Class ini tidak mendeklarasikan satu property pun untuk kolomnya. Tiga bagiannya
 Property yang tidak ada ikut tertangkap:
 
 ```text
-  46     Access to an undefined property App\Models\Task::$judul.
+  46     Access to an undefined property App\Models\Task::$name.
          🪪  property.notFound
 ```
 
@@ -688,8 +688,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/tasks');
 
-Route::get('/halo/{nama}', function (string $nama): string {
-    return "Halo, {$nama}!";
+Route::get('/hello/{name}', function (string $name): string {
+    return "Halo, {$name}!";
 });
 
 Route::resource('tasks', TaskController::class)->except('show');
@@ -703,7 +703,7 @@ php artisan route:list --except-vendor
 
 ```text
   ANY             / .................. Illuminate\Routing › RedirectController
-  GET|HEAD        halo/{nama} .............................. routes/web.php:10
+  GET|HEAD        hello/{name} ............................. routes/web.php:10
   GET|HEAD        tasks ................... tasks.index › TaskController@index
   POST            tasks ................... tasks.store › TaskController@store
   GET|HEAD        tasks/create .......... tasks.create › TaskController@create

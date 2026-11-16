@@ -46,7 +46,8 @@ PHP mengecek tipe saat runtime, bukan saat compile. Supaya mendekati pengalaman 
 
 ## Format materi
 
-- Bahasa Indonesia.
+- Bahasa Indonesia untuk prosa.
+- **Kode di snippet berbahasa Inggris** (diputuskan 2026-11-16). Semua yang dibaca mesin sebagai nama ditulis dalam bahasa Inggris: function, method, class, interface, enum beserta case-nya, property, variabel, parameter, konstanta, namespace, nama file dan folder, kunci array, nama tabel dan kolom, nama route, nama field form. Yang dibaca manusia sebagai teks tetap bahasa Indonesia: komentar, isi string (pesan, label, teks UI), dan data contoh seperti nama orang. Nama diri seperti `Rupiah` dan `Qris` tidak diterjemahkan.
 - Web dokumentasi bergaya dokumentasi Vue.js, dibuat dengan VitePress, disimpan di folder `docs`.
 - Satu halaman per bab.
 - Dev server berjalan di port 5000.
@@ -57,7 +58,7 @@ PHP mengecek tipe saat runtime, bukan saat compile. Supaya mendekati pengalaman 
 
 Kesepakatan teknis yang dipakai di semua bab. Bab baru atau revisi harus mengikutinya.
 
-- **Proyek latihan pembaca**: `latihan/php-dasar` untuk Bab 1 sampai 6 (file tiap bab di `src/Bab0N`, namespace `Belajar\Bab0N`), `latihan/web-dasar` untuk Bab 7, `latihan/laravel-dasar` untuk Bab 8 dan 9, dan `latihan/dompet` untuk Bab 10, yang di-deploy di Bab 12.
+- **Proyek latihan pembaca**: `practice/php-basics` untuk Bab 1 sampai 6 (file tiap bab di `src/Ch0N`, namespace `Learn\Ch0N`), `practice/web-basics` untuk Bab 7, `practice/laravel-basics` untuk Bab 8 dan 9, dan `practice/wallet` untuk Bab 10, yang di-deploy di Bab 12. Nama tampilan aplikasinya tetap "Dompet" karena itu teks UI.
 - **PHPStan**: level max ditambah `checkBenevolentUnionTypes: true`, dinyalakan sejak Bab 2 karena level max saja meloloskan hasil pembagian `int`.
 - **Formatter**: Pint. Proyek PHP biasa memakai preset `per` dengan dua penyesuaian yang tertulis di Bab 6. Proyek Laravel memakai preset bawaan `laravel`.
 - **Testing**: PHPUnit, bukan Pest.

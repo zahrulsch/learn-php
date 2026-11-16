@@ -1,8 +1,8 @@
 // Mengekstrak contoh kode dari satu halaman bab ke proyek uji, supaya kode di dokumen = kode yang diuji.
 // Penanda (komentar HTML, tidak tampil di halaman) tepat sebelum fence ```php:
-//   <!-- file: src/Bab02/dasar.php -->                      file utuh, harus lulus PHPStan
+//   <!-- file: src/Ch02/basics.php -->                      file utuh, harus lulus PHPStan
 //   <!-- demo: nama -->                                      file utuh, memang diharapkan error
-//   <!-- demo: nama append: src/Bab02/dasar.php -->          potongan yang ditempel di akhir file dasar
+//   <!-- demo: nama append: src/Ch02/basics.php -->          potongan yang ditempel di akhir file dasar
 //   tambahkan kata "norun" untuk demo yang tidak perlu dijalankan dengan php
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
