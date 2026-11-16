@@ -10,7 +10,18 @@ export default defineConfig({
   title: 'Belajar PHP',
   description: 'PHP modern sampai Laravel dan deploy, untuk yang datang dari Rust dan TypeScript',
   cleanUrls: true,
-  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }]],
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
+    [
+      'link',
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&family=Roboto:ital,wght@0,400..700;1,400..700&display=swap',
+      },
+    ],
+  ],
   // strictPort: gagal start kalau port 5000 terpakai, daripada diam-diam pindah ke port lain
   vite: { server: { port: 5000, strictPort: true } },
   themeConfig: {

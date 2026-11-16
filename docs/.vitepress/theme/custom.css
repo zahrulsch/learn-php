@@ -1,5 +1,8 @@
 /* Warna merek memakai palet teal Tailwind CSS v4.3 (tailwindcss.com/docs/colors). */
 :root {
+  --vp-font-family-base: 'Roboto', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --vp-font-family-mono: 'JetBrains Mono', ui-monospace, 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+
   --vp-c-brand-1: oklch(51.1% 0.096 186.391); /* teal-700: teks dan tautan, 5,4:1 di atas putih */
   --vp-c-brand-2: oklch(43.7% 0.078 188.216); /* teal-800: hover */
   --vp-c-brand-3: oklch(51.1% 0.096 186.391); /* teal-700: latar tombol, teks putih 5,4:1 */
