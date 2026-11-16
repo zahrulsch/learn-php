@@ -1,0 +1,14 @@
+/* Warna merek memakai palet teal Tailwind CSS v4.3 (tailwindcss.com/docs/colors). */
+:root {
+  --vp-c-brand-1: oklch(51.1% 0.096 186.391); /* teal-700: teks dan tautan, 5,4:1 di atas putih */
+  --vp-c-brand-2: oklch(43.7% 0.078 188.216); /* teal-800: hover */
+  --vp-c-brand-3: oklch(51.1% 0.096 186.391); /* teal-700: latar tombol, teks putih 5,4:1 */
+  --vp-c-brand-soft: oklch(70.4% 0.14 182.503 / 0.14); /* teal-500 transparan */
+}
+
+.dark {
+  --vp-c-brand-1: oklch(77.7% 0.152 181.912); /* teal-400: 9,2:1 di atas latar gelap */
+  --vp-c-brand-2: oklch(60% 0.118 184.704); /* teal-600: hover */
+  --vp-c-brand-3: oklch(51.1% 0.096 186.391); /* teal-700: latar tombol */
+  --vp-c-brand-soft: oklch(70.4% 0.14 182.503 / 0.16);
+}

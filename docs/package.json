@@ -1,0 +1,11 @@
+{
+  "name": "belajar-php-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}
