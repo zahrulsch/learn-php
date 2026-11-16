@@ -43,7 +43,7 @@ Hanya `public/` yang terlihat dari web. Kode di `src/`, dependency di `vendor/`,
 Class ini adalah pintu masuk tadi: satu-satunya tempat yang menyentuh `$_SERVER`, `$_GET`, dan `$_POST`. Sisanya bekerja dengan property bertipe. Buat `src/Http/Request.php`:
 
 <!-- file: src/Http/Request.php -->
-```php
+```php:line-numbers [src/Http/Request.php]
 <?php
 
 declare(strict_types=1);
@@ -110,7 +110,7 @@ Di PHP, response dibentuk dengan efek samping: `echo` menulis isi, `header()` me
 Supaya urutan itu tidak perlu dijaga di banyak tempat, controller mengembalikan nilai, dan pengirimannya dilakukan di satu tempat. Buat `src/Http/Response.php`:
 
 <!-- file: src/Http/Response.php -->
-```php
+```php:line-numbers [src/Http/Response.php]
 <?php
 
 declare(strict_types=1);
@@ -158,7 +158,7 @@ HTTP tidak mengingat siapa pengirim request, dan PHP tidak menyimpan apa pun di 
 
 Buat lagi `public/counter.php`, kali ini dengan session:
 
-```php
+```php:line-numbers [public/counter.php]
 <?php
 
 declare(strict_types=1);
@@ -218,7 +218,7 @@ Nama file di tempatmu berbeda, karena ID session selalu acak. Dua hal perlu dica
 Hapus `public/counter.php`. Class berikut membungkus semua akses session aplikasi dan memasang pengamannya. Buat `src/Http/Session.php`:
 
 <!-- file: src/Http/Session.php -->
-```php
+```php:line-numbers [src/Http/Session.php]
 <?php
 
 declare(strict_types=1);

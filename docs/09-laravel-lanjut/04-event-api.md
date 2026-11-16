@@ -22,7 +22,7 @@ php artisan make:listener SendTaskCompletedMail --event=TaskCompleted --queued
 
 Isi `app/Listeners/SendTaskCompletedMail.php`:
 
-```php
+```php:line-numbers [app/Listeners/SendTaskCompletedMail.php]
 <?php
 
 declare(strict_types=1);
@@ -56,7 +56,7 @@ php artisan make:mail TaskCompletedMail --markdown=mail.task-completed
 
 Isi `app/Mail/TaskCompletedMail.php`:
 
-```php
+```php:line-numbers [app/Mail/TaskCompletedMail.php]
 <?php
 
 declare(strict_types=1);
@@ -90,7 +90,7 @@ class TaskCompletedMail extends Mailable
 
 Property `public` otomatis tersedia di template. Isi `resources/views/mail/task-completed.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/mail/task-completed.blade.php]
 <x-mail::message>
 # Tugas selesai
 
@@ -174,7 +174,7 @@ php artisan make:resource TaskResource
 
 Isi `app/Http/Resources/TaskResource.php`:
 
-```php
+```php:line-numbers [app/Http/Resources/TaskResource.php]
 <?php
 
 declare(strict_types=1);
@@ -212,7 +212,7 @@ class TaskResource extends JsonResource
 
 Ganti isi `routes/api.php`:
 
-```php
+```php:line-numbers [routes/api.php]
 <?php
 
 declare(strict_types=1);

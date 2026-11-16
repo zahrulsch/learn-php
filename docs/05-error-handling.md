@@ -9,7 +9,7 @@ Lanjutkan di proyek `practice/php-basics`. Buat folder `src/Ch05`, dan awali set
 Buat `src/Ch05/basics.php`:
 
 <!-- file: src/Ch05/basics.php -->
-```php
+```php:line-numbers [src/Ch05/basics.php]
 <?php
 
 declare(strict_types=1);
@@ -128,7 +128,7 @@ Throwable
 Buat `src/Ch05/hierarchy.php` untuk melihat beberapa di antaranya:
 
 <!-- file: src/Ch05/hierarchy.php -->
-```php
+```php:line-numbers [src/Ch05/hierarchy.php]
 <?php
 
 declare(strict_types=1);
@@ -190,7 +190,7 @@ Pemetaannya ke Rust:
 Fungsi bawaan yang lebih tua dari exception tidak melempar apa pun. Ia mencetak *warning* lalu mengembalikan `false`. Buat `src/Ch05/legacy.php`:
 
 <!-- file: src/Ch05/legacy.php -->
-```php
+```php:line-numbers [src/Ch05/legacy.php]
 <?php
 
 declare(strict_types=1);
@@ -285,7 +285,7 @@ Dead catch - InvalidArgumentException is never thrown in the try block.
 
 Yang belum diperiksa adalah arah sebaliknya: fungsi yang melempar tanpa menuliskannya. PHPStan bisa mengubah konvensi itu menjadi aturan. Buat berkas konfigurasi kedua, `phpstan-throws.neon`, di samping `phpstan.neon`:
 
-```yaml
+```yaml:line-numbers [phpstan-throws.neon]
 includes:
     - phpstan.neon
 
@@ -302,7 +302,7 @@ parameters:
 Dengan konfigurasi ini, setiap exception dianggap *checked* kecuali `LogicException`, `Error`, dan turunannya. Fungsi yang bisa melempar exception checked wajib menuliskannya di `@throws`, atau menangkapnya. Buat `src/Ch05/throws.php`:
 
 <!-- file: src/Ch05/throws.php -->
-```php
+```php:line-numbers [src/Ch05/throws.php]
 <?php
 
 declare(strict_types=1);
@@ -400,7 +400,7 @@ Aturan ini berlaku untuk seluruh kode yang dianalisis, termasuk contoh-contoh ba
 Untuk kegagalan yang wajar dan harus langsung ditangani pemanggil, seperti input yang tidak valid, exception terasa berlebihan. Alternatifnya mengembalikan kegagalan itu sebagai nilai, lewat union type. Buat `src/Ch05/union.php`:
 
 <!-- file: src/Ch05/union.php -->
-```php
+```php:line-numbers [src/Ch05/union.php]
 <?php
 
 declare(strict_types=1);
@@ -472,7 +472,7 @@ Untuk kasus tanpa alasan kegagalan, `?T` sudah cukup: itu `Option`.
 Union langsung seperti di atas tidak bisa dipakai kalau nilai sukses dan nilai gagal bertipe sama, dan tidak punya bentuk yang seragam. Kalau kamu ingin `Result` yang sesungguhnya, dua class generic kecil sudah cukup. Buat `src/Ch05/result.php`:
 
 <!-- file: src/Ch05/result.php -->
-```php
+```php:line-numbers [src/Ch05/result.php]
 <?php
 
 declare(strict_types=1);
@@ -618,7 +618,7 @@ Tulis `loadSettings()` yang menerima teks JSON dan mengembalikan array. Kalau JS
 
 ::: details Jawaban
 <!-- file: src/Ch05/exercise1.php -->
-```php
+```php:line-numbers [src/Ch05/exercise1.php]
 <?php
 
 declare(strict_types=1);
@@ -671,7 +671,7 @@ Tulis `parsePrice()` yang menerima teks seperti `'18.000'` dan mengembalikan har
 
 ::: details Jawaban
 <!-- file: src/Ch05/exercise2.php -->
-```php
+```php:line-numbers [src/Ch05/exercise2.php]
 <?php
 
 declare(strict_types=1);
@@ -722,7 +722,7 @@ foreach (['18.000', '', 'gratis', '0'] as $input) {
 Tebak outputnya sebelum menjalankan.
 
 <!-- file: src/Ch05/exercise3.php -->
-```php
+```php:line-numbers [src/Ch05/exercise3.php]
 <?php
 
 declare(strict_types=1);

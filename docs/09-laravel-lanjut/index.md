@@ -21,7 +21,7 @@ php artisan make:request LoginRequest
 
 `app/Http/Requests/RegisterRequest.php`:
 
-```php
+```php:line-numbers [app/Http/Requests/RegisterRequest.php]
 <?php
 
 declare(strict_types=1);
@@ -59,7 +59,7 @@ class RegisterRequest extends FormRequest
 
 `app/Http/Requests/LoginRequest.php`:
 
-```php
+```php:line-numbers [app/Http/Requests/LoginRequest.php]
 <?php
 
 declare(strict_types=1);
@@ -98,7 +98,7 @@ php artisan make:controller LoginController
 
 `app/Http/Controllers/RegisterController.php`:
 
-```php
+```php:line-numbers [app/Http/Controllers/RegisterController.php]
 <?php
 
 declare(strict_types=1);
@@ -138,7 +138,7 @@ $2y$12$
 
 `app/Http/Controllers/LoginController.php`:
 
-```php
+```php:line-numbers [app/Http/Controllers/LoginController.php]
 <?php
 
 declare(strict_types=1);
@@ -195,7 +195,7 @@ Yang terjadi di tiap bagian:
 
 `routes/web.php` menjadi:
 
-```php
+```php:line-numbers [routes/web.php]
 <?php
 
 declare(strict_types=1);
@@ -232,7 +232,7 @@ Tiga middleware bekerja di sini:
 
 Layout mendapat bilah navigasi berisi nama pengguna dan tombol keluar. `resources/views/components/layout.blade.php` menjadi:
 
-```blade
+```blade:line-numbers [resources/views/components/layout.blade.php]
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -269,7 +269,7 @@ Keluar memakai form POST, bukan tautan. Tautan GET bisa dipicu situs lain lewat 
 
 `resources/views/auth/login.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/auth/login.blade.php]
 <x-layout title="Masuk">
     <form method="POST" action="{{ route('login') }}" class="space-y-4">
         @csrf
@@ -307,7 +307,7 @@ Keluar memakai form POST, bukan tautan. Tautan GET bisa dipicu situs lain lewat 
 
 `resources/views/auth/register.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/auth/register.blade.php]
 <x-layout title="Daftar">
     <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf

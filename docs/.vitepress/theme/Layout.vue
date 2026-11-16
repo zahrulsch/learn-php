@@ -2,6 +2,7 @@
 import { useData } from 'vitepress'
 import DefaultTheme from 'vitepress/theme-without-fonts'
 import { nextTick, provide } from 'vue'
+import ChapterMeta from './ChapterMeta.vue'
 import HeroCode from './HeroCode.vue'
 
 const { isDark } = useData()
@@ -48,6 +49,9 @@ provide('toggle-appearance', async ({ clientX: x, clientY: y }: MouseEvent) => {
   <DefaultTheme.Layout>
     <template #home-hero-image>
       <HeroCode />
+    </template>
+    <template #doc-before>
+      <ChapterMeta />
     </template>
   </DefaultTheme.Layout>
 </template>

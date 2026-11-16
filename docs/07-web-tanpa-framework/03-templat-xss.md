@@ -14,7 +14,7 @@ Di percobaan `greet.php`, input yang dicetak mentah berubah menjadi tag `<script
 Buat `src/functions.php`:
 
 <!-- file: src/functions.php -->
-```php
+```php:line-numbers [src/functions.php]
 <?php
 
 declare(strict_types=1);
@@ -63,7 +63,7 @@ Tiga fungsi itu:
 
 Seperti di [Bab 6](/06-ekosistem/), file berisi fungsi harus didaftarkan sendiri. Tambahkan entri `files` ke `autoload` di `composer.json`, lalu buat ulang autoloader:
 
-```json
+```json [composer.json]
 "autoload": {
     "psr-4": {
         "App\\": "src/"
@@ -83,7 +83,7 @@ composer dump-autoload
 Buat `templates/layout.php`:
 
 <!-- file: templates/layout.php -->
-```php
+```php:line-numbers [templates/layout.php]
 <?php
 
 declare(strict_types=1);
@@ -133,7 +133,7 @@ use function App\e;
 Buat `templates/home.php`:
 
 <!-- file: templates/home.php -->
-```php
+```php:line-numbers [templates/home.php]
 <?php
 
 declare(strict_types=1);
@@ -186,7 +186,7 @@ use function App\e;
 Buat `templates/login.php`:
 
 <!-- file: templates/login.php -->
-```php
+```php:line-numbers [templates/login.php]
 <?php
 
 declare(strict_types=1);

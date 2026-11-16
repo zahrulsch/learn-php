@@ -12,7 +12,7 @@ php artisan make:livewire ExpenseManager --class
 
 Isi `app/Livewire/ExpenseManager.php`:
 
-```php
+```php:line-numbers [app/Livewire/ExpenseManager.php]
 <?php
 
 declare(strict_types=1);
@@ -142,7 +142,7 @@ Beberapa keputusan di dalamnya:
 
 Isi `resources/views/livewire/expense-manager.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/livewire/expense-manager.blade.php]
 <div>
     @use('App\Enums\Category')
     @use('App\Support\Rupiah')
@@ -249,7 +249,7 @@ Isi `resources/views/livewire/expense-manager.blade.php`:
 
 Halaman yang memuat komponen itu, `resources/views/expenses.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/expenses.blade.php]
 <x-layout title="Pengeluaran">
     <livewire:expense-manager />
 </x-layout>
@@ -265,7 +265,7 @@ php artisan make:controller TokenController
 
 Isi `app/Http/Controllers/TokenController.php`:
 
-```php
+```php:line-numbers [app/Http/Controllers/TokenController.php]
 <?php
 
 declare(strict_types=1);
@@ -308,7 +308,7 @@ Method `destroy` menerima id token dari URL, tetapi menghapusnya lewat `$user->t
 
 Isi `resources/views/tokens.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/tokens.blade.php]
 <x-layout title="Token API">
     @if (session('token'))
         <div role="status" class="mb-4 rounded bg-yellow-100 p-3">
@@ -356,7 +356,7 @@ Semua halaman sudah ada. Tinggal bingkainya dan alamatnya.
 
 Isi `resources/views/components/layout.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/components/layout.blade.php]
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -394,7 +394,7 @@ Isi `resources/views/components/layout.blade.php`:
 
 Ganti isi `routes/web.php`:
 
-```php
+```php:line-numbers [routes/web.php]
 <?php
 
 declare(strict_types=1);

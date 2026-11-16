@@ -64,6 +64,7 @@ Kesepakatan teknis yang dipakai di semua bab. Bab baru atau revisi harus mengiku
 - **Testing**: PHPUnit, bukan Pest.
 - **Alur kerja baku**: `composer format`, `composer check`, `composer test`.
 - **Output di materi adalah output asli** dari eksekusi di container. Bagian yang tidak bisa dijalankan ditandai jelas di babnya.
+- **Nama file di blok kode**: blok yang berisi file diberi judul, misalnya ```` ```php:line-numbers [src/Ch02/basics.php] ````. Nomor baris dipakai untuk file utuh, supaya cocok dengan nomor baris di pesan PHPStan; potongan yang ditambahkan ke file cukup diberi judul. `node tools/code-titles.mjs docs --write` memasang judul ini otomatis dari penanda `file:` dan dari kalimat sebelum blok yang berakhir dengan path dan titik dua. Jalankan setelah menulis bab baru.
 - **Penanda tersembunyi di Bab 2 sampai 7**: komentar `<!-- file: ... -->` dan `<!-- demo: ... -->` sebelum blok kode dipakai script di folder `tools` untuk mengekstrak dan menguji ulang contoh. Jangan dihapus saat merevisi.
 
 ## Cara kerja

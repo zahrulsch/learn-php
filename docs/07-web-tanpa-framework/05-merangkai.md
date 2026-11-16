@@ -5,7 +5,7 @@
 Controller menerima `Request`, memanggil repository, dan mengembalikan `Response`. Buat `src/GuestbookController.php`:
 
 <!-- file: src/GuestbookController.php -->
-```php
+```php:line-numbers [src/GuestbookController.php]
 <?php
 
 declare(strict_types=1);
@@ -124,7 +124,7 @@ Sandi diambil dari `$request->form` langsung, bukan lewat `input()`, karena `inp
 Yang tersisa adalah menyambungkan semuanya. Timpa `public/index.php`:
 
 <!-- file: public/index.php -->
-```php
+```php:line-numbers [public/index.php]
 <?php
 
 declare(strict_types=1);

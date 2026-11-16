@@ -53,7 +53,7 @@ cd wallet
 
 Salin `Dockerfile` dari `practice/laravel-basics` tanpa perubahan. `compose.yaml` hanya berbeda di nama database:
 
-```yaml
+```yaml:line-numbers [compose.yaml]
 services:
   app:
     build: .
@@ -95,7 +95,7 @@ Kedua proyek memakai port 8000. Jalankan `docker compose down` di `practice/lara
 
 Ubah baris-baris ini di `.env`, dan lakukan perubahan yang sama di `.env.example`:
 
-```ini
+```ini:line-numbers [.env.example]
 APP_NAME=Dompet
 APP_LOCALE=id
 
@@ -111,7 +111,7 @@ DB_PASSWORD=secret
 
 Lalu di `config/app.php`, ganti zona waktu:
 
-```php
+```php:line-numbers [config/app.php]
     'timezone' => 'Asia/Jakarta',
 ```
 
@@ -227,7 +227,7 @@ Index pada `user_id` dan `spent_on` mengikuti query yang paling sering dijalanka
 
 Buat `app/Enums/Category.php`:
 
-```php
+```php:line-numbers [app/Enums/Category.php]
 <?php
 
 declare(strict_types=1);
@@ -257,7 +257,7 @@ enum Category: string
 
 Isi `app/Models/Expense.php`:
 
-```php
+```php:line-numbers [app/Models/Expense.php]
 <?php
 
 declare(strict_types=1);
@@ -301,7 +301,7 @@ class Expense extends Model
 
 `app/Models/User.php` menjadi:
 
-```php
+```php:line-numbers [app/Models/User.php]
 <?php
 
 declare(strict_types=1);
@@ -365,7 +365,7 @@ class User extends Authenticatable
 
 Terakhir, `database/factories/ExpenseFactory.php`:
 
-```php
+```php:line-numbers [database/factories/ExpenseFactory.php]
 <?php
 
 declare(strict_types=1);

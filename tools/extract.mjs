@@ -13,7 +13,8 @@ const pages = statSync(md).isDirectory()
   ? ['index.md', ...readdirSync(md).filter((f) => f.endsWith('.md') && f !== 'index.md').sort()].map((f) => join(md, f))
   : [md]
 const text = pages.map((p) => readFileSync(p, 'utf8')).join('\n').replace(/\r\n/g, '\n')
-const re = /<!--\s*(file|demo):\s*(\S+)(?:\s+append:\s*(\S+))?(\s+norun)?\s*-->\n+```php\n([\s\S]*?)\n```/g
+// ```php boleh diikuti opsi tampilan seperti :line-numbers dan [nama file]
+const re = /<!--\s*(file|demo):\s*(\S+)(?:\s+append:\s*(\S+))?(\s+norun)?\s*-->\n+```php(?:[: ][^\n]*)?\n([\s\S]*?)\n```/g
 
 rmSync(join(project, 'src', chapter), { recursive: true, force: true })
 rmSync(join(project, 'demo', chapter), { recursive: true, force: true })

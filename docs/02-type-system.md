@@ -46,7 +46,7 @@ Sepanjang bab ada dua macam eksperimen yang memang diharapkan gagal:
 Buat `src/Ch02/basics.php`:
 
 <!-- file: src/Ch02/basics.php -->
-```php
+```php:line-numbers [src/Ch02/basics.php]
 <?php
 
 declare(strict_types=1);
@@ -141,7 +141,7 @@ Perhatikan dua baris terakhir: PHPStan menyimpan tipe literal, sama seperti TS m
 Tiga perilaku tipe dasar yang paling sering mengejutkan pendatang dari Rust. Buat `src/Ch02/pitfalls.php`:
 
 <!-- file: src/Ch02/pitfalls.php -->
-```php
+```php:line-numbers [src/Ch02/pitfalls.php]
 <?php
 
 declare(strict_types=1);
@@ -213,7 +213,7 @@ Fatal error: Uncaught TypeError: Learn\Ch02\divideByTwo(): Return value must be 
 
 `divideByTwo(6)` berhasil, `divideByTwo(7)` meledak. PHPStan sebenarnya tahu hasil `/` bertipe `float|int`, tetapi menandainya sebagai union yang "dimaklumi" (*benevolent union*, ditulis `(float|int)`) dan secara bawaan tidak melaporkannya. Tutup celah itu dengan satu baris di `phpstan.neon`:
 
-```yaml
+```yaml:line-numbers [phpstan.neon]
 parameters:
     level: max
     checkBenevolentUnionTypes: true
@@ -234,7 +234,7 @@ Biarkan opsi itu menyala di proyek ini. Perbaikannya sendiri sederhana: pakai `i
 `?string` adalah singkatan `string|null`, padanan `Option<String>`. Buat `src/Ch02/nullable.php`:
 
 <!-- file: src/Ch02/nullable.php -->
-```php
+```php:line-numbers [src/Ch02/nullable.php]
 <?php
 
 declare(strict_types=1);
@@ -307,7 +307,7 @@ Yang tidak ada adalah paksaan dari bahasa. PHP sendiri membiarkanmu memanggil `s
 `int|string` berarti salah satu dari keduanya, sama seperti union di TS. Buat `src/Ch02/union.php`:
 
 <!-- file: src/Ch02/union.php -->
-```php
+```php:line-numbers [src/Ch02/union.php]
 <?php
 
 declare(strict_types=1);
@@ -419,7 +419,7 @@ Tipe native `array` tidak mengatakan apa pun tentang isinya. Isinya ditulis lewa
 Buat `src/Ch02/collections.php`:
 
 <!-- file: src/Ch02/collections.php -->
-```php
+```php:line-numbers [src/Ch02/collections.php]
 <?php
 
 declare(strict_types=1);
@@ -517,7 +517,7 @@ Ini konsekuensi dari tipe yang dihapus saat runtime, persis seperti TS. Karena i
 Buat `src/Ch02/special.php`:
 
 <!-- file: src/Ch02/special.php -->
-```php
+```php:line-numbers [src/Ch02/special.php]
 <?php
 
 declare(strict_types=1);
@@ -589,7 +589,7 @@ Function Learn\Ch02\readAgeUnchecked() should return int but returns mixed.
 Enum di PHP adalah tipe sungguhan, bukan sekadar konstanta. Buat `src/Ch02/status.php`:
 
 <!-- file: src/Ch02/status.php -->
-```php
+```php:line-numbers [src/Ch02/status.php]
 <?php
 
 declare(strict_types=1);
@@ -686,7 +686,7 @@ Satu perbedaan besar dengan Rust: case enum di PHP tidak bisa membawa data. Tida
 PHPDoc bisa menyatakan tipe yang lebih sempit daripada tipe native mana pun. Buat `src/Ch02/narrow.php`:
 
 <!-- file: src/Ch02/narrow.php -->
-```php
+```php:line-numbers [src/Ch02/narrow.php]
 <?php
 
 declare(strict_types=1);
@@ -758,7 +758,7 @@ Tipe sempit yang sering dipakai:
 PHP tidak punya generics di bahasanya. PHPStan menyediakannya lewat PHPDoc. Buat `src/Ch02/generics.php`:
 
 <!-- file: src/Ch02/generics.php -->
-```php
+```php:line-numbers [src/Ch02/generics.php]
 <?php
 
 declare(strict_types=1);
@@ -862,7 +862,7 @@ Di Rust, generics dimonomorfisasi menjadi kode nyata. Di TS, generics dihapus sa
 Cast di PHP tidak pernah gagal. Buat `src/Ch02/conversion.php`:
 
 <!-- file: src/Ch02/conversion.php -->
-```php
+```php:line-numbers [src/Ch02/conversion.php]
 <?php
 
 declare(strict_types=1);
@@ -928,7 +928,7 @@ Tulis `averageScore()` yang menerima list berisi `int` atau `float` dan mengemba
 
 ::: details Jawaban
 <!-- file: src/Ch02/exercise1.php -->
-```php
+```php:line-numbers [src/Ch02/exercise1.php]
 <?php
 
 declare(strict_types=1);
@@ -998,7 +998,7 @@ Fatal error: Uncaught TypeError: substr(): Argument #2 ($offset) must be of type
 Perbaikannya menyingkirkan `false` lebih dulu:
 
 <!-- file: src/Ch02/exercise2.php -->
-```php
+```php:line-numbers [src/Ch02/exercise2.php]
 <?php
 
 declare(strict_types=1);
@@ -1032,7 +1032,7 @@ Buat enum `Day` berbasis `int` (Monday = 1 sampai Sunday = 7) dengan method `isW
 
 ::: details Jawaban
 <!-- file: src/Ch02/exercise3.php -->
-```php
+```php:line-numbers [src/Ch02/exercise3.php]
 <?php
 
 declare(strict_types=1);
@@ -1076,7 +1076,7 @@ Tulis `last()`, pasangan dari `first()`: menerima list berisi tipe apa pun dan m
 
 ::: details Jawaban
 <!-- file: src/Ch02/exercise4.php -->
-```php
+```php:line-numbers [src/Ch02/exercise4.php]
 <?php
 
 declare(strict_types=1);

@@ -273,7 +273,7 @@ Tulis test-nya dengan data provider untuk kasus 0%, 10%, 100%, dan satu kasus pe
 `src/Ch06/Money/Discount.php`:
 
 <!-- file: src/Ch06/Money/Discount.php -->
-```php
+```php:line-numbers [src/Ch06/Money/Discount.php]
 <?php
 
 declare(strict_types=1);
@@ -301,7 +301,7 @@ final readonly class Discount
 `tests/Ch06/DiscountTest.php`:
 
 <!-- file: tests/Ch06/DiscountTest.php -->
-```php
+```php:line-numbers [tests/Ch06/DiscountTest.php]
 <?php
 
 declare(strict_types=1);

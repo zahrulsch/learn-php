@@ -19,7 +19,7 @@ php artisan make:mail MonthlyReportMail --markdown=mail.monthly-report
 
 Isi `app/Mail/MonthlyReportMail.php`:
 
-```php
+```php:line-numbers [app/Mail/MonthlyReportMail.php]
 <?php
 
 declare(strict_types=1);
@@ -52,7 +52,7 @@ class MonthlyReportMail extends Mailable
 
 Isi `resources/views/mail/monthly-report.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/mail/monthly-report.blade.php]
 @use('App\Enums\Category')
 @use('App\Support\Rupiah')
 <x-mail::message>
@@ -84,7 +84,7 @@ php artisan make:job SendMonthlyReport
 
 Isi `app/Jobs/SendMonthlyReport.php`:
 
-```php
+```php:line-numbers [app/Jobs/SendMonthlyReport.php]
 <?php
 
 declare(strict_types=1);
@@ -128,7 +128,7 @@ php artisan make:command SendMonthlyReports
 
 Isi `app/Console/Commands/SendMonthlyReports.php`:
 
-```php
+```php:line-numbers [app/Console/Commands/SendMonthlyReports.php]
 <?php
 
 declare(strict_types=1);
@@ -169,7 +169,7 @@ Class ini menambah perintah `php artisan reports:send`. Nama dan deskripsinya di
 
 Ganti isi `routes/console.php`:
 
-```php
+```php:line-numbers [routes/console.php]
 <?php
 
 declare(strict_types=1);
@@ -252,7 +252,7 @@ php artisan make:controller ApiController
 
 Isi `app/Http/Resources/ExpenseResource.php`:
 
-```php
+```php:line-numbers [app/Http/Resources/ExpenseResource.php]
 <?php
 
 declare(strict_types=1);
@@ -286,7 +286,7 @@ class ExpenseResource extends JsonResource
 
 Isi `app/Http/Controllers/ApiController.php`:
 
-```php
+```php:line-numbers [app/Http/Controllers/ApiController.php]
 <?php
 
 declare(strict_types=1);
@@ -341,7 +341,7 @@ Bandingkan method `month()` di sini dengan `render()` di komponen Livewire. Kedu
 
 Ganti isi `routes/api.php`:
 
-```php
+```php:line-numbers [routes/api.php]
 <?php
 
 declare(strict_types=1);

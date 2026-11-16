@@ -9,7 +9,7 @@ Lanjutkan di proyek `practice/php-basics`. Buat folder `src/Ch04`, dan awali set
 Buat `src/Ch04/product.php`:
 
 <!-- file: src/Ch04/product.php -->
-```php
+```php:line-numbers [src/Ch04/product.php]
 <?php
 
 declare(strict_types=1);
@@ -80,7 +80,7 @@ PHPStan menyebut `$price` sebagai `protected(set)` karena begitulah PHP memperla
 Interface di PHP adalah padanan `trait` di Rust: daftar method yang harus dipenuhi. Buat `src/Ch04/discount.php`:
 
 <!-- file: src/Ch04/discount.php -->
-```php
+```php:line-numbers [src/Ch04/discount.php]
 <?php
 
 declare(strict_types=1);
@@ -167,7 +167,7 @@ PHP memakai *nominal typing*, seperti Rust: sebuah class memenuhi interface hany
 Buat `src/Ch04/shape.php`:
 
 <!-- file: src/Ch04/shape.php -->
-```php
+```php:line-numbers [src/Ch04/shape.php]
 <?php
 
 declare(strict_types=1);
@@ -266,7 +266,7 @@ Pesannya tidak sejelas Rust, tetapi jaminannya sama: menambah anggota baru ke un
 Nama yang sama, konsep berbeda. Trait di PHP adalah sekumpulan method yang disalin ke dalam class yang memakainya. Buat `src/Ch04/trait.php`:
 
 <!-- file: src/Ch04/trait.php -->
-```php
+```php:line-numbers [src/Ch04/trait.php]
 <?php
 
 declare(strict_types=1);
@@ -333,7 +333,7 @@ Trait bukan tipe: kamu tidak bisa menulis `function f(HasSlug $x)`. Pakai seperl
 Class kecil yang immutable dan menjaga aturannya sendiri adalah padanan *newtype* di Rust. Buat `src/Ch04/money.php`:
 
 <!-- file: src/Ch04/money.php -->
-```php
+```php:line-numbers [src/Ch04/money.php]
 <?php
 
 declare(strict_types=1);
@@ -413,7 +413,7 @@ Tiga baris `var_dump` di atas menunjukkan tiga arti "sama":
 PHP 8.4 menambahkan dua fitur yang menghapus kebutuhan getter dan setter. Buat `src/Ch04/user.php`:
 
 <!-- file: src/Ch04/user.php -->
-```php
+```php:line-numbers [src/Ch04/user.php]
 <?php
 
 declare(strict_types=1);
@@ -498,7 +498,7 @@ Kapan memakai yang mana:
 Objek `readonly` tidak bisa diubah, jadi "mengubah" berarti membuat salinan dengan satu bagian berbeda. PHP 8.5 menyediakan `clone` dengan daftar perubahan. Buat `src/Ch04/address.php`:
 
 <!-- file: src/Ch04/address.php -->
-```php
+```php:line-numbers [src/Ch04/address.php]
 <?php
 
 declare(strict_types=1);
@@ -538,7 +538,7 @@ Ini padanan `Address { city, ..old }` di Rust dan `{ ...old, city }` di TS.
 `@template` dari [Bab 2](/02-type-system) juga berlaku untuk class. Buat `src/Ch04/collection.php`:
 
 <!-- file: src/Ch04/collection.php -->
-```php
+```php:line-numbers [src/Ch04/collection.php]
 <?php
 
 declare(strict_types=1);
@@ -618,7 +618,7 @@ Class ini miniatur `Collection` milik Laravel, yang kamu pakai mulai [Bab 8](/08
 Array shape yang dipakai berulang bisa diberi nama dengan `@phpstan-type`. Buat `src/Ch04/alias.php`:
 
 <!-- file: src/Ch04/alias.php -->
-```php
+```php:line-numbers [src/Ch04/alias.php]
 <?php
 
 declare(strict_types=1);
@@ -662,7 +662,7 @@ Alias ini milik class tempat ia ditulis. Class lain mengimpornya dengan `@phpsta
 Class yang membutuhkan class lain menerimanya lewat constructor, dengan tipe interface. Buat `src/Ch04/service.php`:
 
 <!-- file: src/Ch04/service.php -->
-```php
+```php:line-numbers [src/Ch04/service.php]
 <?php
 
 declare(strict_types=1);
@@ -764,7 +764,7 @@ Buat class `Email` yang immutable. Satu-satunya cara membuatnya adalah `Email::f
 
 ::: details Jawaban
 <!-- file: src/Ch04/exercise1.php -->
-```php
+```php:line-numbers [src/Ch04/exercise1.php]
 <?php
 
 declare(strict_types=1);
@@ -820,7 +820,7 @@ Modelkan tiga cara bayar: tunai (jumlah yang diterima), transfer (nama bank dan 
 
 ::: details Jawaban
 <!-- file: src/Ch04/exercise2.php -->
-```php
+```php:line-numbers [src/Ch04/exercise2.php]
 <?php
 
 declare(strict_types=1);
@@ -879,7 +879,7 @@ Buat class `Temperature` yang menyimpan `celsius`. Tambahkan property `fahrenhei
 
 ::: details Jawaban
 <!-- file: src/Ch04/exercise3.php -->
-```php
+```php:line-numbers [src/Ch04/exercise3.php]
 <?php
 
 declare(strict_types=1);
@@ -919,7 +919,7 @@ Buat class `Pair` dengan dua parameter tipe, dan method `swap()` yang mengembali
 
 ::: details Jawaban
 <!-- file: src/Ch04/exercise4.php -->
-```php
+```php:line-numbers [src/Ch04/exercise4.php]
 <?php
 
 declare(strict_types=1);

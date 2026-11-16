@@ -61,7 +61,7 @@ Tiga hal di sini spesifik PHP:
 
 Buat `compose.yaml`:
 
-```yaml
+```yaml:line-numbers [compose.yaml]
 services:
   php:
     build: .
@@ -111,7 +111,7 @@ VS Code juga punya validasi PHP bawaan yang mencari executable `php` di mesin, l
 
 Buat `composer.json` di folder proyek. Ini padanan `Cargo.toml` atau `package.json`:
 
-```json
+```json:line-numbers [composer.json]
 {
     "name": "learn/php-basics",
     "type": "project",
@@ -125,7 +125,7 @@ Buat `composer.json` di folder proyek. Ini padanan `Cargo.toml` atau `package.js
 
 Lalu buat `src/hello.php`:
 
-```php
+```php:line-numbers [src/hello.php]
 <?php
 
 declare(strict_types=1);
@@ -160,7 +160,7 @@ Yang langsung terlihat berbeda dari Rust dan TS:
 
 Baris `declare(strict_types=1);` mematikan konversi tipe otomatis saat memanggil fungsi. Untuk melihat pengaruhnya, tambahkan satu baris di akhir `src/hello.php`:
 
-```php
+```php [src/hello.php]
 echo greet(42) . PHP_EOL;
 ```
 
@@ -211,7 +211,7 @@ composer require --dev phpstan/phpstan
 
 Buat `phpstan.neon` di folder proyek:
 
-```yaml
+```yaml:line-numbers [phpstan.neon]
 parameters:
     level: max
     paths:
@@ -276,7 +276,7 @@ PHPStan punya 11 level, dari 0 (paling longgar) sampai 10 (paling ketat). Tiap l
 
 Tambahkan bagian `scripts` ke `composer.json`, sejajar dengan `require`:
 
-```json
+```json [composer.json]
 "scripts": {
     "check": "phpstan analyse"
 }

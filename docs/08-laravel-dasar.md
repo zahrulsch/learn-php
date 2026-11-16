@@ -63,7 +63,7 @@ WORKDIR /app
 
 Lalu `compose.yaml`:
 
-```yaml
+```yaml:line-numbers [compose.yaml]
 services:
   app:
     build: .
@@ -194,7 +194,7 @@ Alur kerja dari [Bab 6](/06-ekosistem/) tetap sama: format, check, test. Skeleto
 
 Pint sudah terpasang di skeleton dan memakai preset `laravel`, seperti disebut di [Bab 6](/06-ekosistem/). Satu hal kurang: skeleton tidak memakai `declare(strict_types=1);`, dan perintah `artisan make:...` menghasilkan file tanpa baris itu. Daripada menambahkannya dengan tangan, tambahkan satu rule ke preset itu. Buat `pint.json`:
 
-```json
+```json [pint.json]
 {
     "preset": "laravel",
     "rules": {
@@ -205,7 +205,7 @@ Pint sudah terpasang di skeleton dan memakai preset `laravel`, seperti disebut d
 
 Tambahkan script `format` ke bagian `scripts` di `composer.json`:
 
-```json
+```json [composer.json]
 "format": "pint",
 ```
 
@@ -231,7 +231,7 @@ composer require --dev larastan/larastan
 
 Composer memasang Larastan 3.15 beserta PHPStan 2.3. Buat `phpstan.neon`:
 
-```yaml
+```yaml:line-numbers [phpstan.neon]
 includes:
     - vendor/larastan/larastan/extension.neon
 
@@ -255,7 +255,7 @@ parameters:
 
 Tambahkan script `check` ke `composer.json`, di sebelah `format`:
 
-```json
+```json [composer.json]
 "check": "phpstan analyse --memory-limit=1G",
 ```
 
@@ -296,7 +296,7 @@ Hapus file `tests/Unit/ExampleTest.php`. Yang kedua muncul karena `checkModelPro
 
 Di `database/factories/UserFactory.php`, ganti PHPDoc method `definition()`:
 
-```php
+```php:line-numbers [database/factories/UserFactory.php]
      * @return array<model-property<User>, mixed>
 ```
 
@@ -325,7 +325,7 @@ Middleware adalah lapisan yang membungkus handler, sama dengan `tower::Layer` di
 
 Route didaftarkan di `routes/web.php`. Bentuk paling sederhana adalah closure. Ganti isi file itu:
 
-```php
+```php:line-numbers [routes/web.php]
 <?php
 
 declare(strict_types=1);
@@ -432,7 +432,7 @@ Eloquent adalah ORM Laravel dengan pola *Active Record*: satu objek model mewaki
 
 Kolom `priority` berisi string, tetapi di kode kita ingin enum dari [Bab 2](/02-type-system). Buat `app/Enums/Priority.php`:
 
-```php
+```php:line-numbers [app/Enums/Priority.php]
 <?php
 
 declare(strict_types=1);
@@ -460,7 +460,7 @@ enum Priority: string
 
 Ganti isi `app/Models/Task.php`:
 
-```php
+```php:line-numbers [app/Models/Task.php]
 <?php
 
 declare(strict_types=1);
@@ -611,7 +611,7 @@ php artisan make:controller TaskController
 
 Isi `app/Http/Controllers/TaskController.php`:
 
-```php
+```php:line-numbers [app/Http/Controllers/TaskController.php]
 <?php
 
 declare(strict_types=1);
@@ -678,7 +678,7 @@ Class `TaskRequest` belum ada; kita buat di bagian validation. Yang perlu diperh
 
 Daftarkan route-nya. `routes/web.php` menjadi:
 
-```php
+```php:line-numbers [routes/web.php]
 <?php
 
 declare(strict_types=1);
@@ -724,7 +724,7 @@ Blade adalah template engine Laravel. File-nya berakhiran `.blade.php`, berada d
 
 Buat `resources/views/components/layout.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/components/layout.blade.php]
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -753,7 +753,7 @@ File di folder `components` otomatis menjadi tag: file ini dipakai sebagai `<x-l
 
 Buat `resources/views/tasks/index.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/tasks/index.blade.php]
 <x-layout title="Daftar tugas">
     <a href="{{ route('tasks.create') }}" class="rounded bg-blue-600 px-3 py-2 text-white">Tambah tugas</a>
 
@@ -789,7 +789,7 @@ Buat `resources/views/tasks/index.blade.php`:
 
 Form tambah dan ubah isinya sama, jadi ditulis sekali di `resources/views/tasks/form.blade.php`:
 
-```blade
+```blade [resources/views/tasks/form.blade.php]
 <form method="POST" action="{{ $action }}" class="space-y-4">
     @csrf
     @method($method)
@@ -842,7 +842,7 @@ Form tambah dan ubah isinya sama, jadi ditulis sekali di `resources/views/tasks/
 
 Lalu dua halaman yang memakainya. `resources/views/tasks/create.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/tasks/create.blade.php]
 <x-layout title="Tambah tugas">
     @include('tasks.form', ['action' => route('tasks.store'), 'method' => 'POST'])
 </x-layout>
@@ -850,7 +850,7 @@ Lalu dua halaman yang memakainya. `resources/views/tasks/create.blade.php`:
 
 Dan `resources/views/tasks/edit.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/tasks/edit.blade.php]
 <x-layout title="Ubah tugas">
     @include('tasks.form', ['action' => route('tasks.update', $task), 'method' => 'PUT'])
 </x-layout>
@@ -942,7 +942,7 @@ php artisan make:request TaskRequest
 
 Isi `app/Http/Requests/TaskRequest.php`:
 
-```php
+```php:line-numbers [app/Http/Requests/TaskRequest.php]
 <?php
 
 declare(strict_types=1);

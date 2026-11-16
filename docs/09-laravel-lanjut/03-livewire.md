@@ -36,7 +36,7 @@ php artisan make:livewire TaskList --class
 
 Isi `app/Livewire/TaskList.php`:
 
-```php
+```php:line-numbers [app/Livewire/TaskList.php]
 <?php
 
 declare(strict_types=1);
@@ -124,7 +124,7 @@ php artisan make:event TaskCompleted
 
 Isi `app/Events/TaskCompleted.php`:
 
-```php
+```php:line-numbers [app/Events/TaskCompleted.php]
 <?php
 
 declare(strict_types=1);
@@ -147,7 +147,7 @@ class TaskCompleted
 
 Isi `resources/views/livewire/task-list.blade.php`:
 
-```blade
+```blade:line-numbers [resources/views/livewire/task-list.blade.php]
 <div>
     <form wire:submit="add" class="flex flex-wrap items-start gap-2">
         <div class="grow">
@@ -217,7 +217,7 @@ Template komponen Livewire harus punya tepat satu elemen akar, di sini `<div>`.
 
 Pasang komponennya di halaman. `resources/views/tasks/index.blade.php` menjadi:
 
-```blade
+```blade:line-numbers [resources/views/tasks/index.blade.php]
 <x-layout title="Daftar tugas">
     <livewire:task-list />
 

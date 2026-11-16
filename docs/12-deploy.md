@@ -804,7 +804,7 @@ Setelah tersimpan di GitHub, hapus file `wallet-ci` dari laptop.
 
 Buat file `.github/workflows/deploy.yml`:
 
-```yaml
+```yaml:line-numbers [.github/workflows/deploy.yml]
 name: Deploy
 
 on:

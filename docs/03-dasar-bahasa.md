@@ -9,7 +9,7 @@ Lanjutkan di proyek `practice/php-basics`. Buat folder `src/Ch03`, dan awali set
 Buat `src/Ch03/variables.php`:
 
 <!-- file: src/Ch03/variables.php -->
-```php
+```php:line-numbers [src/Ch03/variables.php]
 <?php
 
 declare(strict_types=1);
@@ -129,7 +129,7 @@ Rust menolak ini saat kompilasi. Di PHP, penjaganya PHPStan.
 Aturan terpenting di bab ini: **array adalah nilai, objek adalah handle**. Buat `src/Ch03/values.php`:
 
 <!-- file: src/Ch03/values.php -->
-```php
+```php:line-numbers [src/Ch03/values.php]
 <?php
 
 declare(strict_types=1);
@@ -204,7 +204,7 @@ PHP juga punya referensi eksplisit dengan `&`, misalnya `function f(array &$x)`.
 PHP hanya punya satu struktur data bawaan untuk `Vec`, `HashMap`, tuple, dan struct sekaligus: `array`, sebuah map yang mengingat urutan penyisipan. Buat `src/Ch03/arrays.php`:
 
 <!-- file: src/Ch03/arrays.php -->
-```php
+```php:line-numbers [src/Ch03/arrays.php]
 <?php
 
 declare(strict_types=1);
@@ -265,7 +265,7 @@ apel, jeruk, mangga, pisang
 Buat `src/Ch03/array-functions.php`:
 
 <!-- file: src/Ch03/array-functions.php -->
-```php
+```php:line-numbers [src/Ch03/array-functions.php]
 <?php
 
 declare(strict_types=1);
@@ -360,7 +360,7 @@ Perbaikannya membungkus dengan `array_values()`. Ini contoh bagus kenapa `list<T
 Buat `src/Ch03/text.php`:
 
 <!-- file: src/Ch03/text.php -->
-```php
+```php:line-numbers [src/Ch03/text.php]
 <?php
 
 declare(strict_types=1);
@@ -477,7 +477,7 @@ Di kondisi `if`, nilai apa pun dikonversi ke `bool`. Yang dianggap salah: `false
 `if`, `while`, `for`, dan `foreach` bekerja seperti yang kamu duga. Yang layak dibahas adalah `match` dan operator untuk `null`. Buat `src/Ch03/control-flow.php`:
 
 <!-- file: src/Ch03/control-flow.php -->
-```php
+```php:line-numbers [src/Ch03/control-flow.php]
 <?php
 
 declare(strict_types=1);
@@ -553,7 +553,7 @@ Dibanding Rust, `match` di PHP jauh lebih sederhana: ia hanya membandingkan nila
 Buat `src/Ch03/functions.php`:
 
 <!-- file: src/Ch03/functions.php -->
-```php
+```php:line-numbers [src/Ch03/functions.php]
 <?php
 
 declare(strict_types=1);
@@ -686,7 +686,7 @@ Fungsi yang memakai `yield` mengembalikan `\Generator`, iterator malas seperti `
 Tebak outputnya sebelum menjalankan.
 
 <!-- file: src/Ch03/exercise1.php -->
-```php
+```php:line-numbers [src/Ch03/exercise1.php]
 <?php
 
 declare(strict_types=1);
@@ -718,7 +718,7 @@ Tulis `groupByLength()` yang menerima list kata dan mengembalikan map dari panja
 
 ::: details Jawaban
 <!-- file: src/Ch03/exercise2.php -->
-```php
+```php:line-numbers [src/Ch03/exercise2.php]
 <?php
 
 declare(strict_types=1);
@@ -755,7 +755,7 @@ Tulis `passingAverage()` yang menerima `list<int>` dan mengembalikan rata-rata d
 
 ::: details Jawaban
 <!-- file: src/Ch03/exercise3.php -->
-```php
+```php:line-numbers [src/Ch03/exercise3.php]
 <?php
 
 declare(strict_types=1);
@@ -792,7 +792,7 @@ Tulis `makeCounter()` yang mengembalikan closure. Setiap kali dipanggil, closure
 
 ::: details Jawaban
 <!-- file: src/Ch03/exercise4.php -->
-```php
+```php:line-numbers [src/Ch03/exercise4.php]
 <?php
 
 declare(strict_types=1);

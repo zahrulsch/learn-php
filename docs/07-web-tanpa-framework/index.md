@@ -48,7 +48,7 @@ WORKDIR /app
 
 `compose.yaml` mendapat dua tambahan, yaitu port dan perintah yang dijalankan container:
 
-```yaml
+```yaml [compose.yaml]
 services:
   php:
     build: .
@@ -66,7 +66,7 @@ services:
 
 Buat `public/index.php` sementara:
 
-```php
+```php:line-numbers [public/index.php]
 <?php
 
 declare(strict_types=1);
@@ -130,7 +130,7 @@ Beberapa pengaturan bergantung pada SAPI. Contohnya batas waktu eksekusi `max_ex
 
 Buat `composer.json`:
 
-```json
+```json:line-numbers [composer.json]
 {
     "name": "learn/web-basics",
     "type": "project",
@@ -153,7 +153,7 @@ Dua hal dari [Bab 6](/06-ekosistem/) dipakai di sini: autoload PSR-4 dengan awal
 
 Buat `phpstan.neon`:
 
-```yaml
+```yaml:line-numbers [phpstan.neon]
 parameters:
     level: max
     checkBenevolentUnionTypes: true
@@ -172,7 +172,7 @@ composer require --dev phpstan/phpstan
 
 Buat `public/counter.php`:
 
-```php
+```php:line-numbers [public/counter.php]
 <?php
 
 declare(strict_types=1);
@@ -227,7 +227,7 @@ PHP menyerahkan data request lewat beberapa array global yang selalu tersedia, d
 
 Semua isinya berasal dari luar, jadi PHPStan menganggapnya `mixed`. Buat `public/greet.php`:
 
-```php
+```php:line-numbers [public/greet.php]
 <?php
 
 declare(strict_types=1);
@@ -299,7 +299,7 @@ Browser akan menjalankan tag itu sebagai JavaScript. Ini celah XSS, yang dibahas
 
 Perbaikannya mengikuti pola yang sama dengan `mixed` di [Bab 2](/02-type-system): periksa bentuknya di pintu masuk, dan setelah itu bekerja dengan tipe yang pasti. Timpa `greet.php`:
 
-```php
+```php:line-numbers [public/greet.php]
 <?php
 
 declare(strict_types=1);

@@ -49,7 +49,7 @@ php artisan migrate:fresh
 
 Tambahkan method `tasks()` ke `app/Models/User.php`, beserta `use`-nya:
 
-```php
+```php [app/Models/User.php]
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
     /**
@@ -63,7 +63,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 Lalu `app/Models/Task.php` menjadi:
 
-```php
+```php:line-numbers [app/Models/Task.php]
 <?php
 
 declare(strict_types=1);
@@ -123,7 +123,7 @@ php artisan make:factory TaskFactory --model=Task
 
 Isi `database/factories/TaskFactory.php`:
 
-```php
+```php:line-numbers [database/factories/TaskFactory.php]
 <?php
 
 declare(strict_types=1);
@@ -203,7 +203,7 @@ php artisan make:policy TaskPolicy --model=Task
 
 Isi `app/Policies/TaskPolicy.php`:
 
-```php
+```php:line-numbers [app/Policies/TaskPolicy.php]
 <?php
 
 declare(strict_types=1);
@@ -233,7 +233,7 @@ Laravel menemukan policy ini lewat konvensi nama: model `Task`, policy `TaskPoli
 
 `app/Http/Controllers/TaskController.php` menjadi:
 
-```php
+```php:line-numbers [app/Http/Controllers/TaskController.php]
 <?php
 
 declare(strict_types=1);

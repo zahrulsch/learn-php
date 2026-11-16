@@ -8,7 +8,7 @@ Tiga class kecil di `app/Support` tidak bergantung pada request, session, atau d
 
 `app/Support/Rupiah.php`:
 
-```php
+```php:line-numbers [app/Support/Rupiah.php]
 <?php
 
 declare(strict_types=1);
@@ -28,7 +28,7 @@ final class Rupiah
 
 Bulan datang dari luar dalam bentuk teks seperti `2026-11`: dari input di halaman, dan dari parameter API. `app/Support/Month.php` mengubahnya menjadi tanggal, atau `null` kalau bentuknya salah:
 
-```php
+```php:line-numbers [app/Support/Month.php]
 <?php
 
 declare(strict_types=1);
@@ -59,7 +59,7 @@ Ini pola dari [Bab 5](/05-error-handling): input mentah diubah sekali menjadi ni
 
 `app/Support/MonthlySummary.php`:
 
-```php
+```php:line-numbers [app/Support/MonthlySummary.php]
 <?php
 
 declare(strict_types=1);
@@ -111,7 +111,7 @@ Class `readonly` ([Bab 4](/04-oop)) ini adalah nilai yang tidak berubah setelah 
 
 `tests/Unit/RupiahTest.php`:
 
-```php
+```php:line-numbers [tests/Unit/RupiahTest.php]
 <?php
 
 declare(strict_types=1);
@@ -134,7 +134,7 @@ class RupiahTest extends TestCase
 
 `tests/Unit/MonthTest.php`:
 
-```php
+```php:line-numbers [tests/Unit/MonthTest.php]
 <?php
 
 declare(strict_types=1);
@@ -204,7 +204,7 @@ Alur daftar, masuk, dan keluar sama dengan [Bab 9](/09-laravel-lanjut/#autentika
 
 Dua controller-nya berbeda di satu hal: tujuan setelah login adalah route `expenses`. `app/Http/Controllers/RegisterController.php`:
 
-```php
+```php:line-numbers [app/Http/Controllers/RegisterController.php]
 <?php
 
 declare(strict_types=1);
@@ -238,7 +238,7 @@ class RegisterController extends Controller
 
 `app/Http/Controllers/LoginController.php`:
 
-```php
+```php:line-numbers [app/Http/Controllers/LoginController.php]
 <?php
 
 declare(strict_types=1);

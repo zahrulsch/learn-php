@@ -93,3 +93,123 @@ html.theme-transition.dark::view-transition-old(root) {
     transform: translateY(12px);
   }
 }
+/* Bilah nama file di atas blok kode (dibuat plugin markdown di config.mts) */
+.vp-doc .vp-code-titled {
+  margin: 16px 0;
+}
+
+.vp-doc .vp-code-titled > div[class*='language-'] {
+  margin: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.vp-code-title {
+  padding: 9px 20px 8px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  border-radius: 8px 8px 0 0;
+  background: var(--vp-code-block-bg);
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--vp-c-text-2);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.vp-code-title::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--vp-c-brand-1);
+  vertical-align: 1px;
+}
+
+/* Di bawah 640px VitePress membuat blok kode selebar layar; bilah judul mengikuti */
+@media (max-width: 639px) {
+  .vp-doc .vp-code-titled {
+    margin: 16px -24px;
+  }
+  .vp-code-title {
+    border-radius: 0;
+  }
+}
+
+/* Kotak tip, info, dan peringatan: garis aksen di kiri supaya jenisnya terbaca sekilas */
+.vp-doc .custom-block.tip {
+  border-left: 3px solid var(--vp-c-tip-1);
+}
+
+.vp-doc .custom-block.warning {
+  border-left: 3px solid var(--vp-c-warning-1);
+}
+
+.vp-doc .custom-block.info {
+  border-left: 3px solid var(--vp-c-text-3);
+}
+
+/* Kotak "Jawaban" di latihan: baris yang bisa diklik dengan panah, bukan segitiga bawaan browser */
+/* latar sama dengan halaman, supaya blok kode di dalam jawaban tetap terlihat sebagai blok */
+.vp-doc .custom-block.details {
+  padding: 0 16px 8px;
+  border: 1px solid var(--vp-c-divider);
+  background-color: var(--vp-c-bg);
+  transition: border-color 0.2s;
+}
+
+.vp-doc .custom-block.details:hover,
+.vp-doc .custom-block.details[open] {
+  border-color: var(--vp-c-brand-soft);
+}
+
+.vp-doc .custom-block.details summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 -16px;
+  padding: 12px 16px;
+  list-style: none;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.vp-doc .custom-block.details summary::-webkit-details-marker {
+  display: none;
+}
+
+.vp-doc .custom-block.details summary::before {
+  content: '';
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: var(--vp-c-brand-1);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m6 3 5 5-5 5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m6 3 5 5-5 5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform 0.2s;
+}
+
+.vp-doc .custom-block.details:not([open]) {
+  padding-bottom: 0;
+}
+
+.vp-doc .custom-block.details[open] summary {
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc .custom-block.details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.vp-doc .custom-block.details summary:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.vp-doc .custom-block.details summary:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: -2px;
+  border-radius: 8px;
+}

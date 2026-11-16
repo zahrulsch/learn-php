@@ -9,7 +9,7 @@ Namespace mengatur nama, tetapi belum ada yang memuat file. Bagian ini melewati 
 Buat `src/Ch06/manual.php`:
 
 <!-- file: src/Ch06/manual.php -->
-```php
+```php:line-numbers [src/Ch06/manual.php]
 <?php
 
 declare(strict_types=1);
@@ -63,7 +63,7 @@ PHP menyediakan jalan keluar: daftarkan sebuah fungsi yang dipanggil setiap kali
 Buat `src/Ch06/custom-autoload.php`:
 
 <!-- file: src/Ch06/custom-autoload.php -->
-```php
+```php:line-numbers [src/Ch06/custom-autoload.php]
 <?php
 
 declare(strict_types=1);
@@ -124,7 +124,7 @@ Sifat malas itu cocok dengan cara PHP dijalankan: setiap request hanya membayar 
 
 Aturan penerjemahan di atas (awalan namespace dipetakan ke folder, sisanya menjadi path) sudah dibakukan dengan nama **PSR-4**, dan Composer bisa membuatkan autoloader-nya. Tambahkan bagian `autoload` ke `composer.json`:
 
-```json
+```json [composer.json]
 "autoload": {
     "psr-4": {
         "Learn\\": "src/"
@@ -145,7 +145,7 @@ Generated autoload files
 
 Hasilnya ada di `vendor/composer/`. Isi `autoload_psr4.php` persis pemetaan yang kamu tulis:
 
-```php
+```php:line-numbers [autoload_psr4.php]
 return array(
     'Learn\\' => array($baseDir . '/src'),
 );
@@ -153,7 +153,7 @@ return array(
 
 Sekarang cukup satu `require` di titik masuk program. Buat `src/Ch06/shopping.php`:
 
-```php
+```php:line-numbers [src/Ch06/shopping.php]
 <?php
 
 declare(strict_types=1);
@@ -216,7 +216,7 @@ Autoload hanya berlaku untuk class, interface, trait, dan enum. PHP tidak punya 
 Buat `src/Ch06/functions.php`, berisi satu fungsi pembantu supaya membuat `Rupiah` lebih ringkas:
 
 <!-- file: src/Ch06/functions.php -->
-```php
+```php:line-numbers [src/Ch06/functions.php]
 <?php
 
 declare(strict_types=1);
@@ -234,7 +234,7 @@ function rupiah(int $amount): Rupiah
 Ubah `shopping.php` supaya memakainya. Baris `use Learn\Ch06\Money\Rupiah;` tidak lagi dibutuhkan:
 
 <!-- file: src/Ch06/shopping.php -->
-```php
+```php:line-numbers [src/Ch06/shopping.php]
 <?php
 
 declare(strict_types=1);
@@ -259,7 +259,7 @@ Fatal error: Uncaught Error: Call to undefined function Learn\Ch06\rupiah() in /
 
 File berisi fungsi harus didaftarkan satu per satu di entri `files`. Composer memuat semua file di daftar itu setiap kali `vendor/autoload.php` dijalankan:
 
-```json
+```json:line-numbers [vendor/autoload.php]
 "autoload": {
     "psr-4": {
         "Learn\\": "src/"

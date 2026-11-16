@@ -9,7 +9,7 @@ PDO (*PHP Data Objects*) adalah antarmuka database bawaan PHP. API-nya sama untu
 Buat `src/Database.php`:
 
 <!-- file: src/Database.php -->
-```php
+```php:line-numbers [src/Database.php]
 <?php
 
 declare(strict_types=1);
@@ -97,7 +97,7 @@ Pengecekan `=== false` adalah contoh warisan lama dari [Bab 5](/05-error-handlin
 Hasil query adalah array yang isinya ditentukan database, bukan oleh kodemu. Bagi PHPStan itu `mixed`, sama seperti superglobal. Polanya juga sama: ubah menjadi objek bertipe di satu tempat. Buat `src/Message.php`:
 
 <!-- file: src/Message.php -->
-```php
+```php:line-numbers [src/Message.php]
 <?php
 
 declare(strict_types=1);
@@ -138,7 +138,7 @@ Ini padanan `serde` atau schema zod yang ditulis tangan: kalau bentuk baris tida
 Buat `src/MessageRepository.php`:
 
 <!-- file: src/MessageRepository.php -->
-```php
+```php:line-numbers [src/MessageRepository.php]
 <?php
 
 declare(strict_types=1);
@@ -181,7 +181,7 @@ final readonly class MessageRepository
 
 Sandi tidak pernah disimpan apa adanya, dan tidak di-hash dengan fungsi hash umum seperti SHA-256 yang terlalu cepat untuk keperluan ini. PHP punya dua fungsi khusus. Buat `bin/try-password.php`:
 
-```php
+```php:line-numbers [bin/try-password.php]
 <?php
 
 declare(strict_types=1);
@@ -214,7 +214,7 @@ String hasilnya memuat semua yang dibutuhkan untuk verifikasi: algoritma (`2y`, 
 Hapus file coba-coba itu, lalu buat `src/UserRepository.php`:
 
 <!-- file: src/UserRepository.php -->
-```php
+```php:line-numbers [src/UserRepository.php]
 <?php
 
 declare(strict_types=1);
@@ -259,7 +259,7 @@ final readonly class UserRepository
 Buat `bin/setup.php`:
 
 <!-- file: bin/setup.php -->
-```php
+```php:line-numbers [bin/setup.php]
 <?php
 
 declare(strict_types=1);
@@ -316,7 +316,7 @@ Script ini menghapus database lama dan membuat yang baru, jadi aman dijalankan u
 
 Sekarang ada data untuk dicoba. Buat `bin/try-injection.php`, yang menjalankan pencarian yang sama dengan dua cara:
 
-```php
+```php:line-numbers [bin/try-injection.php]
 <?php
 
 declare(strict_types=1);
@@ -355,7 +355,7 @@ PHPStan tidak menangkap ini. Bagi sistem tipe, kedua query sama-sama `string`. D
 
 Buat `bin/try-transaction.php`. Dua operasi dijalankan dalam satu transaksi, dan yang kedua pasti gagal karena nama `admin` sudah ada:
 
-```php
+```php:line-numbers [bin/try-transaction.php]
 <?php
 
 declare(strict_types=1);

@@ -10,7 +10,7 @@ composer require --dev laravel/pint
 
 Buat `pint.json` di folder proyek:
 
-```json
+```json:line-numbers [pint.json]
 {
     "preset": "per",
     "rules": {
@@ -31,7 +31,7 @@ Pilihan di file itu:
 
 Untuk melihat kerjanya, buat file yang sengaja berantakan, `src/Ch06/Messy.php`:
 
-```php
+```php:line-numbers [src/Ch06/Messy.php]
 <?php
 namespace Learn\Ch06;
 use InvalidArgumentException;
@@ -81,7 +81,7 @@ vendor/bin/pint --test -v src/Ch06/Messy.php
 
 Selain merapikan spasi dan kurung, Pint menambahkan `declare(strict_types=1);` dan menulis `public` yang sebelumnya tersirat. Hapus file itu, lalu daftarkan Pint sebagai script di `composer.json`:
 
-```json
+```json:line-numbers [composer.json]
 "scripts": {
     "check": "phpstan analyse",
     "format": "pint"
@@ -128,7 +128,7 @@ Test ditaruh di folder `tests/`, terpisah dari `src/`. Supaya class test ikut di
 
 Tambahkan juga script `test`. Seluruh `composer.json` sekarang seperti ini:
 
-```json
+```json [composer.json]
 {
     "name": "learn/php-basics",
     "type": "project",
@@ -167,7 +167,7 @@ composer dump-autoload
 
 PHPUnit sendiri diatur lewat `phpunit.xml` di folder proyek:
 
-```xml
+```xml:line-numbers [phpunit.xml]
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
@@ -188,7 +188,7 @@ PHPUnit sendiri diatur lewat `phpunit.xml` di folder proyek:
 Buat `tests/Ch06/RupiahTest.php`:
 
 <!-- file: tests/Ch06/RupiahTest.php -->
-```php
+```php:line-numbers [tests/Ch06/RupiahTest.php]
 <?php
 
 declare(strict_types=1);
@@ -240,7 +240,7 @@ final class RupiahTest extends TestCase
 Buat `tests/Ch06/CartTest.php`:
 
 <!-- file: tests/Ch06/CartTest.php -->
-```php
+```php:line-numbers [tests/Ch06/CartTest.php]
 <?php
 
 declare(strict_types=1);
@@ -410,7 +410,7 @@ Outputnya menyebut nama kasus dari data provider, argumen yang dipakai, selisih 
 
 Kode test adalah kode juga. Tambahkan `tests` ke `phpstan.neon`:
 
-```yaml
+```yaml [phpstan.neon]
 parameters:
     level: max
     checkBenevolentUnionTypes: true

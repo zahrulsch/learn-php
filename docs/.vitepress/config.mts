@@ -1,7 +1,11 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { defineConfig } from 'vitepress'
 
 // GitHub Pages menyajikan situs di /learn-php/; dev server lokal tetap di akar.
 const base = process.env.GITHUB_ACTIONS ? '/learn-php/' : '/'
+const siteUrl = 'https://zahrulsch.github.io/learn-php/'
+const repo = 'https://github.com/zahrulsch/learn-php'
 
 // Bab yang belum ditulis tidak diberi `link`, sehingga tampil sebagai teks biasa di sidebar.
 export default defineConfig({
@@ -10,8 +14,18 @@ export default defineConfig({
   title: 'Belajar PHP',
   description: 'PHP modern sampai Laravel dan deploy, untuk yang datang dari Rust dan TypeScript',
   cleanUrls: true,
+  lastUpdated: true,
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }],
+    // Kartu pratinjau saat link dibagikan di WhatsApp, Telegram, Discord, dan sejenisnya
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: 'Belajar PHP' }],
+    ['meta', { property: 'og:title', content: 'Belajar PHP: dari tipe ketat sampai deploy' }],
+    ['meta', { property: 'og:description', content: 'PHP 8.5 dan Laravel 13, untuk yang datang dari Rust dan TypeScript.' }],
+    ['meta', { property: 'og:image', content: `${siteUrl}og.png` }],
+    ['meta', { property: 'og:image:width', content: '1200' }],
+    ['meta', { property: 'og:image:height', content: '630' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     [
@@ -24,9 +38,55 @@ export default defineConfig({
   ],
   // strictPort: gagal start kalau port 5000 terpakai, daripada diam-diam pindah ke port lain
   vite: { server: { port: 5000, strictPort: true } },
+  markdown: {
+    theme: { light: 'vitesse-light', dark: 'vitesse-dark' },
+    codeCopyButtonTitle: 'Salin kode',
+    config(md) {
+      // VitePress hanya memakai [judul] blok kode sebagai label tab di code-group. Di luar itu
+      // judulnya dibuang, jadi di sini ditampilkan sebagai bilah nama file di atas blok.
+      const fence = md.renderer.rules.fence!
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const title = tokens[idx].info.match(/\[(.+)\]/)?.[1]
+        const html = fence(tokens, idx, options, env, self)
+        let depth = 0
+        for (let i = idx - 1; i >= 0; i--) {
+          if (tokens[i].type === 'container_code-group_close') depth--
+          if (tokens[i].type === 'container_code-group_open' && ++depth > 0) return html
+        }
+        if (!title) return html
+        return `<div class="vp-code-titled"><div class="vp-code-title">${md.utils.escapeHtml(title)}</div>${html}</div>`
+      }
+    },
+  },
+  // Perkiraan waktu baca untuk bilah info di awal tiap bab: 200 kata per menit, kode ikut dihitung
+  transformPageData(pageData, { siteConfig }) {
+    const source = readFileSync(join(siteConfig.srcDir, pageData.relativePath), 'utf8')
+    const words = source.replace(/<!--[\s\S]*?-->/g, '').split(/\s+/).filter(Boolean).length
+    pageData.frontmatter.readingMinutes = Math.max(1, Math.round(words / 200))
+  },
   themeConfig: {
     logo: '/favicon.svg',
     nav: [{ text: 'Mulai belajar', link: '/01-setup' }],
+    socialLinks: [{ icon: 'github', link: repo, ariaLabel: 'Repositori di GitHub' }],
+    editLink: { pattern: `${repo}/edit/main/docs/:path`, text: 'Perbaiki halaman ini di GitHub' },
+    lastUpdated: { text: 'Terakhir diperbarui', formatOptions: { dateStyle: 'long', forceLocale: true } },
+    footer: {
+      message: 'Materi belajar PHP sampai Laravel dan deploy, dalam bahasa Indonesia.',
+      copyright: `Sumber materi ada di <a href="${repo}">GitHub</a>.`,
+    },
+    darkModeSwitchLabel: 'Tampilan',
+    lightModeSwitchTitle: 'Ganti ke mode terang',
+    darkModeSwitchTitle: 'Ganti ke mode gelap',
+    sidebarMenuLabel: 'Menu',
+    returnToTopLabel: 'Kembali ke atas',
+    skipToContentLabel: 'Langsung ke konten',
+    notFound: {
+      code: '404',
+      title: 'Halaman tidak ditemukan',
+      quote: 'Alamatnya mungkin salah ketik, atau halamannya sudah pindah. Mulai lagi dari peta belajar di halaman awal.',
+      linkLabel: 'Kembali ke halaman awal',
+      linkText: 'Ke halaman awal',
+    },
     sidebar: [
       {
         text: 'PHP',
@@ -97,6 +157,28 @@ export default defineConfig({
     ],
     outline: { level: [2, 3], label: 'Di halaman ini' },
     docFooter: { prev: 'Sebelumnya', next: 'Berikutnya' },
-    search: { provider: 'local' },
+    search: {
+      provider: 'local',
+      options: {
+        translations: {
+          button: { buttonText: 'Cari', buttonAriaLabel: 'Cari' },
+          modal: {
+            displayDetails: 'Tampilkan detail',
+            resetButtonTitle: 'Hapus pencarian',
+            backButtonTitle: 'Tutup pencarian',
+            noResultsText: 'Tidak ada hasil untuk',
+            footer: {
+              selectText: 'buka',
+              selectKeyAriaLabel: 'enter',
+              navigateText: 'pilih',
+              navigateUpKeyAriaLabel: 'panah atas',
+              navigateDownKeyAriaLabel: 'panah bawah',
+              closeText: 'tutup',
+              closeKeyAriaLabel: 'escape',
+            },
+          },
+        },
+      },
+    },
   },
 })

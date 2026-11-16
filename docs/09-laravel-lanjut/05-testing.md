@@ -10,7 +10,7 @@ Tiga hal disiapkan dulu. Pertama, hapus `tests/Feature/ExampleTest.php`; test it
 
 Kedua, `tests/TestCase.php` menjadi:
 
-```php
+```php:line-numbers [tests/TestCase.php]
 <?php
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ Test tidak menyentuh MySQL. File `phpunit.xml` bawaan skeleton mengarahkannya ke
 
 Buat `tests/Feature/AuthTest.php`:
 
-```php
+```php:line-numbers [tests/Feature/AuthTest.php]
 <?php
 
 declare(strict_types=1);
@@ -100,7 +100,7 @@ class AuthTest extends TestCase
 
 Buat `tests/Feature/TaskTest.php`:
 
-```php
+```php:line-numbers [tests/Feature/TaskTest.php]
 <?php
 
 declare(strict_types=1);
@@ -164,7 +164,7 @@ class TaskTest extends TestCase
 
 Buat `tests/Feature/TaskListTest.php`:
 
-```php
+```php:line-numbers [tests/Feature/TaskListTest.php]
 <?php
 
 declare(strict_types=1);
@@ -258,7 +258,7 @@ Ini akibat yang wajar dari level max: library yang tidak menulis tipe membuatmu 
 
 Buat `tests/Feature/TaskCompletedTest.php`:
 
-```php
+```php:line-numbers [tests/Feature/TaskCompletedTest.php]
 <?php
 
 declare(strict_types=1);
@@ -295,7 +295,7 @@ class TaskCompletedTest extends TestCase
 
 Dan `tests/Feature/TaskApiTest.php`:
 
-```php
+```php:line-numbers [tests/Feature/TaskApiTest.php]
 <?php
 
 declare(strict_types=1);

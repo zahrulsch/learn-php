@@ -21,7 +21,7 @@ src/Ch06/
 Buat `src/Ch06/Money/Rupiah.php`:
 
 <!-- file: src/Ch06/Money/Rupiah.php -->
-```php
+```php:line-numbers [src/Ch06/Money/Rupiah.php]
 <?php
 
 declare(strict_types=1);
@@ -59,7 +59,7 @@ final readonly class Rupiah
 Buat `src/Ch06/Cart/InvalidQuantity.php`:
 
 <!-- file: src/Ch06/Cart/InvalidQuantity.php -->
-```php
+```php:line-numbers [src/Ch06/Cart/InvalidQuantity.php]
 <?php
 
 declare(strict_types=1);
@@ -76,7 +76,7 @@ final class InvalidQuantity extends InvalidArgumentException
 Buat `src/Ch06/Cart/Item.php`:
 
 <!-- file: src/Ch06/Cart/Item.php -->
-```php
+```php:line-numbers [src/Ch06/Cart/Item.php]
 <?php
 
 declare(strict_types=1);
@@ -107,7 +107,7 @@ final readonly class Item
 Buat `src/Ch06/Cart/Cart.php`:
 
 <!-- file: src/Ch06/Cart/Cart.php -->
-```php
+```php:line-numbers [src/Ch06/Cart/Cart.php]
 <?php
 
 declare(strict_types=1);
@@ -187,7 +187,7 @@ Untuk konstanta ada `use const`. Class yang berada di namespace yang sama tidak 
 
 Buat file coba-coba `src/Ch06/scratch.php` untuk melihat hasil penyelesaian nama. `::class` mengembalikan nama lengkap sebuah class sebagai string:
 
-```php
+```php:line-numbers [src/Ch06/scratch.php]
 <?php
 
 declare(strict_types=1);
@@ -220,7 +220,7 @@ Script ini jalan walaupun file `Rupiah.php` dan `Cart.php` belum dimuat sama sek
 
 Semua class bawaan PHP ada di namespace global. Timpa `scratch.php`:
 
-```php
+```php:line-numbers [scratch.php]
 <?php
 
 declare(strict_types=1);
@@ -297,7 +297,7 @@ Yang kamu dapat dari tanda itu terbatas:
 
 Bleeding edge adalah kumpulan aturan PHPStan versi berikutnya, yang dinyalakan dengan menambahkan `includes` ke `phpstan.neon`:
 
-```yaml
+```yaml:line-numbers [phpstan.neon]
 includes:
     - phar://phpstan.phar/conf/bleedingEdge.neon
 ```
