@@ -66,7 +66,10 @@ export default defineConfig({
   },
   themeConfig: {
     logo: '/favicon.svg',
-    nav: [{ text: 'Mulai belajar', link: '/01-setup' }],
+    nav: [
+      { text: 'Mulai belajar', link: '/01-setup' },
+      { text: 'Tips & trik', link: '/tips/php', activeMatch: '^/tips/' },
+    ],
     socialLinks: [{ icon: 'github', link: repo, ariaLabel: 'Repositori di GitHub' }],
     editLink: { pattern: `${repo}/edit/main/docs/:path`, text: 'Perbaiki halaman ini di GitHub' },
     lastUpdated: { text: 'Terakhir diperbarui', formatOptions: { dateStyle: 'long', forceLocale: true } },
@@ -152,6 +155,14 @@ export default defineConfig({
         items: [
           { text: '11. Memilih hosting', link: '/11-memilih-hosting' },
           { text: '12. Deploy ke shared hosting', link: '/12-deploy' },
+        ],
+      },
+      {
+        text: 'Tips & trik',
+        items: [
+          { text: 'PHP', link: '/tips/php' },
+          { text: 'Laravel', link: '/tips/laravel' },
+          { text: 'Livewire', link: '/tips/livewire' },
         ],
       },
     ],

@@ -213,3 +213,12 @@ html.theme-transition.dark::view-transition-old(root) {
   outline-offset: -2px;
   border-radius: 8px;
 }
+
+/* JetBrains Mono menggambar -> dan => sebagai satu panah. Untuk materi belajar yang diketik ulang,
+   tampilkan karakter apa adanya. */
+code,
+pre,
+kbd,
+.hero-code {
+  font-variant-ligatures: none;
+}
