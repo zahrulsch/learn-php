@@ -4,11 +4,15 @@
 //   <!-- demo: nama -->                                      file utuh, memang diharapkan error
 //   <!-- demo: nama append: src/Ch02/basics.php -->          potongan yang ditempel di akhir file dasar
 //   tambahkan kata "norun" untuk demo yang tidak perlu dijalankan dengan php
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs'
+// Bab yang dipecah jadi folder: berikan foldernya; index.md dibaca dulu, lalu halaman lain sesuai urutan nama file.
+import { readFileSync, writeFileSync, mkdirSync, rmSync, statSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
 const [md, project, chapter] = process.argv.slice(2)
-const text = readFileSync(md, 'utf8').replace(/\r\n/g, '\n')
+const pages = statSync(md).isDirectory()
+  ? ['index.md', ...readdirSync(md).filter((f) => f.endsWith('.md') && f !== 'index.md').sort()].map((f) => join(md, f))
+  : [md]
+const text = pages.map((p) => readFileSync(p, 'utf8')).join('\n').replace(/\r\n/g, '\n')
 const re = /<!--\s*(file|demo):\s*(\S+)(?:\s+append:\s*(\S+))?(\s+norun)?\s*-->\n+```php\n([\s\S]*?)\n```/g
 
 rmSync(join(project, 'src', chapter), { recursive: true, force: true })

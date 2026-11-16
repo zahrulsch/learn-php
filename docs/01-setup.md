@@ -55,7 +55,7 @@ WORKDIR /app
 
 Tiga hal di sini spesifik PHP:
 
-- **`php:8.5-cli`** adalah image resmi PHP varian command line, dan dipakai di seluruh materi ini. Varian `fpm` dan `apache` ditujukan untuk server production; bedanya dijelaskan di [Bab 7](/07-web-tanpa-framework).
+- **`php:8.5-cli`** adalah image resmi PHP varian command line, dan dipakai di seluruh materi ini. Varian `fpm` dan `apache` ditujukan untuk server production; bedanya dijelaskan di [Bab 7](/07-web-tanpa-framework/).
 - **`COPY --from=composer:2`** menyalin binary Composer dari image resminya, karena image PHP tidak menyertakan Composer.
 - **`unzip`** dipakai Composer untuk membuka paket yang diunduhnya.
 

@@ -1,12 +1,12 @@
 # 11. Memilih hosting
 
-Aplikasi Dompet dari [Bab 10](/10-proyek) sudah jalan di laptopmu. Bab ini memilih tempat untuk menjalankannya di internet. Keputusan materi ini adalah shared hosting, karena paling murah. Supaya keputusan itu tidak buta, bab ini menjelaskan apa yang kamu dapat, apa yang kamu korbankan, dan cara memastikan sebuah paket hosting memang sanggup menjalankan Laravel 13 sebelum kamu membayarnya.
+Aplikasi Dompet dari [Bab 10](/10-proyek/) sudah jalan di laptopmu. Bab ini memilih tempat untuk menjalankannya di internet. Keputusan materi ini adalah shared hosting, karena paling murah. Supaya keputusan itu tidak buta, bab ini menjelaskan apa yang kamu dapat, apa yang kamu korbankan, dan cara memastikan sebuah paket hosting memang sanggup menjalankan Laravel 13 sebelum kamu membayarnya.
 
 ## Kenapa PHP bisa di-hosting dengan murah
 
 Di Rust atau Node, aplikasi web adalah **proses**. Kamu menyalakannya, ia membuka port, lalu hidup terus sambil menunggu request. Satu aplikasi berarti satu proses yang memakan memori sepanjang waktu, dan harus ada yang menyalakannya lagi kalau mati.
 
-PHP bekerja sebaliknya, seperti yang kamu lihat di [Bab 7](/07-web-tanpa-framework): tidak ada proses milik aplikasimu. Web server milik penyedia hosting yang hidup terus. Saat request datang, ia menjalankan file PHP-mu dari awal sampai selesai, lalu membuang semua state. Di antara dua request, aplikasimu hanyalah file di disk.
+PHP bekerja sebaliknya, seperti yang kamu lihat di [Bab 7](/07-web-tanpa-framework/): tidak ada proses milik aplikasimu. Web server milik penyedia hosting yang hidup terus. Saat request datang, ia menjalankan file PHP-mu dari awal sampai selesai, lalu membuang semua state. Di antara dua request, aplikasimu hanyalah file di disk.
 
 | | Rust (axum) | Node (Express) | PHP |
 |---|---|---|---|

@@ -738,13 +738,13 @@ Ini penting untuk bab-bab Laravel: framework itu membaca tipe parameter construc
 | `#[\NoDiscard]` | Nilai kembalian tidak boleh diabaikan, dibahas di [Bab 5](/05-error-handling) |
 | `#[\SensitiveParameter]` | Nilai parameter disembunyikan dari stack trace |
 
-Framework mendefinisikan attribute sendiri. Kamu akan memakainya di PHPUnit ([Bab 6](/06-ekosistem)) dan Livewire ([Bab 9](/09-laravel-lanjut)).
+Framework mendefinisikan attribute sendiri. Kamu akan memakainya di PHPUnit ([Bab 6](/06-ekosistem/)) dan Livewire ([Bab 9](/09-laravel-lanjut/)).
 
 ## Yang sebaiknya dihindari
 
 PHP punya *magic method* seperti `__get()` dan `__call()`, yang dijalankan ketika kode mengakses property atau method yang tidak ada. Dengan itu sebuah class bisa menjawab nama apa pun saat runtime, dan justru karena itu PHPStan tidak bisa memeriksanya. Jangan menulisnya di kode sendiri.
 
-Kamu tetap perlu tahu keberadaannya, karena Eloquent di Laravel dibangun di atasnya: `$user->email` pada sebuah model sebenarnya lewat `__get()`. Itulah alasan Larastan ada, dibahas di [Bab 9](/09-laravel-lanjut).
+Kamu tetap perlu tahu keberadaannya, karena Eloquent di Laravel dibangun di atasnya: `$user->email` pada sebuah model sebenarnya lewat `__get()`. Itulah alasan Larastan ada, dibahas di [Bab 9](/09-laravel-lanjut/).
 
 ## Ringkasan
 

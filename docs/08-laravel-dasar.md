@@ -1,6 +1,6 @@
 # 8. Laravel dasar
 
-Di [Bab 7](/07-web-tanpa-framework) kamu menulis sendiri front controller, router, pembacaan input, validasi, akses database, template, dan token CSRF. Laravel adalah versi matang dari semua itu dalam satu framework. Di bab ini kamu membangun aplikasi kecil pengelola tugas dengan fitur tambah, ubah, dan hapus, sambil mengenal bagian inti Laravel: routing, controller, migration, Eloquent, Blade, Vite, dan validation.
+Di [Bab 7](/07-web-tanpa-framework/) kamu menulis sendiri front controller, router, pembacaan input, validasi, akses database, template, dan token CSRF. Laravel adalah versi matang dari semua itu dalam satu framework. Di bab ini kamu membangun aplikasi kecil pengelola tugas dengan fitur tambah, ubah, dan hapus, sambil mengenal bagian inti Laravel: routing, controller, migration, Eloquent, Blade, Vite, dan validation.
 
 Dua hal dari bab-bab sebelumnya tetap berlaku: semuanya berjalan di Docker, dan semua kode lulus PHPStan level max.
 
@@ -99,7 +99,7 @@ volumes:
 
 Tiga hal yang perlu dijelaskan:
 
-- **`php artisan serve`** menjalankan server development bawaan PHP, yang sudah kamu pakai di [Bab 7](/07-web-tanpa-framework). `artisan` adalah CLI Laravel, perannya seperti `cargo` untuk tugas-tugas proyek.
+- **`php artisan serve`** menjalankan server development bawaan PHP, yang sudah kamu pakai di [Bab 7](/07-web-tanpa-framework/). `artisan` adalah CLI Laravel, perannya seperti `cargo` untuk tugas-tugas proyek.
 - **Service `mysql`** dipakai karena shared hosting yang menjadi target deploy kita menyediakan MySQL. Development memakai database yang sama dengan production.
 - **Volume `vendor`** menaruh folder `vendor/` di dalam filesystem Linux milik Docker, bukan di folder Windows yang di-mount.
 
@@ -184,15 +184,15 @@ Laravel Framework 13.42.0
 | `tests/` | Test PHPUnit. |
 | `vendor/` | Dependency dari Composer. |
 
-`public/` sebagai document root adalah pola front controller dari [Bab 7](/07-web-tanpa-framework), dan akan menjadi pokok bahasan saat deploy di [Bab 12](/12-deploy).
+`public/` sebagai document root adalah pola front controller dari [Bab 7](/07-web-tanpa-framework/), dan akan menjadi pokok bahasan saat deploy di [Bab 12](/12-deploy).
 
 ## Menjaga tipe: Pint dan Larastan
 
-Alur kerja dari [Bab 6](/06-ekosistem) tetap sama: format, check, test. Skeleton sudah punya script `composer test`; dua lainnya kita siapkan sekarang.
+Alur kerja dari [Bab 6](/06-ekosistem/) tetap sama: format, check, test. Skeleton sudah punya script `composer test`; dua lainnya kita siapkan sekarang.
 
 ### Format
 
-Pint sudah terpasang di skeleton dan memakai preset `laravel`, seperti disebut di [Bab 6](/06-ekosistem). Satu hal kurang: skeleton tidak memakai `declare(strict_types=1);`, dan perintah `artisan make:...` menghasilkan file tanpa baris itu. Daripada menambahkannya dengan tangan, tambahkan satu rule ke preset itu. Buat `pint.json`:
+Pint sudah terpasang di skeleton dan memakai preset `laravel`, seperti disebut di [Bab 6](/06-ekosistem/). Satu hal kurang: skeleton tidak memakai `declare(strict_types=1);`, dan perintah `artisan make:...` menghasilkan file tanpa baris itu. Daripada menambahkannya dengan tangan, tambahkan satu rule ke preset itu. Buat `pint.json`:
 
 ```json
 {
@@ -259,7 +259,7 @@ Tambahkan script `check` ke `composer.json`, di sebelah `format`:
 "check": "phpstan analyse --memory-limit=1G",
 ```
 
-Batas memori bawaan PHP adalah 128 MB, dan itu tidak cukup untuk menganalisis aplikasi Laravel. Tanpa opsi `--memory-limit`, proyek sebesar [Bab 10](/10-proyek) berhenti dengan pesan ini:
+Batas memori bawaan PHP adalah 128 MB, dan itu tidak cukup untuk menganalisis aplikasi Laravel. Tanpa opsi `--memory-limit`, proyek sebesar [Bab 10](/10-proyek/) berhenti dengan pesan ini:
 
 ```text
      Child process error: PHPStan process crashed because it reached
@@ -317,7 +317,7 @@ Setiap request ke aplikasi Laravel melewati jalur yang sama:
 5. **Controller** menjalankan logika dan mengembalikan response.
 6. **Response** berjalan balik melewati middleware, lalu dikirim ke browser.
 
-Model shared-nothing dari [Bab 7](/07-web-tanpa-framework) tidak berubah. Seluruh rangkaian itu dibangun dari nol di setiap request, lalu dibuang. Tidak ada state di memori yang bertahan antar-request seperti di server Axum atau Express.
+Model shared-nothing dari [Bab 7](/07-web-tanpa-framework/) tidak berubah. Seluruh rangkaian itu dibangun dari nol di setiap request, lalu dibuang. Tidak ada state di memori yang bertahan antar-request seperti di server Axum atau Express.
 
 Middleware adalah lapisan yang membungkus handler, sama dengan `tower::Layer` di Axum atau middleware di Express.
 
@@ -578,7 +578,7 @@ $tasks = Task::query()
     ->get();
 ```
 
-Query builder menyusun SQL dengan parameter terikat, jadi aman dari SQL injection seperti prepared statement di [Bab 7](/07-web-tanpa-framework). Untuk melihat SQL yang dihasilkan, ganti `get()` dengan `toRawSql()`:
+Query builder menyusun SQL dengan parameter terikat, jadi aman dari SQL injection seperti prepared statement di [Bab 7](/07-web-tanpa-framework/). Untuk melihat SQL yang dihasilkan, ganti `get()` dengan `toRawSql()`:
 
 ```text
 select * from `tasks` where `is_done` = 0 order by `due_date` asc
@@ -674,7 +674,7 @@ Class `TaskRequest` belum ada; kita buat di bagian validation. Yang perlu diperh
 - **Tipe parameter menentukan apa yang kamu terima.** Laravel membaca tipe parameter method, lalu menyediakan objeknya. Ini *dependency injection* dari [Bab 4](/04-oop), dikerjakan framework. Padanannya di Axum adalah extractor.
 - **`Task $task`** disebut *route model binding*. Laravel mengambil `{task}` dari URL, mencari baris dengan id itu, dan memberikan modelnya. Kalau tidak ditemukan, pengguna mendapat 404 tanpa satu baris kode pun darimu.
 - **`view('tasks.index', [...])`** merender `resources/views/tasks/index.blade.php` dengan data yang diberikan.
-- **`to_route(...)->with('status', ...)`** mengalihkan ke route bernama, sambil menitipkan pesan di session untuk satu request berikutnya. Ini pola POST-redirect-GET dari [Bab 7](/07-web-tanpa-framework).
+- **`to_route(...)->with('status', ...)`** mengalihkan ke route bernama, sambil menitipkan pesan di session untuk satu request berikutnya. Ini pola POST-redirect-GET dari [Bab 7](/07-web-tanpa-framework/).
 
 Daftarkan route-nya. `routes/web.php` menjadi:
 
@@ -870,7 +870,7 @@ Dan `resources/views/tasks/edit.blade.php`:
 | `@class`, `@selected`, `@checked` | Attribute HTML bersyarat |
 | `@include` | Menyertakan view lain |
 
-Dua kurung kurawal meng-escape output secara otomatis. Di [Bab 7](/07-web-tanpa-framework) kamu harus ingat memanggil `htmlspecialchars` di setiap tempat; di Blade, aman adalah bawaan. Tugas berjudul `<script>alert(1)</script>` tampil di HTML sebagai:
+Dua kurung kurawal meng-escape output secara otomatis. Di [Bab 7](/07-web-tanpa-framework/) kamu harus ingat memanggil `htmlspecialchars` di setiap tempat; di Blade, aman adalah bawaan. Tugas berjudul `<script>alert(1)</script>` tampil di HTML sebagai:
 
 ```text
 &lt;script&gt;alert(1)&lt;/script&gt;
@@ -1060,7 +1060,7 @@ Di method `index`, ubah `->orderBy('due_date')` menjadi `->orderBy('due_dat')`, 
 ::: details Jawaban
 Hanya `where('is_don', false)` yang dilaporkan. `checkModelProperties` memeriksa nama kolom di `where()`, tetapi `orderBy('due_dat')` lolos dari analisis dan baru gagal sebagai error SQL saat halaman dibuka.
 
-Pelajarannya: Larastan menutup banyak celah, tidak semuanya. Test ([Bab 9](/09-laravel-lanjut)) menutup sisanya.
+Pelajarannya: Larastan menutup banyak celah, tidak semuanya. Test ([Bab 9](/09-laravel-lanjut/)) menutup sisanya.
 :::
 
 ### 2. Filter tugas yang belum selesai

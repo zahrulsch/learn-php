@@ -30,10 +30,10 @@ features:
 | 3 | [Dasar bahasa](/03-dasar-bahasa) | Tersedia |
 | 4 | [OOP](/04-oop) | Tersedia |
 | 5 | [Error handling](/05-error-handling) | Tersedia |
-| 6 | [Ekosistem](/06-ekosistem) | Tersedia |
-| 7 | [PHP web tanpa framework](/07-web-tanpa-framework) | Tersedia |
+| 6 | [Ekosistem](/06-ekosistem/) | Tersedia |
+| 7 | [PHP web tanpa framework](/07-web-tanpa-framework/) | Tersedia |
 | 8 | [Laravel dasar](/08-laravel-dasar) | Tersedia |
-| 9 | [Laravel lanjut](/09-laravel-lanjut) | Tersedia |
-| 10 | [Proyek](/10-proyek) | Tersedia |
+| 9 | [Laravel lanjut](/09-laravel-lanjut/) | Tersedia |
+| 10 | [Proyek](/10-proyek/) | Tersedia |
 | 11 | [Memilih hosting](/11-memilih-hosting) | Tersedia |
 | 12 | [Deploy ke shared hosting](/12-deploy) | Tersedia |

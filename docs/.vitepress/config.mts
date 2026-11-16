@@ -24,16 +24,55 @@ export default defineConfig({
           { text: '3. Dasar bahasa', link: '/03-dasar-bahasa' },
           { text: '4. OOP', link: '/04-oop' },
           { text: '5. Error handling', link: '/05-error-handling' },
-          { text: '6. Ekosistem', link: '/06-ekosistem' },
-          { text: '7. PHP web tanpa framework', link: '/07-web-tanpa-framework' },
+          {
+            text: '6. Ekosistem',
+            collapsed: true,
+            items: [
+              { text: 'Persiapan dan namespace', link: '/06-ekosistem/' },
+              { text: 'Autoload', link: '/06-ekosistem/02-autoload' },
+              { text: 'Formatter dan testing', link: '/06-ekosistem/03-format-dan-test' },
+              { text: 'Composer, ekstensi, dan PSR', link: '/06-ekosistem/04-composer' },
+            ],
+          },
+          {
+            text: '7. PHP web tanpa framework',
+            collapsed: true,
+            items: [
+              { text: 'Model eksekusi dan input', link: '/07-web-tanpa-framework/' },
+              { text: 'Request, response, dan session', link: '/07-web-tanpa-framework/02-request-session' },
+              { text: 'Templat dan XSS', link: '/07-web-tanpa-framework/03-templat-xss' },
+              { text: 'Database dan sandi', link: '/07-web-tanpa-framework/04-database' },
+              { text: 'Merangkai aplikasi', link: '/07-web-tanpa-framework/05-merangkai' },
+            ],
+          },
         ],
       },
       {
         text: 'Laravel',
         items: [
           { text: '8. Laravel dasar', link: '/08-laravel-dasar' },
-          { text: '9. Laravel lanjut', link: '/09-laravel-lanjut' },
-          { text: '10. Proyek', link: '/10-proyek' },
+          {
+            text: '9. Laravel lanjut',
+            collapsed: true,
+            items: [
+              { text: 'Autentikasi', link: '/09-laravel-lanjut/' },
+              { text: 'Relasi dan kepemilikan', link: '/09-laravel-lanjut/02-relasi' },
+              { text: 'Livewire', link: '/09-laravel-lanjut/03-livewire' },
+              { text: 'Event, queue, dan API', link: '/09-laravel-lanjut/04-event-api' },
+              { text: 'Testing dan Larastan', link: '/09-laravel-lanjut/05-testing' },
+            ],
+          },
+          {
+            text: '10. Proyek',
+            collapsed: true,
+            items: [
+              { text: 'Rancangan dan data', link: '/10-proyek/' },
+              { text: 'Logika murni dan akun', link: '/10-proyek/02-logika-akun' },
+              { text: 'Halaman dan route', link: '/10-proyek/03-halaman' },
+              { text: 'Laporan bulanan dan API', link: '/10-proyek/04-laporan-api' },
+              { text: 'Test dan persiapan deploy', link: '/10-proyek/05-test' },
+            ],
+          },
         ],
       },
       {

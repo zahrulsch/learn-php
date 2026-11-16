@@ -34,7 +34,7 @@ declare(strict_types=1);
 namespace Learn\Ch02;
 ```
 
-Baris `namespace` baru muncul di sini. Untuk sekarang anggap seperti `mod` di Rust: ia memberi awalan pada nama fungsi dan class di file itu, sehingga nama yang sama di bab lain tidak bentrok. Detailnya ada di [Bab 6](/06-ekosistem).
+Baris `namespace` baru muncul di sini. Untuk sekarang anggap seperti `mod` di Rust: ia memberi awalan pada nama fungsi dan class di file itu, sehingga nama yang sama di bab lain tidak bentrok. Detailnya ada di [Bab 6](/06-ekosistem/).
 
 Sepanjang bab ada dua macam eksperimen yang memang diharapkan gagal:
 

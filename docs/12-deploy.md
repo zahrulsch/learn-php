@@ -1,6 +1,6 @@
 # 12. Deploy ke shared hosting
 
-Di akhir bab ini Dompet dari [Bab 10](/10-proyek) berjalan di shared hosting yang kamu pilih di [Bab 11](/11-memilih-hosting). Memperbaruinya cukup tiga perintah dari laptop, versi sebelumnya bisa dikembalikan dengan satu perintah, dan semuanya bisa dijalankan otomatis oleh GitHub Actions setiap kali kamu push.
+Di akhir bab ini Dompet dari [Bab 10](/10-proyek/) berjalan di shared hosting yang kamu pilih di [Bab 11](/11-memilih-hosting). Memperbaruinya cukup tiga perintah dari laptop, versi sebelumnya bisa dikembalikan dengan satu perintah, dan semuanya bisa dijalankan otomatis oleh GitHub Actions setiap kali kamu push.
 
 ::: info Asal output di bab ini
 Seluruh langkah bab ini dijalankan di server tiruan: container Docker berisi Apache dan PHP 8.5.12 dengan akun biasa bernama `u123`, folder `public_html`, tanpa Node dan tanpa Composer, ditambah MariaDB 11.4. Aplikasinya adalah kerangka Laravel 13.42.0 baru yang diberi penanda versi, satu job antrean, dan satu komponen Livewire, sebagai pengganti Dompet. Nama akun, path, dan tulisan seperti "Versi v1" berasal dari simulasi itu.
@@ -45,7 +45,7 @@ Dari model itu lahir tiga aturan yang dipakai sepanjang bab:
 └── public_html                  web root bawaan host
 ```
 
-- **Aplikasi berada di luar web root.** Seperti di [Bab 7](/07-web-tanpa-framework), hanya folder `public` yang boleh terlihat dari web. Dokumentasi Laravel melarang memindahkan `index.php` ke root proyek, karena itu membuka file konfigurasi ke internet. Di server uji, permintaan ke `/.env` dijawab 404.
+- **Aplikasi berada di luar web root.** Seperti di [Bab 7](/07-web-tanpa-framework/), hanya folder `public` yang boleh terlihat dari web. Dokumentasi Laravel melarang memindahkan `index.php` ke root proyek, karena itu membuka file konfigurasi ke internet. Di server uji, permintaan ke `/.env` dijawab 404.
 - **`shared/` berisi yang harus bertahan antar-rilis.** Kalau `.env` dan `storage` ikut di dalam folder rilis, setiap rilis baru akan mulai tanpa konfigurasi, tanpa log, dan tanpa data yang ditulis rilis sebelumnya.
 - **`current` adalah symlink ke rilis yang aktif.** Semua yang berada di luar, yaitu web server dan cron, hanya mengenal path ini.
 
@@ -189,7 +189,7 @@ php ~/bin/composer install --no-dev --optimize-autoloader --no-interaction
 ```
 
 - **`--no-dev`** melewati `require-dev`. PHPStan dan PHPUnit tidak ada gunanya di server. Padanannya `npm ci --omit=dev`.
-- **`--optimize-autoloader`** mengubah autoload PSR-4 dari [Bab 6](/06-ekosistem) menjadi satu peta class ke file, sehingga PHP tidak perlu mencari file di disk untuk tiap class.
+- **`--optimize-autoloader`** mengubah autoload PSR-4 dari [Bab 6](/06-ekosistem/) menjadi satu peta class ke file, sehingga PHP tidak perlu mencari file di disk untuk tiap class.
 - **`--no-interaction`** mencegah Composer menunggu jawaban.
 
 Karena ada `composer.lock`, versi yang terpasang persis sama dengan di laptopmu.
@@ -226,7 +226,7 @@ MAIL_FROM_ADDRESS="wallet@example.com"
 ```
 
 - **`APP_DEBUG=false`** tidak bisa ditawar. Dokumentasi Laravel memperingatkan bahwa mode debug di produksi bisa menampilkan nilai konfigurasi sensitif ke pengunjung.
-- **`DB_CONNECTION`** diisi `mariadb` untuk MariaDB dan `mysql` untuk MySQL. Baris `DB_HOST` sampai `DB_PASSWORD` masih berisi nilai development dari [Bab 10](/10-proyek); ganti semuanya dengan data database yang kamu buat di panel. Di aplikasi yang masih memakai `.env.example` bawaan Laravel, baris-baris itu diawali `#`, dan tanda itu harus dihapus.
+- **`DB_CONNECTION`** diisi `mariadb` untuk MariaDB dan `mysql` untuk MySQL. Baris `DB_HOST` sampai `DB_PASSWORD` masih berisi nilai development dari [Bab 10](/10-proyek/); ganti semuanya dengan data database yang kamu buat di panel. Di aplikasi yang masih memakai `.env.example` bawaan Laravel, baris-baris itu diawali `#`, dan tanda itu harus dihapus.
 - **`MAIL_*`** diisi dari pengaturan akun email di panel hosting. Port dan host di atas hanya contoh. Server uji memakai `MAIL_MAILER=log`, jadi pengiriman lewat SMTP host tidak ikut teruji di bab ini.
 - **Sisanya dibiarkan.** `SESSION_DRIVER`, `CACHE_STORE`, dan `QUEUE_CONNECTION` sudah bernilai `database`, yang cocok untuk shared hosting karena tidak membutuhkan Redis.
 
@@ -529,7 +529,7 @@ Sebagian paket hanya mengizinkan cron tiap 5 atau 15 menit. Scheduler tetap beke
 
 ### Jam server
 
-Jam server uji adalah UTC, tujuh jam di belakang WIB. Dompet tidak terpengaruh: di [Bab 10](/10-proyek) zona waktu aplikasinya diatur ke `Asia/Jakarta` di `config/app.php`, dan scheduler menghitung jadwal dengan zona waktu aplikasi. Laporan bulanan yang dijadwalkan pukul 07:00 berjalan pukul 07:00 WIB, di zona waktu mana pun servernya berada.
+Jam server uji adalah UTC, tujuh jam di belakang WIB. Dompet tidak terpengaruh: di [Bab 10](/10-proyek/) zona waktu aplikasinya diatur ke `Asia/Jakarta` di `config/app.php`, dan scheduler menghitung jadwal dengan zona waktu aplikasi. Laporan bulanan yang dijadwalkan pukul 07:00 berjalan pukul 07:00 WIB, di zona waktu mana pun servernya berada.
 
 Lain halnya dengan aplikasi Laravel yang masih memakai bawaan `'timezone' => 'UTC'`: tugas berjadwal 07:00 di sana berjalan pukul 14:00 WIB. Pilihannya mengubah zona waktu aplikasi seperti Dompet, atau menyatakan zona waktu pada jadwal itu saja:
 

@@ -49,7 +49,7 @@ PHP mengecek tipe saat runtime, bukan saat compile. Supaya mendekati pengalaman 
 - Bahasa Indonesia untuk prosa.
 - **Kode di snippet berbahasa Inggris** (diputuskan 2026-11-16). Semua yang dibaca mesin sebagai nama ditulis dalam bahasa Inggris: function, method, class, interface, enum beserta case-nya, property, variabel, parameter, konstanta, namespace, nama file dan folder, kunci array, nama tabel dan kolom, nama route, nama field form. Yang dibaca manusia sebagai teks tetap bahasa Indonesia: komentar, isi string (pesan, label, teks UI), dan data contoh seperti nama orang. Nama diri seperti `Rupiah` dan `Qris` tidak diterjemahkan.
 - Web dokumentasi bergaya dokumentasi Vue.js, dibuat dengan VitePress, disimpan di folder `docs`.
-- Satu halaman per bab.
+- Satu halaman per bab. Bab yang terlalu panjang (di atas sekitar 1.200 baris) dipecah menjadi folder `docs/NN-nama/` berisi `index.md` dan `02-...md`, `03-...md`, dipotong di judul `##`, dan tampil sebagai grup yang bisa dilipat di sidebar. Saat ini: Bab 6, 7, 9, dan 10. Link ke bab seperti itu ditulis dengan garis miring penutup (`/06-ekosistem/`).
 - Dev server berjalan di port 5000.
 - Skema warna situs memakai palet teal Tailwind CSS, diatur di `docs/.vitepress/theme/custom.css`. Favicon di `docs/public/favicon.svg` memakai warna yang sama.
 - Isi tiap bab: konsep, perbandingan dengan Rust/TS, kode contoh yang bisa dijalankan, dan latihan.
