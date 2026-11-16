@@ -14,6 +14,7 @@ export default defineConfig({
   // strictPort: gagal start kalau port 5000 terpakai, daripada diam-diam pindah ke port lain
   vite: { server: { port: 5000, strictPort: true } },
   themeConfig: {
+    logo: '/favicon.svg',
     nav: [{ text: 'Mulai belajar', link: '/01-setup' }],
     sidebar: [
       {
