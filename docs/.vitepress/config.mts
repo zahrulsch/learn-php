@@ -163,6 +163,7 @@ export default defineConfig({
           { text: 'PHP', link: '/tips/php' },
           { text: 'Laravel', link: '/tips/laravel' },
           { text: 'Livewire', link: '/tips/livewire' },
+          { text: 'Testing Laravel', link: '/tips/testing' },
         ],
       },
     ],

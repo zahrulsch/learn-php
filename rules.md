@@ -44,7 +44,7 @@ PHP mengecek tipe saat runtime, bukan saat compile. Supaya mendekati pengalaman 
 11. **Memilih hosting**: shared, VPS, PaaS, serverless, beserta kriteria memilihnya, dan syarat shared hosting yang layak untuk Laravel (versi PHP, SSH, Composer, cron).
 12. **Deploy ke shared hosting**: document root ke `public`, env, migration, build aset Vite, scheduler dan queue lewat cron, CI/CD.
 
-Di luar urutan bab ada bagian **Tips & trik** (`docs/tips/php.md`, `laravel.md`, `livewire.md`): referensi singkat yang boleh dibaca dalam urutan apa pun, hanya berisi hal yang belum diajarkan di bab. Standarnya sama dengan bab: kode lolos analisis statis level max dan output diambil dari eksekusi. Halaman PHP memakai penanda uji dengan folder `src/Tips` dan namespace `Learn\Tips`.
+Di luar urutan bab ada bagian **Tips & trik** (`docs/tips/php.md`, `laravel.md`, `livewire.md`, `testing.md`): referensi singkat yang boleh dibaca dalam urutan apa pun, hanya berisi hal yang belum diajarkan di bab. Standarnya sama dengan bab: kode lolos analisis statis level max dan output diambil dari eksekusi. Halaman PHP memakai penanda uji dengan folder `src/Tips` dan namespace `Learn\Tips`.
 
 ## Format materi
 
